@@ -118,6 +118,7 @@ if [ "$ENGINE" = "typst" ]; then
     TMP="$(mktemp -t mdpdf.XXXXXX).typ"
     PREAMBLE='#set page(flipped: true, margin: 1.5cm)
 #set text(font: ("Helvetica", "Apple Color Emoji"))
+#show table: t => block(t, breakable: true)
 #let horizontalrule = line(length: 100%, stroke: 0.5pt + luma(70%))'
     pandoc "$INPUT" --to=typst -o "$TMP" "${COMMON_OPTS[@]}"
     { printf '%s\n' "$PREAMBLE"; cat "$TMP"; } > "${TMP}.full"
