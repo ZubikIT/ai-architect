@@ -89,10 +89,10 @@ lecturer: Николай Осипов
 | Файл | Что это |
 |---|---|
 | [`README.md`](./README.md) | Это условие задания (вы тут) |
-| [`solution.md`](./solution.md) | Моё решение в markdown |
-| [`solution.pdf`](./solution.pdf) | PDF-версия решения для сдачи |
+| [`Zubik_DZ-03_strategiya-postavki.md`](./Zubik_DZ-03_strategiya-postavki.md) | Моё решение в markdown |
+| [`Zubik_DZ-03_strategiya-postavki.pdf`](./Zubik_DZ-03_strategiya-postavki.pdf) | PDF-версия решения для сдачи |
 
 PDF регенерируется через:
 ```
-./scripts/md-to-pdf.sh --landscape --font=9pt 01-strategy/homework/03-strategiya-postavki/solution.md
+./scripts/md-to-pdf.sh --landscape --font=9pt 01-strategy/homework/03-strategiya-postavki/Zubik_DZ-03_strategiya-postavki.md
 ```
