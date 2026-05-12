@@ -48,6 +48,15 @@ INPUT="${ARGS[0]}"
 
 OUTPUT="${ARGS[1]:-${INPUT%.md}.pdf}"
 
+# Маркер `<!-- pdf:end -->` обрезает md: всё после него не попадает в PDF.
+# Полезно для рабочих заметок / TODO / критериев оценки, которые не должны быть в финальном документе.
+if grep -q '<!-- pdf:end -->' "$INPUT"; then
+  TRIMMED="$(mktemp -t mdpdf-trim.XXXXXX).md"
+  sed '/<!-- pdf:end -->/,$d' "$INPUT" > "$TRIMMED"
+  INPUT="$TRIMMED"
+  echo "→ trim:   stopping at <!-- pdf:end --> marker"
+fi
+
 # --- проверяем зависимости ---
 if ! command -v pandoc >/dev/null 2>&1; then
   cat >&2 <<EOF
@@ -108,6 +117,7 @@ if [ "$ENGINE" = "typst" ]; then
     # Two-step: pandoc → .typ → prepend landscape directive → typst compile
     TMP="$(mktemp -t mdpdf.XXXXXX).typ"
     PREAMBLE='#set page(flipped: true, margin: 1.5cm)
+#set text(font: ("Helvetica", "Apple Color Emoji"))
 #let horizontalrule = line(length: 100%, stroke: 0.5pt + luma(70%))'
     pandoc "$INPUT" --to=typst -o "$TMP" "${COMMON_OPTS[@]}"
     { printf '%s\n' "$PREAMBLE"; cat "$TMP"; } > "${TMP}.full"

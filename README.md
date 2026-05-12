@@ -43,7 +43,7 @@
 ### Модуль 1. Стратегический фундамент
 - [ ] [01. Пресейл, контракты и работа с требованиями](./01-strategy/webinars/01-presale-i-trebovaniya.md)
 - [ ] [02. Проектирование и оценка: план, риски, смета](./01-strategy/webinars/02-proektirovanie-i-ocenka.md)
-- [ ] [03. Стратегия поставки ценности: от PoC до Production](./01-strategy/webinars/03-strategiya-postavki-cennosti.md) — **ДЗ:** [`03-strategiya-postavki.md`](./01-strategy/homework/03-strategiya-postavki.md)
+- [ ] [03. Стратегия поставки ценности: от PoC до Production](./01-strategy/webinars/03-strategiya-postavki-cennosti.md) — **ДЗ:** [`03-strategiya-postavki/`](./01-strategy/homework/03-strategiya-postavki/) (задание + решение + PDF)
 
 ### Модуль 2. Проектирование архитектуры
 - [ ] [04. HLD с использованием C4 Model](./02-architecture/webinars/04-hld-c4-model.md)
