@@ -16,7 +16,9 @@ status: todo  # todo | attended | done
 
 ## Материалы занятия
 - 📄 **Презентация (PDF):** [Проектирование и оценка: от требований к плану, рискам и смете](https://cdn.otus.ru/media/public/dc/39/2._%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%B8_%D0%BE%D1%86%D0%B5%D0%BD%D0%BA%D0%B0__%D0%BE%D1%82_%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9_%D0%BA_%D0%BF%D0%BB%D0%B0%D0%BD%D1%83__%D1%80%D0%B8%D1%81%D0%BA%D0%B0%D0%BC_%D0%B8_%D1%81%D0%BC%D0%B5%D1%82%D0%B5__1-692345-dc397d.pdf)
-- 📋 **Приложения A1–A10 (Google Docs):** [Шаблоны NFR / Presale Questionnaire / PERT / WBS / Risk Register / Change Request / TCO / Defense Sheet / Смета / Sizing GPU](https://docs.google.com/document/d/1SXbFIJa4E8IiTMj25VAnGEIUJ9DzVFY09x2dYo29ePQ/edit)
+- 📋 **Приложения A1–A10** (NFR Template / Presale Questionnaire / PERT Calculator / WBS / Risk Register / Change Request / TCO / Defense Sheet / Смета / Sizing GPU):
+  - [Google Docs (онлайн)](https://docs.google.com/document/d/1SXbFIJa4E8IiTMj25VAnGEIUJ9DzVFY09x2dYo29ePQ/edit)
+  - [.docx (скачать)](https://cdn.otus.ru/media/public/63/9a/%D0%9F%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BA_%D1%81%D0%B5%D0%BC%D0%B8%D0%BD%D0%B0%D1%80%D1%83_2__AI_%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D0%BE%D1%80-601858-639a3b.docx)
 - 🎥 Запись вебинара — в ЛК OTUS
 - 📊 Опрос по занятию — в ЛК (после вебинара)
 
