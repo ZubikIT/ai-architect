@@ -93,7 +93,7 @@ echo "→ output: $OUTPUT"
 
 # --- собираем флаги ---
 COMMON_OPTS=(
-  --from=gfm+yaml_metadata_block
+  --from=gfm+yaml_metadata_block+raw_attribute
   -V papersize="$PAPER"
   -V lang=ru
   -V mainfont="Helvetica"
