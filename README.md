@@ -35,6 +35,24 @@
 - Диаграммы Mermaid — прямо в md-файлах. Сложные C4-диаграммы — отдельно в `artifacts/` (`.drawio`, `.png` рядом).
 - Даты в формате `YYYY-MM-DD`.
 
+## Программа (по мере открытия в ЛК)
+
+### Орг. задачи
+- [ ] Заполнить раздел «О себе» в ЛК OTUS
+
+### Модуль 1. Стратегический фундамент
+- [ ] [01. Пресейл, контракты и работа с требованиями](./01-strategy/webinars/01-presale-i-trebovaniya.md)
+- [ ] [02. Проектирование и оценка: план, риски, смета](./01-strategy/webinars/02-proektirovanie-i-ocenka.md)
+- [ ] [03. Стратегия поставки ценности: от PoC до Production](./01-strategy/webinars/03-strategiya-postavki-cennosti.md) — **ДЗ:** [`03-strategiya-postavki.md`](./01-strategy/homework/03-strategiya-postavki.md)
+
+### Модуль 2. Проектирование архитектуры
+- [ ] [04. HLD с использованием C4 Model](./02-architecture/webinars/04-hld-c4-model.md)
+- [ ] [05. LLD: компоненты и взаимодействия](./02-architecture/webinars/05-lld-komponenty.md) — **ДЗ:** [`05-lld.md`](./02-architecture/homework/05-lld.md)
+- [ ] [06. RAG и его продвинутые вариации](./02-architecture/webinars/06-rag-i-prodvinutye-variacii.md)
+- [ ] [07. AI-агенты и Multi-Agent Systems](./02-architecture/webinars/07-ai-agents-i-multi-agent-systems.md) — **ДЗ:** [`07-ai-agents.md`](./02-architecture/homework/07-ai-agents.md)
+
+> Следующие занятия добавлять сюда по мере открытия в ЛК.
+
 ## Лицензия и доступ
 
 Материалы — для личного использования и обмена с коллегами в рамках корпоративного обучения. Не публиковать защищённый авторским правом контент OTUS (видеозаписи, оригинальные презентации преподавателей).
