@@ -1,0 +1,57 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Python (для решений ДЗ)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node (если будут JS-проекты)
+node_modules/
+npm-debug.log*
+
+# Секреты и креды — НИКОГДА не коммитим
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials
+.aws/
+.netrc
+
+# Большие бинарники — храним в S3, не в git
+*.mp4
+*.mov
+*.avi
+*.zip
+*.tar.gz
+*.iso
+
+# Локальные черновики
+scratch/
+tmp/
+.tmp/
+*.draft.md
+
+# OTUS — оригинальные материалы преподавателей (не для публикации)
+otus-originals/
