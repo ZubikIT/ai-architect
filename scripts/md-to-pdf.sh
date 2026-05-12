@@ -8,6 +8,9 @@
 #
 #   --toc          добавить оглавление (по умолчанию выключено)
 #   --no-numbers   убрать номера страниц
+#   --landscape    альбомная ориентация (для широких таблиц)
+#   --paper=SIZE   размер бумаги: a4 (default) | letter
+#   --font=SIZE    размер шрифта: 11pt (default), напр. 9pt для широких таблиц
 #
 # Зависимости (одно из):
 #   pandoc + typst       (рекомендуется): brew install pandoc typst
@@ -22,12 +25,18 @@ usage() {
 
 WITH_TOC=0
 WITH_NUMBERS=1
+LANDSCAPE=0
+PAPER=a4
+FONTSIZE=11pt
 ARGS=()
 for arg in "$@"; do
   case "$arg" in
     -h|--help) usage 0 ;;
     --toc) WITH_TOC=1 ;;
     --no-numbers) WITH_NUMBERS=0 ;;
+    --landscape) LANDSCAPE=1 ;;
+    --paper=*) PAPER="${arg#*=}" ;;
+    --font=*) FONTSIZE="${arg#*=}" ;;
     *) ARGS+=("$arg") ;;
   esac
 done
@@ -76,22 +85,39 @@ echo "→ output: $OUTPUT"
 # --- собираем флаги ---
 COMMON_OPTS=(
   --from=gfm+yaml_metadata_block
-  -V geometry:margin=2cm
+  -V papersize="$PAPER"
   -V lang=ru
   -V mainfont="Helvetica"
   -V monofont="Menlo"
-  -V fontsize=11pt
+  -V fontsize="$FONTSIZE"
   -V colorlinks=true
-  -V linkcolor=blue
+  -V linkcolor="0000FF"
 )
+
+if [ "$LANDSCAPE" = 1 ]; then
+  COMMON_OPTS+=(-V geometry:"margin=1.5cm,landscape")
+else
+  COMMON_OPTS+=(-V geometry:margin=2cm)
+fi
 
 [ "$WITH_TOC" = 1 ] && COMMON_OPTS+=(--toc --toc-depth=2)
 [ "$WITH_NUMBERS" = 0 ] && COMMON_OPTS+=(-V pagestyle=empty)
 
 if [ "$ENGINE" = "typst" ]; then
-  pandoc "$INPUT" -o "$OUTPUT" \
-    --pdf-engine=typst \
-    "${COMMON_OPTS[@]}"
+  if [ "$LANDSCAPE" = 1 ]; then
+    # Two-step: pandoc → .typ → prepend landscape directive → typst compile
+    TMP="$(mktemp -t mdpdf.XXXXXX).typ"
+    PREAMBLE='#set page(flipped: true, margin: 1.5cm)
+#let horizontalrule = line(length: 100%, stroke: 0.5pt + luma(70%))'
+    pandoc "$INPUT" --to=typst -o "$TMP" "${COMMON_OPTS[@]}"
+    { printf '%s\n' "$PREAMBLE"; cat "$TMP"; } > "${TMP}.full"
+    typst compile "${TMP}.full" "$OUTPUT"
+    rm -f "$TMP" "${TMP}.full"
+  else
+    pandoc "$INPUT" -o "$OUTPUT" \
+      --pdf-engine=typst \
+      "${COMMON_OPTS[@]}"
+  fi
 else
   pandoc "$INPUT" -o "$OUTPUT" \
     --pdf-engine=xelatex \
