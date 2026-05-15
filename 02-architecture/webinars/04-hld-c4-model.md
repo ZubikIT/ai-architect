@@ -1,10 +1,10 @@
 ---
 module: 02-architecture
 lesson: 4
-date:
-lecturer:
-tags: [HLD, C4, диаграммы]
-status: todo
+date: 2026-05-12
+lecturer: Иван Четвериков
+tags: [HLD, C4, диаграммы, Structurizr, Draw.io]
+status: in_progress
 ---
 
 # 04. Высокоуровневое проектирование (HLD) с использованием C4 Model
