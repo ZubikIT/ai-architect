@@ -15,13 +15,13 @@ status: todo  # todo | attended | done
 > **Преподаватель:** Иван Четвериков
 
 ## Материалы занятия
-- 📄 **Презентация (PDF):** [Проектирование и оценка: от требований к плану, рискам и смете](https://cdn.otus.ru/media/public/dc/39/2._%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%B8_%D0%BE%D1%86%D0%B5%D0%BD%D0%BA%D0%B0__%D0%BE%D1%82_%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9_%D0%BA_%D0%BF%D0%BB%D0%B0%D0%BD%D1%83__%D1%80%D0%B8%D1%81%D0%BA%D0%B0%D0%BC_%D0%B8_%D1%81%D0%BC%D0%B5%D1%82%D0%B5__1-692345-dc397d.pdf)
+- 📄 **Презентация (PDF):** [локальная копия](../artifacts/lesson-02-proektirovanie-i-ocenka.pdf) · [CDN OTUS](https://cdn.otus.ru/media/public/dc/39/2._%D0%9F%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5_%D0%B8_%D0%BE%D1%86%D0%B5%D0%BD%D0%BA%D0%B0__%D0%BE%D1%82_%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B9_%D0%BA_%D0%BF%D0%BB%D0%B0%D0%BD%D1%83__%D1%80%D0%B8%D1%81%D0%BA%D0%B0%D0%BC_%D0%B8_%D1%81%D0%BC%D0%B5%D1%82%D0%B5__1-692345-dc397d.pdf)
 - 📋 **Приложения A1–A10** (NFR Template / Presale Questionnaire / PERT Calculator / WBS / Risk Register / Change Request / TCO / Defense Sheet / Смета / Sizing GPU):
   - [Google Docs (онлайн)](https://docs.google.com/document/d/1SXbFIJa4E8IiTMj25VAnGEIUJ9DzVFY09x2dYo29ePQ/edit)
-  - [.docx (скачать)](https://cdn.otus.ru/media/public/63/9a/%D0%9F%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BA_%D1%81%D0%B5%D0%BC%D0%B8%D0%BD%D0%B0%D1%80%D1%83_2__AI_%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D0%BE%D1%80-601858-639a3b.docx)
+  - [локальная копия .docx](../artifacts/lesson-02-prilozheniya-a1-a10.docx) · [CDN OTUS .docx](https://cdn.otus.ru/media/public/63/9a/%D0%9F%D1%80%D0%B8%D0%BB%D0%BE%D0%B6%D0%B5%D0%BD%D0%B8%D1%8F_%D0%BA_%D1%81%D0%B5%D0%BC%D0%B8%D0%BD%D0%B0%D1%80%D1%83_2__AI_%D0%B0%D1%80%D1%85%D0%B8%D1%82%D0%B5%D0%BA%D1%82%D0%BE%D1%80-601858-639a3b.docx)
 - 📄 **Шаблон Бизнес-функциональных требований (БФТ):**
-  - [Шаблон БФТ (PDF, OTUS)](https://cdn.otus.ru/media/public/0f/da/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD_%D0%91%D0%B8%D0%B7%D0%BD%D0%B5%D1%81_%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5_%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F_%D0%91%D0%A4%D0%A2-252831-0fda99.pdf)
-  - [Реальный пример БФТ — Sufler (.docx)](../artifacts/Biznes-funktsionalnye_trebovania_Sufler.docx)
+  - [Шаблон БФТ — локальная копия](../artifacts/lesson-02-shablon-bft.pdf) · [CDN OTUS](https://cdn.otus.ru/media/public/0f/da/%D0%A8%D0%B0%D0%B1%D0%BB%D0%BE%D0%BD_%D0%91%D0%B8%D0%B7%D0%BD%D0%B5%D1%81_%D1%84%D1%83%D0%BD%D0%BA%D1%86%D0%B8%D0%BE%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B5_%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F_%D0%91%D0%A4%D0%A2-252831-0fda99.pdf)
+  - [Реальный пример БФТ — Sufler (.docx)](../artifacts/lesson-02-bft-primer-sufler.docx)
 - 🎥 Запись вебинара — в ЛК OTUS
 - 📊 Опрос по занятию — в ЛК (после вебинара)
 

@@ -42,7 +42,7 @@ lecturer: Николай Осипов
 - **Production** (масштабирование).
 
 ## Полезные материалы (из ЛК)
-- 📄 [Описание кейса «Ритейлер и AI-рекомендации» (PDF)](https://cdn.otus.ru/media/public/10/a0/%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BA%D0%B5%D0%B9%D1%81%D0%B0__%D0%A0%D0%B8%D1%82%D0%B5%D0%B9%D0%BB%D0%B5%D1%80_%D0%B8_AI_%D1%80%D0%B5%D0%BA%D0%BE%D0%BC%D0%B5%D0%BD%D0%B4%D0%B0%D1%86%D0%B8%D0%B8-252831-10a06e.pdf) — полный RFP по проекту TechnoMart, бизнес-контекст, целевые KPI, As-Is стек, ограничения, стейкхолдеры
+- 📄 Описание кейса «Ритейлер и AI-рекомендации» — полный RFP по проекту TechnoMart, бизнес-контекст, целевые KPI, As-Is стек, ограничения, стейкхолдеры: [локальная копия](../../artifacts/lesson-03-opisanie-keysa-ritejler.pdf) · [CDN OTUS](https://cdn.otus.ru/media/public/10/a0/%D0%9E%D0%BF%D0%B8%D1%81%D0%B0%D0%BD%D0%B8%D0%B5_%D0%BA%D0%B5%D0%B9%D1%81%D0%B0__%D0%A0%D0%B8%D1%82%D0%B5%D0%B9%D0%BB%D0%B5%D1%80_%D0%B8_AI_%D1%80%D0%B5%D0%BA%D0%BE%D0%BC%D0%B5%D0%BD%D0%B4%D0%B0%D1%86%D0%B8%D0%B8-252831-10a06e.pdf)
 - 📋 [Матрица рисков. Пример заполнения](https://gantbpm.ru/matritsa-riskov-primer-zapolneniya-i-skachat-obrazets-v-eksel/) — образец в Excel
 - 📋 [Шаблон реестра рисков для количественной оценки](https://risk-academy.ru/download/quant-risk-register/) (Risk Academy)
 - 📋 [Приложения A1–A10 к уроку 2](../../webinars/02-proektirovanie-i-ocenka.md#материалы-занятия) — особенно:

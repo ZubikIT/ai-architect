@@ -15,7 +15,7 @@ status: todo  # todo | attended | done
 > **Преподаватель:** Андрей Носов (Chief AI Architect, Raft)
 
 ## Материалы занятия
-- 📄 **Презентация (PDF, 62 слайда):** [Пресейл, контракты и работа с требованиями](https://cdn.otus.ru/media/public/51/55/%D0%9F%D1%80%D0%B5%D1%81%D0%B5%D0%B9%D0%BB__%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%B0%D0%BA%D1%82%D1%8B_%D0%B8_%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0_%D1%81_%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%D0%BC%D0%B8__%D0%B7%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC_%D1%84%D1%83%D0%BD%D0%B4%D0%B0%D0%BC%D0%B5%D0%BD%D1%82_%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0-601858-5155a4.pdf)
+- 📄 **Презентация (PDF, 62 слайда):** [локальная копия](../artifacts/lesson-01-presale-kontrakty-trebovaniya.pdf) · [CDN OTUS](https://cdn.otus.ru/media/public/51/55/%D0%9F%D1%80%D0%B5%D1%81%D0%B5%D0%B9%D0%BB__%D0%BA%D0%BE%D0%BD%D1%82%D1%80%D0%B0%D0%BA%D1%82%D1%8B_%D0%B8_%D1%80%D0%B0%D0%B1%D0%BE%D1%82%D0%B0_%D1%81_%D1%82%D1%80%D0%B5%D0%B1%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%D0%BC%D0%B8__%D0%B7%D0%B0%D0%BA%D0%BB%D0%B0%D0%B4%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC_%D1%84%D1%83%D0%BD%D0%B4%D0%B0%D0%BC%D0%B5%D0%BD%D1%82_%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B0-601858-5155a4.pdf)
 - 🎥 Запись вебинара — в ЛК OTUS
 
 ## Дополнительные материалы от преподавателя
