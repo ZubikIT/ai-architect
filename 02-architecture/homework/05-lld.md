@@ -39,17 +39,267 @@ grade:
 
 ## Решение
 
-### Подход
+### Кейс — «Суфлёр БФТ»
+
+Продолжаем БФТ-кейс из урока 2 — голосовой AI-ассистент для исходящего обзвона клиентов отеля по бронированиям (заказчик — ООО «Ежики-иголки»). Конспект ТЗ: [`../../01-strategy/artifacts/lesson-02-bft-primer-sufler.docx`](../../01-strategy/artifacts/lesson-02-bft-primer-sufler.docx).
+
+Ключевые отличия кейса от шаблонной «текстовой рекомендации» из формулировки ДЗ:
+
+- «Пользователь» — это **клиент по телефону** (получатель исходящего звонка), а не пользователь веб-формы.
+- «Рекомендация» = **фраза-ответ бота** + следующее действие диалога (`CONTINUE` / `TRANSFER` / `HANGUP` / `SCHEDULE_CALLBACK` / `SEND_SMS`).
+- В контур добавляются STT / TTS / Voice Gateway (SIP/RTP с Asterisk) — обязательные части любой голосовой системы. На C2 это отдельные контейнеры/внешние системы.
+- Vector DB используется не для retrieval из knowledge base, а **для семантического поиска похожих возражений клиента и подбора фразы-ответа** из банка фраз (для интентов «дорого» / «отсрочка»).
+- SQL DB — операционка: сделки, звонки, транскрипции, метрики Hold Time.
 
 ### Артефакты
-- [ ] C2 Container Diagram (Structurizr / Draw.io)
-- [ ] C3 Component Diagram для контейнера AI Service
-- [ ] Sequence Diagram «Запрос рекомендации»
-- [ ] OpenAPI 3.x спецификация эндпоинта `/get_recommendation`
-- [ ] Публичные ссылки на диаграммы и Gist
+- [x] Structurizr DSL c C1 / C2 / C3 / Deployment-видами: [`../artifacts/lesson-05-workspace.dsl`](../artifacts/lesson-05-workspace.dsl)
+- [x] OpenAPI 3.1 для `POST /get_recommendation` с RFC 7807 ошибками и примерами: [`../artifacts/lesson-05-openapi.yaml`](../artifacts/lesson-05-openapi.yaml)
+- [x] C2 / C3 / Sequence — Mermaid встроены ниже (для удобства проверки в Git)
+- [ ] Публичные ссылки на отрисованные диаграммы (Structurizr Cloud / Holst) — добавить перед сдачей
+- [ ] Gist с OpenAPI YAML — добавить перед сдачей
 
-### Реализация
+### Подход
+
+1. **Contract First.** Сначала пишу OpenAPI для границы Backend ↔ AI Service (`/get_recommendation`). Контракт страхует от интеграционного ада, фронт-команда админки и Backend могут идти параллельно.
+2. **C4-уровни, по одному на диаграмму.** Соблюдаю правило «одна абстракция на диаграмму» (анти-паттерн «слоёный пирог» из урока 5).
+3. **Стрелки = глагол + технология.** На всех связях C2/C3 — что делает + как (HTTPS/JSON, gRPC, SIP/RTP, WS).
+4. **High Cohesion + Low Coupling в C3 AI Service.** STT/NLU/TTS — отдельные клиенты (легко заменить провайдера); Dialogue Manager не знает деталей RAG, общается через интерфейс.
+5. **Резилентность — в LLD.** Circuit Breaker / Retries / Timeouts на каждом внешнем клиенте (STT/TTS/LLM/Qdrant). Отдельные `503` (upstream unavailable) и `504` (upstream timeout) в OpenAPI — чтобы Backend мог переключиться на rule-based fallback.
+6. **152-ФЗ.** Self-hosted RU-LLM, STT/TTS — российский провайдер (SaluteSpeech / Yandex SpeechKit), аудиозаписи в RU-DC с TTL 30 дней.
+
+### C2 — Container Diagram
+
+```mermaid
+flowchart LR
+  guest([Клиент / Гость])
+  operator([Оператор КЦ])
+  manager([Менеджер])
+  ds([Data Scientist])
+
+  b24[[Bitrix24]]
+  ext1c[[1С]]
+  sip[[SIP-Trunk · Asterisk]]
+  sms[[SMS Provider]]
+  llm[[LLM Provider · RU self-hosted]]
+  stt[[STT/TTS · SaluteSpeech / YC SpeechKit]]
+
+  subgraph Sufler[Суфлёр БФТ]
+    adminUI[Admin Web UI<br/>React / TypeScript]
+    backend[Backend<br/>Orchestrator · Python/FastAPI]
+    ai[AI Service · Dialog Engine<br/>Python/FastAPI · GPU]
+    vgw[Voice Gateway<br/>pjsua2 / Asterisk ARI]
+    sched[Call Scheduler<br/>Celery · окно 10–19, 30 СЛ / 5 CPS]
+    reporter[Reporter<br/>Daily Excel 08:00 МСК]
+    pg[(SQL DB · PostgreSQL<br/>сделки, звонки, транскрипции)]
+    qdr[(Vector DB · Qdrant<br/>банк фраз / возражения)]
+    s3[(Audio Storage · S3<br/>WAV/OPUS · TTL 30 дней)]
+  end
+
+  b24 -->|Webhook 'Напоминание о платеже' · FR-1.1| backend
+  backend -->|Pre-flight check · BR-03| ext1c
+  backend --> pg
+  backend --> sched
+  sched -->|Команда: позвонить| vgw
+  vgw -->|SIP / RTP| sip
+  sip -.->|RTP| guest
+  vgw <-->|WS / PCM| ai
+  ai -->|gRPC / WS| stt
+  ai -->|HTTPS/JSON| llm
+  ai -->|gRPC| qdr
+  ai --> pg
+  ai --> s3
+  vgw -->|SIP-REFER · FR-3.7| sip
+  sip -.-> operator
+  backend -->|Таймлайн + аудио · FR-4.1| b24
+  backend -->|SMS при недозвоне · FR-1.2| sms
+  reporter --> pg
+  reporter -->|Email 08:00 МСК · FR-4.2| manager
+  manager --> adminUI
+  adminUI -->|REST · HTTPS/JSON| backend
+  ds --> ai
+```
+
+**Почему такой набор контейнеров:**
+
+| Контейнер | Зачем нужен | Почему отдельный (deploy-критерий) |
+|---|---|---|
+| Admin Web UI | Менеджер видит сделки, прослушивает звонки; аннотатор размечает golden set | React SPA, отдельный CDN/static |
+| Backend (Orchestrator) | Приём webhook'ов Б24, бизнес-правила BR-01..04, постановка в очередь, запись в Б24 | Не должен «лежать» из-за тяжёлой математики (изоляция от AI Service) |
+| AI Service (Dialog Engine) | STT → NLU → диалог → TTS. Точка интеграции `/get_recommendation` | GPU-нода (A100); масштабируется отдельно от Backend |
+| Voice Gateway | Медиа-мост SIP/RTP ↔ внутреннее аудио. Host-network в k8s для RTP | Сетевая специфика (host network, NAT-traversal); меняется реже AI Service |
+| Call Scheduler | Очередь обзвона с окном 10–19 локали отеля и лимитом 30 СЛ / 5 CPS | Celery worker — workload-pattern «фоновые задачи», отдельный namespace |
+| Reporter | Ежедневный Excel-отчёт в 08:00 МСК | CronJob — workload-pattern «batch», отдельный namespace |
+| **SQL DB (PostgreSQL)** | Сделки, звонки, транскрипции, метрики Hold Time | Managed-сервис, HA, бэкапы |
+| **Vector DB (Qdrant)** | Семантический поиск похожих возражений; банк фраз-ответов | Специализированное хранилище |
+| Audio Storage (S3) | Аудиозаписи звонков, TTL 30 дней по NFR-Security | Object storage с lifecycle-rules |
+
+### C3 — Components внутри AI Service
+
+```mermaid
+flowchart LR
+  vgw[[Voice Gateway]]
+  stt[[STT/TTS Provider]]
+  llm[[LLM Provider]]
+  qdr[(Vector DB)]
+  pg[(SQL DB)]
+  s3[(Audio Storage)]
+
+  subgraph AI[AI Service · Dialog Engine]
+    ctrl[Controller HTTP/WS<br/>FastAPI · /get_recommendation, /healthz, /readyz]
+    sttC[STT Client<br/>стрим, VAD-фильтр]
+    nlu[NLU / Intent Classifier<br/>FR-3.1..3.7 + rules fallback]
+    dlg[Dialogue Manager<br/>FSM сценария, BR-01..04]
+    rag[RAG Manager<br/>для интентов 'дорого' / 'отсрочка']
+    retr[Retriever<br/>k-NN в Qdrant по embedding реплики]
+    pf[Prompt Template Factory<br/>Jinja2: hotel, city, cost]
+    llmC[LLM Client<br/>tenacity retries + pybreaker]
+    ttsC[TTS Client<br/>SSML, голос 'Елена']
+    pp[Response Postprocessor<br/>PII-маска, склейка, normalize]
+  end
+
+  vgw -->|WS PCM| ctrl
+  ctrl --> sttC --> nlu --> dlg
+  dlg --> rag
+  dlg --> pf
+  rag --> retr --> qdr
+  rag --> llmC
+  pf --> llmC
+  llmC --> pp
+  dlg --> ttsC
+  pp --> ttsC
+  ttsC --> ctrl
+  ctrl -->|синтез / команды HANGUP, TRANSFER| vgw
+
+  sttC --> stt
+  ttsC --> stt
+  llmC --> llm
+  ctrl --> pg
+  pp --> s3
+```
+
+**Сопоставление с шаблоном из формулировки ДЗ:**
+
+| Из задания | В Суфлёре |
+|---|---|
+| **Controller** | `Controller HTTP/WS` (FastAPI Router) |
+| **RAG Manager** | `RAG Manager` + `Retriever` (поиск возражений в Qdrant) |
+| **LLM Client** | `LLM Client` (httpx + tenacity + pybreaker) |
+| **Prompt Template Factory** | `Prompt Template Factory` (Jinja2 с контекстом сделки) |
+| *(добавлено под голосовую специфику)* | `STT Client`, `NLU / Intent Classifier`, `Dialogue Manager` (FSM), `TTS Client`, `Response Postprocessor` |
+
+### Sequence — «Клиент возражает “дорого”» (FR-3.5)
+
+Golden-path scenario из ТЗ: клиент в звонке отвечает «нашли дешевле в другом отеле» — бот должен распознать интент `objection_too_expensive`, через RAG подобрать релевантный ответ и предложить рассрочку.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor C as Клиент
+  participant SIP as SIP-Trunk
+  participant VG as Voice Gateway
+  participant CT as Controller
+  participant ST as STT Client
+  participant NL as NLU Classifier
+  participant DM as Dialogue Manager
+  participant RM as RAG Manager
+  participant RT as Retriever
+  participant Q as Vector DB
+  participant PF as Prompt Factory
+  participant LC as LLM Client
+  participant L as LLM Provider
+  participant PP as Postprocessor
+  participant TC as TTS Client
+  participant T as TTS Provider
+  participant PG as SQL DB
+
+  C->>SIP: Реплика "Нашли дешевле в другом отеле"
+  SIP->>VG: RTP audio
+  VG->>CT: WS stream (PCM)
+  CT->>ST: Stream chunks
+  ST->>T: Streaming recognize
+  T-->>ST: Partial+Final transcript
+  ST->>NL: Final: "Нашли дешевле..."
+  NL->>NL: classify → objection_too_expensive (conf 0.88)
+  NL->>DM: Intent + confidence
+
+  DM->>DM: FSM: state=NEGOTIATING, intent=FR-3.5 → RAG path
+  DM->>RM: Запросить фразу-ответ
+  RM->>RT: k-NN(embedding(utterance), top_k=3)
+  RT->>Q: Search vectors (filter: intent=objection)
+  Q-->>RT: [phrase_id, similarity] ×3
+  RT-->>RM: Top phrases ("рассрочка", "скидка для постоянных", "ценность услуги")
+
+  RM->>PF: Build prompt(intent, deal{hotel,city,cost}, top phrases)
+  PF-->>RM: System+User prompt
+  RM->>LC: Generate(prompt, max_tokens=120)
+  LC->>L: HTTPS POST /v1/completions
+  L-->>LC: Completion
+  LC->>PP: Raw text
+  PP->>PP: PII-mask, normalize, split
+  PP-->>DM: Clean response_text
+
+  DM->>TC: Synthesize(text, voice=elena, SSML)
+  TC->>T: Streaming synthesize
+  T-->>TC: PCM stream
+  TC->>CT: Audio chunks
+  CT->>VG: WS audio + next_action=CONTINUE(timeout=8000ms)
+  VG->>SIP: RTP audio
+  SIP-->>C: Голос: "Понимаю Вас. Мы можем оформить рассрочку..."
+
+  Note over CT,PG: Параллельно — лог реплик, интента, метрик
+  CT-)PG: INSERT turn(transcript, intent, confidence, latency, cost)
+  PP-)+PG: путь к S3 аудио (TTL 30 дней)
+```
+
+**Связность C3 ↔ Sequence (критерий приёмки):**
+
+| Шаг Sequence | Компонент C3 |
+|---|---|
+| 1–4 (приём аудио) | `Controller` |
+| 5–6 (распознавание) | `STT Client` → STT Provider |
+| 7–9 (классификация интента) | `NLU / Intent Classifier` |
+| 10–11 (решение FSM) | `Dialogue Manager` |
+| 12 (запрос фразы) | `RAG Manager` |
+| 13–15 (поиск похожих фраз) | `Retriever` → Vector DB |
+| 16–17 (сборка промпта) | `Prompt Template Factory` |
+| 18–21 (вызов LLM) | `LLM Client` → LLM Provider |
+| 22–23 (постобработка) | `Response Postprocessor` |
+| 24–27 (синтез и отправка) | `TTS Client`, `Controller` |
+| Логи | `Controller` → SQL DB, `Postprocessor` → S3 |
+
+### Альтернативный sequence — оптимизация по lecture insight
+
+Из тезиса вебинара: «не вызывать LLM, если retrieval пустой». Для интента **«агрессия» (FR-3.6)** Dialogue Manager идёт коротким путём — **без RAG и без LLM** (FSM сразу выдаёт зафиксированную фразу «Извините за беспокойство, соединяю со специалистом» и команду `TRANSFER_TO_OPERATOR`). Это экономит токены и режет латенси с ~980 мс до ~410 мс (см. пример `transfer_aggression` в OpenAPI).
+
+### OpenAPI — ключевые решения
+
+Полная спецификация: [`../artifacts/lesson-05-openapi.yaml`](../artifacts/lesson-05-openapi.yaml). Ключевое:
+
+- **`POST /get_recommendation`** принимает `RecommendationRequest`: `session_id`, `deal{id,hotel,city,cost,payment_link}`, `client_utterance{transcript|audio_uri,confidence,duration_ms}`, `dialogue_state{turn,history,retry_count}`, `constraints{max_response_chars,voice_persona,local_time_iso}`.
+- **Ответ** содержит `intent{code,fr_id,confidence}`, `response_text`, `ssml`, `next_action{type,timeout_ms,queue,callback_at,sms_template_id}`, `rag_sources`, `cost{llm_tokens,stt_ms,tts_ms,total_latency_ms}` — `cost` нужен для FinOps и SLA-мониторинга.
+- **Коды ошибок:**
+  - `400` — невалидная схема (`bad-request`)
+  - `401` — JWT истёк / невалиден
+  - `422` — `intent-unrecognized` (NLU не уверен и нет fallback) с `recommended_action`
+  - `429` — `rate-limited` с заголовком `Retry-After`
+  - `503` — `upstream-unavailable` (Circuit Breaker open) с `recommended_action: use_rule_based_fallback`
+  - `504` — `upstream-timeout`
+- **Формат ошибок** — RFC 7807 (`application/problem+json` со схемой `Problem`).
+- **Версионирование** — URI (`/v1/...`).
+- **Security** — Bearer JWT, выписанный Backend'ом, живёт длительность звонка + 5 мин.
+- **Примеры запросов/ответов** — два полных кейса (`dorogo_offer_installment`, `transfer_aggression`).
+
+### Соответствие критериям приёмки
+
+- **Соответствие нотации** — все диаграммы используют C4 (Structurizr DSL для отрисовки) + Mermaid для git-readable копии. Связи направлены явно, у каждой стрелки — глагол + технология.
+- **Связность C3 ↔ Sequence** — таблица соответствия выше; каждый шаг sequence явно ссылается на свой компонент.
+- **Качество API** — типы данных (схемы), 2 полных примера запроса/ответа, 6 кодов ошибок с RFC 7807, описаны заголовки (`Retry-After`), security-схема.
 
 ## Сложности и решения
+
+- **Кейс «Суфлёр» — голосовой**, шаблон ДЗ — текстовой (`/get_recommendation`). Решение: оставил имя эндпоинта `/get_recommendation`, но семантически он означает «получить ответ бота на текущий turn клиента». Это естественное обобщение: «рекомендация» = «фраза + следующее действие диалога».
+- **«Vector DB» в голосовом кейсе** не очевидна. Решение: использовать как **банк фраз/возражений** — семантический поиск похожих формулировок клиента для интентов «дорого» / «отсрочка» / «возражение», чтобы не каждый раз дёргать LLM. Это попадает в lecture insight «не вызывать LLM, если не нужно».
+- **STT/TTS как компоненты или внешние системы.** Решение: STT/TTS-провайдер = внешняя система (SaluteSpeech / YC SpeechKit); внутри AI Service — клиенты к нему (`STT Client`, `TTS Client`).
+- **Voice Gateway как отдельный контейнер vs компонент AI Service.** Решение: отдельный контейнер. Причина: host network в k8s (для RTP/NAT), отдельный жизненный цикл, в нём нет ML-логики.
 
 ## Обратная связь от преподавателя
