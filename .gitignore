@@ -53,6 +53,9 @@ tmp/
 .tmp/
 *.draft.md
 
+# Structurizr Lite runtime workdir (auto-generated cache + workspace.json)
+**/artifacts/structurizr/
+
 # OTUS — оригинальные материалы преподавателей (не для публикации)
 otus-originals/
 *.xlsx

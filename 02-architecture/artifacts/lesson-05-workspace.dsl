@@ -44,7 +44,33 @@ workspace "Суфлёр БФТ — Voice AI Assistant" "Голосовой AI-а
 
             backend = container "Backend (Orchestrator)" "API Gateway: приём webhook от Б24, постановка в очередь обзвона, бизнес-правила (BR-01..04)" "Python / FastAPI"
 
-            aiService = container "AI Service (Dialog Engine)" "Управление голосовым диалогом: STT → NLU → диалог → TTS. Endpoint /get_recommendation" "Python / FastAPI"
+            aiService = container "AI Service (Dialog Engine)" "Управление голосовым диалогом: STT → NLU → диалог → TTS. Endpoint /get_recommendation" "Python / FastAPI" {
+                controller = component "Controller (HTTP/WS)" "FastAPI: /get_recommendation, /healthz, WS для стрим-аудио. Валидация, auth, rate-limit" "FastAPI Router"
+                sttClient = component "STT Client" "Стрим аудио во внешний STT, partial+final гипотезы, VAD-фильтр" "Async client · gRPC/WS"
+                nluClassifier = component "NLU / Intent Classifier" "Классификация интентов FR-3.1..3.7 (согласие / отсрочка / отказ / за рулём / дорого / агрессия / вызов человека)" "Fine-tuned RU encoder + rules fallback"
+                ragManager = component "RAG Manager" "Для интентов 'дорого' / 'отсрочка' / 'возражение' — поиск похожего возражения и подбор фразы-ответа" "Python orchestrator"
+                retriever = component "Retriever" "k-NN поиск в Vector DB по embeddings реплики клиента, фильтры по интенту" "Qdrant client"
+                promptFactory = component "Prompt Template Factory" "Сборка системного промпта под интент: контекст сделки {hotel,city,cost}, токен поведения (вежливо/коротко)" "Jinja2"
+                llmClient = component "LLM Client" "Вызов RU-LLM для перефразирования / удержания. Таймауты, ретраи, circuit breaker" "httpx + tenacity + pybreaker"
+                dialogManager = component "Dialogue Manager" "FSM сценария: что говорить дальше с учётом интента, истории, BR-01..04" "State machine (transitions lib)"
+                ttsClient = component "TTS Client" "Синтез голосом 'Елена', SSML-склонение {hotel}/{city}/{cost}" "Async client · gRPC/WS"
+                postprocessor = component "Response Postprocessor" "PII-маска перед логом, нормализация фразы, добавление silence/breaks, формат для VoiceGateway" "Python"
+
+                # Внутренние связи компонентов
+                controller -> sttClient "Передаёт PCM-аудио, получает гипотезы"
+                sttClient -> nluClassifier "Final transcript"
+                nluClassifier -> dialogManager "Интент + confidence"
+                dialogManager -> ragManager "Запрос фразы (если возражение)"
+                dialogManager -> promptFactory "Шаблон под интент"
+                ragManager -> retriever "Похожие фразы / возражения"
+                retriever -> ragManager "Top-k контекст"
+                ragManager -> llmClient "Перефраз / удержание"
+                promptFactory -> llmClient "Промпт с контекстом сделки"
+                dialogManager -> ttsClient "Финальный текст ответа"
+                llmClient -> postprocessor "Сырой ответ LLM"
+                postprocessor -> ttsClient "Очищенный текст"
+                ttsClient -> controller "Аудио-стрим / URI"
+            }
 
             voiceGateway = container "Voice Gateway" "Медиа-мост: SIP/RTP с АТС, стримит аудио в AI Service, проигрывает синтез, делает SIP-REFER" "Python + pjsua2 / Asterisk ARI"
 
@@ -62,44 +88,6 @@ workspace "Суфлёр БФТ — Voice AI Assistant" "Голосовой AI-а
 
             audioStore = container "Audio Storage" "WAV/OPUS-аудиозаписи звонков (TTL 30 дней по NFR-Security)" "S3-совместимое (RU-DC)" {
                 tags "Database"
-            }
-
-            # ----- Компоненты AI Service (Level 3) -----
-            aiService {
-                controller = component "Controller (HTTP/WS)" "FastAPI: /get_recommendation, /healthz, WS для стрим-аудио. Валидация, auth, rate-limit" "FastAPI Router"
-
-                sttClient = component "STT Client" "Стрим аудио во внешний STT, partial+final гипотезы, VAD-фильтр" "Async client · gRPC/WS"
-
-                nluClassifier = component "NLU / Intent Classifier" "Классификация интентов FR-3.1..3.7 (согласие / отсрочка / отказ / за рулём / дорого / агрессия / вызов человека)" "Fine-tuned RU encoder + rules fallback"
-
-                ragManager = component "RAG Manager" "Для интентов 'дорого' / 'отсрочка' / 'возражение' — поиск похожего возражения и подбор фразы-ответа" "Python orchestrator"
-
-                retriever = component "Retriever" "k-NN поиск в Vector DB по embeddings реплики клиента, фильтры по интенту" "Qdrant client"
-
-                promptFactory = component "Prompt Template Factory" "Сборка системного промпта под интент: контекст сделки {hotel,city,cost}, токен поведения (вежливо/коротко)" "Jinja2"
-
-                llmClient = component "LLM Client" "Вызов RU-LLM для перефразирования / удержания. Таймауты, ретраи, circuit breaker" "httpx + tenacity + pybreaker"
-
-                dialogManager = component "Dialogue Manager" "FSM сценария: что говорить дальше с учётом интента, истории, BR-01..04" "State machine (transitions lib)"
-
-                ttsClient = component "TTS Client" "Синтез голосом 'Елена', SSML-склонение {hotel}/{city}/{cost}" "Async client · gRPC/WS"
-
-                postprocessor = component "Response Postprocessor" "PII-маска перед логом, нормализация фразы, добавление silence/breaks, формат для VoiceGateway" "Python"
-
-                # Внутренние связи компонентов
-                controller -> sttClient "Передаёт PCM-аудио, получает гипотезы"
-                sttClient -> nluClassifier "Final transcript"
-                nluClassifier -> dialogManager "Интент + confidence"
-                dialogManager -> ragManager "Запрос фразы (если возражение)"
-                dialogManager -> promptFactory "Шаблон под интент"
-                ragManager -> retriever "Похожие фразы / возражения"
-                retriever -> ragManager "Top-k контекст"
-                ragManager -> llmClient "Перефраз / удержание"
-                promptFactory -> llmClient "Промпт с контекстом сделки"
-                dialogManager -> ttsClient "Финальный текст ответа"
-                llmClient -> postprocessor "Сырой ответ LLM"
-                postprocessor -> ttsClient "Очищенный текст"
-                ttsClient -> controller "Аудио-стрим / URI"
             }
 
             # ----- Связи компонентов AI Service с внешним миром / другими контейнерами -----
@@ -157,21 +145,37 @@ workspace "Суфлёр БФТ — Voice AI Assistant" "Голосовой AI-а
             deploymentNode "RU Cloud (Yandex Cloud)" "Yandex Managed Kubernetes — DC RU-Central" "k8s 1.29" {
 
                 deploymentNode "Services Namespace" "Синхронные сервисы" {
-                    deploymentNode "Backend Pod" "ReplicaSet ×3" { containerInstance backend }
-                    deploymentNode "AI Service Pod" "ReplicaSet ×4 · GPU A100" { containerInstance aiService }
-                    deploymentNode "Voice Gateway Pod" "ReplicaSet ×3 · хост-сеть для RTP" { containerInstance voiceGateway }
+                    deploymentNode "Backend Pod" "ReplicaSet ×3" {
+                        containerInstance backend
+                    }
+                    deploymentNode "AI Service Pod" "ReplicaSet ×4 · GPU A100" {
+                        containerInstance aiService
+                    }
+                    deploymentNode "Voice Gateway Pod" "ReplicaSet ×3 · хост-сеть для RTP" {
+                        containerInstance voiceGateway
+                    }
                 }
 
                 deploymentNode "Workers Namespace" "Фоновые задачи" {
-                    deploymentNode "Scheduler Pod" "ReplicaSet ×2 · Celery beat + workers" { containerInstance scheduler }
-                    deploymentNode "Reporter Pod" "CronJob 08:00 MSK" { containerInstance reporter }
+                    deploymentNode "Scheduler Pod" "ReplicaSet ×2 · Celery beat + workers" {
+                        containerInstance scheduler
+                    }
+                    deploymentNode "Reporter Pod" "CronJob 08:00 MSK" {
+                        containerInstance reporter
+                    }
                 }
             }
 
             deploymentNode "Managed Data Infrastructure" "Управляемые сервисы YC (RU-DC)" {
-                deploymentNode "Managed PostgreSQL" "YC Managed PG 15 · HA" { containerInstance sqlDb }
-                deploymentNode "Managed Qdrant" "YC k8s Operator" { containerInstance vectorDb }
-                deploymentNode "Object Storage" "YC S3 · TTL-rules" { containerInstance audioStore }
+                deploymentNode "Managed PostgreSQL" "YC Managed PG 15 · HA" {
+                    containerInstance sqlDb
+                }
+                deploymentNode "Managed Qdrant" "YC k8s Operator" {
+                    containerInstance vectorDb
+                }
+                deploymentNode "Object Storage" "YC S3 · TTL-rules" {
+                    containerInstance audioStore
+                }
             }
 
             deploymentNode "External Systems" {
@@ -215,14 +219,40 @@ workspace "Суфлёр БФТ — Voice AI Assistant" "Голосовой AI-а
         }
 
         styles {
-            element "Person"           { shape Person      background #08427b color #ffffff }
-            element "Target System"    { background #1168bd color #ffffff }
-            element "External System"  { background #999999 color #ffffff }
-            element "Database"         { shape Cylinder }
-            element "Web Browser"      { shape WebBrowser }
-            element "Component"        { background #85bbf0 color #000000 shape Component }
-            element "Internal_Technical_User"  { background #438dd5 shape Robot  color #ffffff }
-            element "Internal_Operations_User" { background #08427b shape Person color #ffffff }
+            element "Person" {
+                shape Person
+                background #08427b
+                color #ffffff
+            }
+            element "Target System" {
+                background #1168bd
+                color #ffffff
+            }
+            element "External System" {
+                background #999999
+                color #ffffff
+            }
+            element "Database" {
+                shape Cylinder
+            }
+            element "Web Browser" {
+                shape WebBrowser
+            }
+            element "Component" {
+                background #85bbf0
+                color #000000
+                shape Component
+            }
+            element "Internal_Technical_User" {
+                background #438dd5
+                shape Robot
+                color #ffffff
+            }
+            element "Internal_Operations_User" {
+                background #08427b
+                shape Person
+                color #ffffff
+            }
         }
     }
 }
