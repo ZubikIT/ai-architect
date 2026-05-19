@@ -1,0 +1,14 @@
+# Structurizr Lite (через новый структуrizr/structurizr local) с зашитой DSL «Суфлёр БФТ».
+# Используется только для Fly.io — на локалке поднимать через
+# `docker run -v $(pwd):/usr/local/structurizr structurizr/structurizr local`.
+FROM structurizr/structurizr:latest
+
+# Имя файла строго `workspace.dsl` — это конвенция Structurizr Lite/local.
+COPY lesson-05-workspace.dsl /usr/local/structurizr/workspace.dsl
+
+# Fly.io прокидывает свой PORT через env. Образ его читает (-Dserver.port=${PORT} в entrypoint).
+ENV PORT=8080
+EXPOSE 8080
+
+# Subcommand `local` поднимает встроенный веб-сервер с UI и просмотрщиком диаграмм.
+CMD ["local"]

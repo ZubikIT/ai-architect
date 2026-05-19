@@ -1,0 +1,22 @@
+# Fly.io конфиг для публикации интерактивного Structurizr Lite с C4-диаграммами «Суфлёра БФТ».
+# Деплой: cd 02-architecture/artifacts && flyctl deploy
+#
+# app: Fly app name — глобально уникальный, поменяй на свой если sufler-bft-otus занят.
+
+app = "sufler-bft-otus"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile.structurizr"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
