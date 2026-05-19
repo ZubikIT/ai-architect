@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Суфлёр БФТ — C4 диаграммы (ДЗ-05, OTUS AI-Архитектор)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+           max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem; color: #1a1a1a;
+           line-height: 1.55; background: #fafafa; }
+    h1 { margin-bottom: 0.25rem; }
+    .subtitle { color: #555; margin-top: 0; }
+    .meta { background: #fff; border: 1px solid #e3e3e3; border-radius: 8px;
+            padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .meta dl { display: grid; grid-template-columns: max-content 1fr;
+               column-gap: 1rem; row-gap: 0.35rem; margin: 0; }
+    .meta dt { color: #666; font-weight: 600; }
+    .meta dd { margin: 0; }
+    nav { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+    nav a { background: #1168bd; color: #fff; text-decoration: none;
+            padding: 0.45rem 0.85rem; border-radius: 6px; font-size: 0.9rem; }
+    nav a:hover { background: #0d4f8c; }
+    nav a.secondary { background: #555; }
+    section { background: #fff; border: 1px solid #e3e3e3; border-radius: 8px;
+              padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+    section h2 { margin-top: 0; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; }
+    section img { width: 100%; height: auto; border: 1px solid #ddd;
+                  border-radius: 4px; background: #fff; margin-top: 0.75rem; }
+    .level { font-family: "SF Mono", Menlo, Consolas, monospace;
+             font-size: 0.85rem; color: #1168bd; }
+    .footer { color: #777; font-size: 0.85rem; margin-top: 3rem; padding-top: 1rem;
+              border-top: 1px solid #e3e3e3; }
+    .footer a { color: #555; }
+    code { background: #f0f0f0; padding: 0.1rem 0.35rem; border-radius: 3px;
+           font-size: 0.85em; }
+  </style>
+</head>
+<body>
+  <h1>Суфлёр БФТ — Voice AI Assistant</h1>
+  <p class="subtitle">C4-диаграммы и OpenAPI к ДЗ-05 курса OTUS «AI-Архитектор»</p>
+
+  <div class="meta">
+    <dl>
+      <dt>Кейс:</dt><dd>Голосовой AI-ассистент для исходящего обзвона клиентов отеля по бронированиям (БФТ-кейс из урока 2)</dd>
+      <dt>Студент:</dt><dd>Зубик Александр</dd>
+      <dt>Стек:</dt><dd>Python/FastAPI · React · PostgreSQL · Qdrant · Asterisk SIP · Yandex Cloud (RU-DC)</dd>
+      <dt>Источник DSL:</dt><dd><a href="workspace.dsl">workspace.dsl</a> (Structurizr) · <a href="https://gitlab.com/artcloud/ai/architect/-/blob/main/02-architecture/homework/05-lld.md">homework/05-lld.md</a></dd>
+      <dt>OpenAPI:</dt><dd><a href="openapi.yaml">openapi.yaml</a> · <a href="https://editor.swagger.io/?url=https://artcloud.gitlab.io/ai/architect/openapi.yaml">открыть в Swagger Editor</a></dd>
+    </dl>
+  </div>
+
+  <nav>
+    <a href="#c1">C1 Context</a>
+    <a href="#c2">C2 Containers</a>
+    <a href="#c3">C3 Components</a>
+    <a href="#deployment">Deployment</a>
+    <a class="secondary" href="workspace.dsl">workspace.dsl</a>
+    <a class="secondary" href="openapi.yaml">openapi.yaml</a>
+  </nav>
+
+  <section id="c1">
+    <span class="level">C4 Level 1</span>
+    <h2>System Context — кто пользуется системой и с чем она интегрирована</h2>
+    <p>Триггер из Б24 (webhook «Напоминание о платеже») → проверка статуса оплаты в 1С → исходящий звонок через SIP-Trunk (Asterisk) → клиент. Эскалация на оператора КЦ через SIP-REFER. Внешние AI-сервисы: STT/TTS-провайдер (SaluteSpeech/YC SpeechKit), self-hosted RU-LLM. SMS-провайдер для fallback при недозвоне (FR-1.2).</p>
+    <img src="structurizr-ContextDiagram.png" alt="C4 Level 1: System Context — Суфлёр БФТ">
+  </section>
+
+  <section id="c2">
+    <span class="level">C4 Level 2</span>
+    <h2>Containers — обязательные блоки из ТЗ и что в них</h2>
+    <p>9 контейнеров: <strong>Admin UI (Frontend)</strong>, <strong>Backend Orchestrator</strong>, <strong>AI Service (Dialog Engine)</strong>, <strong>Voice Gateway</strong> (медиа-мост SIP/RTP ↔ внутреннее аудио), <strong>Call Scheduler</strong> (окно 10:00–19:00, 30 СЛ / 5 CPS), <strong>Reporter</strong> (ежедневный Excel в 08:00 МСК), <strong>SQL DB</strong> (PostgreSQL — сделки/звонки/транскрипции), <strong>Vector DB</strong> (Qdrant — банк фраз/возражений), <strong>Audio Storage</strong> (S3, TTL 30 дней по 152-ФЗ).</p>
+    <img src="structurizr-ContainerDiagram.png" alt="C4 Level 2: Containers — Суфлёр БФТ">
+  </section>
+
+  <section id="c3">
+    <span class="level">C4 Level 3</span>
+    <h2>Components — внутри AI Service (Dialog Engine)</h2>
+    <p>10 компонентов: <code>Controller</code> (HTTP/WS, эндпоинт <code>/get_recommendation</code>), <code>STT Client</code>, <code>NLU Intent Classifier</code> (классификация FR-3.1…3.7), <code>Dialogue Manager</code> (FSM с BR-01…04), <code>RAG Manager</code> + <code>Retriever</code> (поиск похожих возражений в Qdrant — путь для FR-3.5 «дорого»), <code>Prompt Template Factory</code>, <code>LLM Client</code> (с tenacity + pybreaker), <code>TTS Client</code> (голос «Елена»), <code>Response Postprocessor</code> (PII-маска).</p>
+    <img src="structurizr-AIService_Components_View.png" alt="C4 Level 3: Components — AI Service">
+  </section>
+
+  <section id="deployment">
+    <span class="level">C4 Deployment</span>
+    <h2>Deployment — раскладка по инфраструктуре (Yandex Cloud, RU-DC)</h2>
+    <p>Соответствие 152-ФЗ: все ПДн и аудиозаписи в RU-DC. K8s-кластер с двумя namespace'ами (<code>Services</code> — синхронные API/AI/Voice Gateway; <code>Workers</code> — Scheduler/Reporter). Managed-сервисы для данных: YC Managed PostgreSQL, Managed Qdrant, S3 с lifecycle-rules.</p>
+    <img src="structurizr-DeploymentDiagram.png" alt="C4 Deployment — Суфлёр БФТ">
+  </section>
+
+  <div class="footer">
+    <p>
+      Сгенерировано из <a href="workspace.dsl">Structurizr DSL</a> через <code>structurizr/structurizr export</code> и <code>mermaid-cli</code>.
+      Полный конспект ДЗ — <a href="https://gitlab.com/artcloud/ai/architect/-/blob/main/02-architecture/homework/05-lld.md">homework/05-lld.md</a>.
+      Репозиторий: <a href="https://gitlab.com/artcloud/ai/architect">artcloud/ai/architect</a>.
+    </p>
+  </div>
+</body>
+</html>

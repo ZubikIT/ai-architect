@@ -1,0 +1,14 @@
+pages:
+  stage: deploy
+  image: alpine:3.19
+  script:
+    - mkdir -p public
+    - cp 02-architecture/artifacts/diagrams/index.html public/index.html
+    - cp 02-architecture/artifacts/diagrams/*.png public/
+    - cp 02-architecture/artifacts/lesson-05-workspace.dsl public/workspace.dsl
+    - cp 02-architecture/artifacts/lesson-05-openapi.yaml public/openapi.yaml
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
