@@ -1,72 +1,66 @@
-# Деплой Structurizr Lite на Fly.io
+# Fly.io — деплой интерактивного Structurizr Lite
 
-Публикует интерактивную копию `lesson-05-workspace.dsl` на постоянный URL `https://<app-name>.fly.dev/`.
+Публикует интерактивную копию `lesson-05-workspace.dsl` на постоянный URL `https://ai-architect.fly.dev/workspace/1/diagrams`.
 
-## Файлы
+## Где что лежит
 
-- `Dockerfile.structurizr` — образ на основе `structurizr/structurizr:latest`, с зашитой `lesson-05-workspace.dsl` под именем `workspace.dsl` (конвенция Lite).
-- `fly.toml` — Fly app config: регион `fra`, 256 MB RAM, shared CPU, auto-stop при простое.
+- `/Dockerfile` (в корне репо) — `structurizr/structurizr:latest` + COPY `lesson-05-workspace.dsl` → `/usr/local/structurizr/workspace.dsl`, запускает `local`.
+- `/fly.toml` (в корне репо) — app `ai-architect`, регион `fra`, 256 MB shared-cpu, auto-stop при простое.
+- DSL остаётся источником правды в `02-architecture/artifacts/lesson-05-workspace.dsl`.
 
-## Разовая настройка
-
-```bash
-# 1. Поставить flyctl
-brew install flyctl                   # macOS
-# или: curl -L https://fly.io/install.sh | sh
-
-# 2. Логин (создаст аккаунт если нет; нужна почта + привязка карты для подтверждения, free-tier не списывается)
-flyctl auth signup                    # если ещё нет аккаунта
-flyctl auth login                     # если уже есть
-
-# 3. Создать приложение под именем из fly.toml (или своим — поменяй `app` в fly.toml)
-cd 02-architecture/artifacts
-flyctl apps create sufler-bft-otus    # имя должно быть глобально уникальным
-```
+Файлы в корне специально — Fly GitHub auto-deploy ищет `Dockerfile`+`fly.toml` именно там.
 
 ## Деплой
 
+Два варианта.
+
+### Вариант 1. GitHub auto-deploy (настроено)
+
+Fly подписан на GitHub-репо `ZubikIT/ai-architect`. Каждый push в `main` → Fly сам собирает образ и катит. Никаких локальных команд не надо.
+
+Чтобы это работало, рабочий цикл такой:
+
 ```bash
-cd 02-architecture/artifacts
+git push origin main          # GitLab
+git push github main          # GitHub → триггерит Fly auto-deploy
+```
+
+### Вариант 2. CLI деплой с локалки
+
+```bash
+cd /Users/zubik/www/artcloud/ai/architect
 flyctl deploy
 ```
 
-flyctl автоматически:
-1. Соберёт `Dockerfile.structurizr` (контекст = текущая папка → `lesson-05-workspace.dsl` попадает внутрь).
-2. Запушит образ в Fly registry.
-3. Поднимет VM в регионе `fra` с auto-stop при простое (бесплатно «спит» — стартует за ~2 сек при первом запросе).
+flyctl возьмёт `fly.toml` и `Dockerfile` из текущей папки.
 
-После завершения откроется `https://sufler-bft-otus.fly.dev/workspace/1/diagrams`.
+## Полезные команды
 
-## Обновление DSL
+```bash
+flyctl status -a ai-architect      # состояние машин
+flyctl logs -a ai-architect        # логи Lite
+flyctl open -a ai-architect        # открыть в браузере
+flyctl auth token                  # вывести API token (для GitLab CI/GitHub Actions)
+flyctl scale memory 512 -a ai-architect   # если 256 МБ не хватит
+flyctl destroy ai-architect -y     # удалить приложение
+```
 
-Любая правка `lesson-05-workspace.dsl` → `flyctl deploy` → новая версия за минуту.
+## Тарификация
 
-Чтобы автоматизировать через GitLab CI:
+Free-tier Fly.io 2026:
+- shared-cpu-1x VM 256 MB с auto-stop фактически бесплатна — машина «спит» без трафика и стартует за 2 сек на первый запрос.
+- 3 GB исходящего трафика в месяц — для C4-диаграмм с запасом.
+
+## Если хочется автодеплой из GitLab вместо GitHub
 
 ```yaml
 fly-deploy:
   stage: deploy
   image: ghcr.io/superfly/flyctl:latest
   script:
-    - cd 02-architecture/artifacts
     - flyctl deploy --remote-only --access-token "$FLY_API_TOKEN"
   rules:
     - if: $CI_COMMIT_BRANCH == "main" && $FLY_API_TOKEN
 ```
 
-`FLY_API_TOKEN` берётся командой `flyctl auth token` и кладётся в GitLab → Settings → CI/CD → Variables (masked + protected).
-
-## Тарификация
-
-Free-tier Fly.io 2026:
-- До 3 shared-CPU-1x VM 256 MB бесплатно (если суммарное время работы — в пределах квоты ~3000 часов/мес).
-- Auto-stop в `fly.toml` (`auto_stop_machines = "stop"`, `min_machines_running = 0`) гарантирует, что VM засыпает без трафика → деньги не уходят, даже если кто-то посмотрит ссылку раз в неделю.
-
-## Проверка
-
-```bash
-flyctl status -a sufler-bft-otus      # состояние машин
-flyctl logs -a sufler-bft-otus        # логи Lite
-flyctl open -a sufler-bft-otus        # открыть в браузере
-flyctl destroy sufler-bft-otus -y     # удалить приложение и забыть
-```
+`FLY_API_TOKEN` берётся через `flyctl auth token` и кладётся в GitLab → Settings → CI/CD → Variables (masked + protected).
