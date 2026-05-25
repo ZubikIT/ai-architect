@@ -1,13 +1,23 @@
 ---
 module: 02-architecture
 lesson: 6
-date:
-lecturer:
-tags: [RAG, retrieval, embeddings, reranking]
+date: 2026-05-19
+lecturer: Денис Лавров
+tags: [RAG, retrieval, embeddings, reranking, hybrid-search, graph-rag, self-rag, crag]
 status: todo
 ---
 
 # 06. Архитектурные паттерны: RAG и его продвинутые вариации
+
+> **Анонс занятия** · 19 мая (вт), 20:00 · 90 мин · преподаватель Денис Лавров
+>
+> **Цели:** проектировать и реализовывать системы на паттерне RAG; анализировать и применять продвинутые техники (реранжирование, гибридный поиск) для повышения качества ответов.
+>
+> **Содержание:** детальный разбор RAG-пайплайнов; продвинутые паттерны Self-RAG, CRAG, Knowledge/Cache Augmented Generation; практика — проектирование **гибридной RAG-архитектуры на Vector DB + Knowledge Graph**.
+>
+> **Результаты:** конспект лекции · практическое задание · Colab notebook с кодом.
+>
+> **Компетенция:** проектировать гибридные RAG-архитектуры с использованием Vector DB и Knowledge Graph.
 
 ## TL;DR
 
