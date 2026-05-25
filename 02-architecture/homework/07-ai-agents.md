@@ -25,8 +25,8 @@ grade:
 4. **Прототипирование.** В Colab написать упрощённый код (LangChain / LangGraph), где один агент («Менеджер») делегирует задачу другому («Поисковик») и возвращает ответ.
 
 ### Полезные материалы
-- Шаблон кода: LangChain Quickstart
-- Статья: RAG Pipeline
+- Шаблон кода: [LangChain — Agents](https://reference.langchain.com/python/langchain/agents/)
+- Статья: [Pinecone — Retrieval-Augmented Generation](https://www.pinecone.io/learn/retrieval-augmented-generation/)
 
 ### Формат сдачи
 - Схема архитектуры (PNG / PDF).
