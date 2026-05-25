@@ -55,7 +55,7 @@ grade:
 - [x] Structurizr DSL c C1 / C2 / C3 / Deployment-видами: [`../artifacts/lesson-05-workspace.dsl`](../artifacts/lesson-05-workspace.dsl)
 - [x] OpenAPI 3.1 для `POST /get_recommendation` с RFC 7807 ошибками и примерами: [`../artifacts/lesson-05-openapi.yaml`](../artifacts/lesson-05-openapi.yaml)
 - [x] C2 / C3 / Sequence — Mermaid встроены ниже (для удобства проверки в Git)
-- [ ] Публичные ссылки на отрисованные диаграммы (Structurizr Cloud / Holst) — добавить перед сдачей
+- [x] Публичные ссылки на отрисованные диаграммы (GitLab Pages, открытый доступ): https://architect-5ffe23.gitlab.io — C1/C2/C3/Deployment (PNG из Structurizr) + DSL + OpenAPI
 - [x] Gist с OpenAPI YAML (открытый доступ): https://gist.github.com/ZubikIT/0ddc23cf0aad6cc2a011efd6a8898e3f
 
 ### Подход
