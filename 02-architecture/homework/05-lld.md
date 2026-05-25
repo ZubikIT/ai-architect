@@ -3,9 +3,9 @@ module: 02-architecture
 lesson: 5
 date_assigned: 2026-05-15
 date_due: 2026-05-21
-date_submitted:
-status: todo
-grade:
+date_submitted: 2026-05-25
+status: graded
+grade: зачёт (развёрнутый положительный отзыв + 2 рекомендации учтены)
 ---
 
 # ДЗ 05. Многоуровневое проектирование: от C4 Model до спецификации API
