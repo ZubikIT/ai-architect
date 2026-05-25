@@ -145,14 +145,53 @@ paths:
                       timeout_ms: 0
                     cost:
                       total_latency_ms: 410
+                unrecognized_reask:
+                  summary: Реплика не распознана → переспрос (FR-2.3), штатный 200 OK
+                  description: |
+                    NLU не уверен (confidence ниже порога) — это НЕ ошибка, а штатный
+                    бизнес-исход (клиент промолчал / чихнул / сказал нерелевантное).
+                    Сервис сам формирует фразу-переспрос и команду `CONTINUE`.
+                    Решение «переспросить vs эскалировать» принимает Dialogue Manager
+                    по `dialogue_state.retry_count` — и выражает его через `next_action`.
+                  value:
+                    intent:
+                      code: "unrecognized"
+                      label: "Не распознано"
+                      fr_id: "FR-2.3"
+                      confidence: 0.31
+                    response_text: "Извините, не расслышала. Повторите, пожалуйста."
+                    next_action:
+                      type: "CONTINUE"
+                      timeout_ms: 8000
+                    cost:
+                      stt_ms: 290
+                      tts_ms: 360
+                      total_latency_ms: 720
+                unrecognized_escalate:
+                  summary: Реплика снова не распознана, retry_count исчерпан → перевод
+                  description: |
+                    Тот же интент `unrecognized`, но `retry_count` превысил лимит (FR-2.3):
+                    Dialogue Manager эскалирует на оператора — снова через `next_action`,
+                    без HTTP-ошибки.
+                  value:
+                    intent:
+                      code: "unrecognized"
+                      label: "Не распознано"
+                      fr_id: "FR-2.3"
+                      confidence: 0.28
+                    response_text: "Соединяю Вас со специалистом, он поможет."
+                    next_action:
+                      type: "TRANSFER_TO_OPERATOR"
+                      queue: "kc_default"
+                      timeout_ms: 0
+                    cost:
+                      stt_ms: 300
+                      total_latency_ms: 540
         '400':
           $ref: '#/components/responses/BadRequest'
           # Например: невалидный schema, нет deal.id, audio_uri недоступен
         '401':
           $ref: '#/components/responses/Unauthorized'
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
-          # NLU не уверен (confidence < threshold) И нет fallback — клиент должен переспросить
         '429':
           $ref: '#/components/responses/RateLimited'
           # CPS-лимит на инстанс / квота LLM-провайдера
@@ -161,6 +200,10 @@ paths:
           # STT / TTS / LLM упал — Backend должен сделать fallback (rule-based фраза)
         '504':
           $ref: '#/components/responses/UpstreamTimeout'
+        # ВАЖНО: нераспознанная реплика (NLU не уверен) — это НЕ HTTP-ошибка, а штатный
+        # бизнес-исход. Возвращается 200 OK с intent.code=unrecognized и готовой фразой-
+        # переспросом в response_text (см. пример unrecognized_reask). HTTP-коды 4xx/5xx
+        # зарезервированы под битый запрос (400/401) и инфраструктурные сбои (503/504).
 
   /healthz:
     get:
@@ -305,7 +348,14 @@ components:
         local_time_iso:
           type: string
           format: date-time
-          description: Локальное время отеля для BR-01 (звонки 10:00–19:00)
+          description: |
+            Локальное время отеля — для выбора приветствия (доброе утро/вечер) и
+            таймстемпов в логах. НЕ является точкой контроля BR-01: правило «звонки
+            только 10:00–19:00» обеспечивает Call Scheduler на этапе инициации вызова
+            (единственное место с безопасным действием — не ставить звонок в очередь).
+            Dialog Engine не обрывает уже идущий разговор по времени. Если нужна
+            «мягкая посадка» у границы окна — это отдельный сигнал (`wind_down`),
+            который вычисляет Backend/Scheduler, а не выводится здесь из времени.
 
     RecommendationResponse:
       type: object
@@ -425,20 +475,6 @@ components:
       content:
         application/problem+json:
           schema: { $ref: '#/components/schemas/Problem' }
-
-    UnprocessableEntity:
-      description: |
-        Реплика клиента не распознана с достаточной уверенностью и нет fallback.
-        Backend должен инициировать переспрашивание (FR-2.3) или эскалацию.
-      content:
-        application/problem+json:
-          schema: { $ref: '#/components/schemas/Problem' }
-          example:
-            type: "https://api.sufler.bft/probs/intent-unrecognized"
-            title: "Intent not recognized"
-            status: 422
-            detail: "NLU confidence 0.31 below threshold 0.55; retry_count=2"
-            recommended_action: "TRANSFER_TO_OPERATOR"
 
     RateLimited:
       description: CPS-лимит или квота LLM/STT провайдера превышена

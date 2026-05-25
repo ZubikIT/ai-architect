@@ -56,7 +56,7 @@ grade:
 - [x] OpenAPI 3.1 для `POST /get_recommendation` с RFC 7807 ошибками и примерами: [`../artifacts/lesson-05-openapi.yaml`](../artifacts/lesson-05-openapi.yaml)
 - [x] C2 / C3 / Sequence — Mermaid встроены ниже (для удобства проверки в Git)
 - [ ] Публичные ссылки на отрисованные диаграммы (Structurizr Cloud / Holst) — добавить перед сдачей
-- [ ] Gist с OpenAPI YAML — добавить перед сдачей
+- [x] Gist с OpenAPI YAML (открытый доступ): https://gist.github.com/ZubikIT/0ddc23cf0aad6cc2a011efd6a8898e3f
 
 ### Подход
 
@@ -273,17 +273,17 @@ sequenceDiagram
 
 ### OpenAPI — ключевые решения
 
-Полная спецификация: [`../artifacts/lesson-05-openapi.yaml`](../artifacts/lesson-05-openapi.yaml). Ключевое:
+Полная спецификация: [`../artifacts/lesson-05-openapi.yaml`](../artifacts/lesson-05-openapi.yaml) · публичный Gist: [gist.github.com/ZubikIT/0ddc23cf](https://gist.github.com/ZubikIT/0ddc23cf0aad6cc2a011efd6a8898e3f). Ключевое:
 
-- **`POST /get_recommendation`** принимает `RecommendationRequest`: `session_id`, `deal{id,hotel,city,cost,payment_link}`, `client_utterance{transcript|audio_uri,confidence,duration_ms}`, `dialogue_state{turn,history,retry_count}`, `constraints{max_response_chars,voice_persona,local_time_iso}`.
+- **`POST /get_recommendation`** принимает `RecommendationRequest`: `session_id`, `deal{id,hotel,city,cost,payment_link}`, `client_utterance{transcript|audio_uri,confidence,duration_ms}`, `dialogue_state{turn,history,retry_count}`, `constraints{max_response_chars,voice_persona,local_time_iso}`. `local_time_iso` — для приветствия/логов, **не** точка контроля BR-01 (владелец правила — Call Scheduler, см. ниже).
 - **Ответ** содержит `intent{code,fr_id,confidence}`, `response_text`, `ssml`, `next_action{type,timeout_ms,queue,callback_at,sms_template_id}`, `rag_sources`, `cost{llm_tokens,stt_ms,tts_ms,total_latency_ms}` — `cost` нужен для FinOps и SLA-мониторинга.
-- **Коды ошибок:**
+- **Коды ошибок** (только битый запрос и инфра-сбои; бизнес-исходы идут в `200`):
   - `400` — невалидная схема (`bad-request`)
   - `401` — JWT истёк / невалиден
-  - `422` — `intent-unrecognized` (NLU не уверен и нет fallback) с `recommended_action`
   - `429` — `rate-limited` с заголовком `Retry-After`
   - `503` — `upstream-unavailable` (Circuit Breaker open) с `recommended_action: use_rule_based_fallback`
   - `504` — `upstream-timeout`
+- **Нераспознанная реплика — `200 OK`, не ошибка.** `intent.code=unrecognized` + готовая фраза-переспрос в `response_text` + `next_action` (`CONTINUE` для переспроса или `TRANSFER_TO_OPERATOR` при исчерпании `retry_count`). Примеры `unrecognized_reask` / `unrecognized_escalate` (см. правку по обратной связи ниже).
 - **Формат ошибок** — RFC 7807 (`application/problem+json` со схемой `Problem`).
 - **Версионирование** — URI (`/v1/...`).
 - **Security** — Bearer JWT, выписанный Backend'ом, живёт длительность звонка + 5 мин.
@@ -303,3 +303,28 @@ sequenceDiagram
 - **Voice Gateway как отдельный контейнер vs компонент AI Service.** Решение: отдельный контейнер. Причина: host network в k8s (для RTP/NAT), отдельный жизненный цикл, в нём нет ML-логики.
 
 ## Обратная связь от преподавателя
+
+Преподаватель высоко оценил проработку слоёв (изоляция Voice Gateway от AI Service, выделение Call Scheduler и Reporter, независимые STT/NLU/TTS-клиенты на C3, синхронизацию 27-шагового сценария с C3, короткий путь без LLM/RAG для агрессии, RFC 7807, SSML, блок `cost` для FinOps/SLA) и дал две рекомендации из практики голосовых ассистентов. Обе приняты и внесены в `lesson-05-openapi.yaml`.
+
+### Замечание 1 — нераспознанный интент через HTTP-коды
+
+**Суть:** `422 Unprocessable Entity` концептуально верен, но в голосовом инференсе нераспознанный интент — штатная бизнес-ситуация (клиент промолчал, чихнул, сказал нерелевантное). HTTP-ошибка вынуждает Backend-оркестратор перехватывать исключение на уровне протокола ради переспроса. Удобнее `200 OK` с `intent: unrecognized` и готовой фразой-переспросом в `response_text`, оставив HTTP-ошибки под системные/инфра-сбои (`503`/`504`).
+
+**Согласен — и это разрешило скрытое противоречие в моём же контракте:** `unrecognized` уже был в enum `intent.code` (валидный исход ветки `200`) и одновременно обрабатывался через `422`. Один бизнес-исход был представлен двумя способами — клиент контракта не знал, где его ловить. Принцип: **HTTP-статус описывает судьбу HTTP-обмена, а не бизнес-исход диалога.** Запрос валиден, сервер успешно отработал, NLU выдал низкоуверенный результат — это успешный инференс, а не сбой. Дополнительные издержки `422`: исключения как управление потоком на частой ветке, потеря единого конверта ответа (`response_text`/`next_action`/`cost`), недоучёт `cost` (нераспознанный turn всё равно стоил STT), шум в error-rate/алертинге.
+
+**Что сделано в OpenAPI:**
+- Удалён код `422` и компонент-ответ `UnprocessableEntity` (вместе с костыльным полем `recommended_action`).
+- Добавлены два `200`-примера: `unrecognized_reask` (переспрос, `next_action=CONTINUE`) и `unrecognized_escalate` (эскалация при исчерпании `retry_count`, `next_action=TRANSFER_TO_OPERATOR`).
+- Решение «переспросить vs эскалировать» стало first-class: его принимает Dialogue Manager по `dialogue_state.retry_count` и выражает через `next_action` — там, где у контракта и живут все решения о действиях.
+
+### Замечание 2 — точка контроля BR-01 (окно звонков 10:00–19:00)
+
+**Суть:** `local_time_iso` на каждом turn — хорошая защитная мера, но первичный владелец и контролёр BR-01 должен быть Call Scheduler на этапе инициации. Проверять время на каждом шаге Dialog Engine избыточно: нельзя оборвать разговор на полуслове в 19:01.
+
+**Согласен.** Принцип: **инвариант обеспечивают там, где у проверяющего есть безопасное действие при нарушении.** У Scheduler оно есть — не ставить звонок в очередь; у Dialog Engine посреди живого разговора его нет. К тому же `constraints.local_time_iso` дублировал в контракте владение правилом, которое на C2 уже корректно закреплено за Call Scheduler («окно 10–19»), — контракт начинал противоречить диаграмме.
+
+**Что сделано:**
+- `local_time_iso` переформулирован: поле остаётся (полезно для выбора приветствия и таймстемпов в логах), но в описании явно указано, что это **не** точка контроля BR-01; владелец правила — Call Scheduler на инициации, Dialog Engine не обрывает идущий разговор по времени.
+- «Мягкая посадка» у границы окна (свернуть разговор к 18:55) задокументирована как **отдельный** концерн — явный сигнал `wind_down`, который вычисляет Backend/Scheduler, а не выводится из сырого времени в Dialog Engine.
+
+**Общий знаменатель обоих замечаний** — *single source of truth*: одно представление одного исхода (`unrecognized` только в `200`) и один владелец одного правила (BR-01 — только Call Scheduler).
