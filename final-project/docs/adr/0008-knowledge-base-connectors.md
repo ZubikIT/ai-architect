@@ -2,7 +2,7 @@
 id: ADR-0008
 title: Коннекторы к корпоративным БЗ — Onyx (ex-Danswer)
 date: 2026-05-26
-status: proposed
+status: accepted
 deciders: [Зубик Александр]
 tags: [connectors, ingestion, onyx, danswer, confluence, jira, sharepoint, permission-aware, rag]
 ---
@@ -31,16 +31,17 @@ tags: [connectors, ingestion, onyx, danswer, confluence, jira, sharepoint, permi
 4. **Коммерческие (Glean и т.п.)** — **Rejected:** SaaS/проприетарно, санкции, не air-gapped.
 
 ## Решение
-Берём **Onyx** как **слой коннекторов + permission-aware ingestion** (его сильнейшая сторона), а не как замену всего стека. Целевая роль — **knowledge backend**:
+**Две плоскости с общим LLM** (целевая картина стека):
 
-- Onyx подключает и инкрементально индексирует Confluence/Jira/SharePoint **с наследованием прав**.
-- Агенты (LangGraph, ADR-0005) и/или Open WebUI (ADR-0007) обращаются к Onyx через его **search/answer API** (Onyx как retriever/инструмент).
-- Open WebUI остаётся пользовательским фронтом; UI Onyx можно включить опционально как enterprise-search.
+- **Onyx — для совместной работы:** enterprise-search по **общим базам знаний** (Confluence/Jira/SharePoint) с **permission-aware** retrieval, со своим UI / RAG / индексом и hybrid+rerank из коробки.
+- **Open WebUI ([ADR-0007](0007-chat-interface.md)) — для персонального** использования (личный ассистент / агентный чат).
+- **Один LLM на обе системы:** Qwen3.6 ([ADR-0002](0002-vybor-modeli.md)) через vLLM ([ADR-0003](0003-llm-serving-engine.md)) — обе указывают на единый OpenAI-совместимый эндпоинт.
 
-**Статус `proposed`** — до решения нужно закрыть **открытые вопросы**:
-1. **Полная платформа vs только коннекторы.** Если возьмём Onyx целиком (его UI+RAG), то **ADR-0007 (Open WebUI) и часть кастомного RAG → `superseded`**. Решить явно.
-2. **Vector store:** поддерживает ли Onyx **Qdrant** как backend? Если только встроенный (Vespa) — конфликт с **ADR-0004**: либо Qdrant под агентный RAG + индекс Onyx под enterprise-search (две БД), либо перейти на индекс Onyx (пересмотр ADR-0004).
-3. **CE (MIT) vs EE:** какие нужные фичи (тонкий RBAC, SSO, коннекторы) только в Enterprise Edition.
+Конфликта с ADR-0004/0007 нет: системы **разграничены по сценарию** (личный ассистент vs общий поиск) при **общем LLM-бэкенде**. Кастомные коннекторы и коммерческие SaaS — **Rejected**.
+
+**Статус `accepted`** по роли (решение команды). На **PoC** подтвердить детали:
+- **Vector store:** Onyx ведёт **свой индекс** под общие БЗ; **Qdrant (ADR-0004)** — под персональный/агентный RAG (разные scope, не конфликтуют). Проверить, нужен ли Onyx внешний Qdrant или хватит встроенного индекса.
+- **CE (MIT) vs EE:** какие нужные фичи (permission-aware на наших коннекторах, SSO) только в Enterprise Edition.
 
 ## Последствия
 - **Положительные:**
@@ -48,7 +49,7 @@ tags: [connectors, ingestion, onyx, danswer, confluence, jira, sharepoint, permi
   - Air-gapped и MIT — соответствует ADR-0001 без лицензионных рисков.
   - Hybrid+rerank из коробки → меньше собственного RAG-кода (урок 06).
 - **Отрицательные / риски:**
-  - **Дублирование** Vector DB / UI / RAG с ADR-0004/0007 → требует явного решения роли (иначе два конкурирующих стека).
+  - Две системы (Onyx + Open WebUI) и потенциально два индекса → выше эксплуатационная сложность; оправдано чётким разделением сценариев (общий поиск vs личный ассистент).
   - Тяжёлая платформа (ops); сопровождение и обновления коннекторов.
 - **Что придётся изменить дальше:**
   - **PoC:** Onyx + один коннектор (Confluence) в air-gapped; проверить Qdrant-backend и зеркалирование прав.
@@ -61,6 +62,6 @@ tags: [connectors, ingestion, onyx, danswer, confluence, jira, sharepoint, permi
 
 ## Связи
 - **Следует из:** [ADR-0001](0001-on-premise-self-hosted-llm.md) (air-gapped).
-- **Конфликтует / требует согласования с:** [ADR-0004](0004-vector-db.md) (vector store), [ADR-0007](0007-chat-interface.md) (UI/RAG overlap).
+- **Разграничено по scope с:** [ADR-0004](0004-vector-db.md) (Qdrant — персональный/агентный RAG), [ADR-0007](0007-chat-interface.md) (Open WebUI — персональный фронт). Общий LLM — Qwen/vLLM.
 - **Связан с:** [ADR-0005](0005-orchestration.md) (Onyx как retriever-tool для агентов), урок 06 (hybrid + reranking — Onyx делает из коробки).
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).
