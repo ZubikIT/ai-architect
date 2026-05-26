@@ -12,7 +12,7 @@ tags: [quantization, fp8, awq, gpu, sizing, h100, vllm, kv-cache]
 ## Контекст
 ADR-0002 выбрал baseline `Qwen3.6-27B` (dense), ADR-0003 — движок vLLM. Нужно зафиксировать **precision/квантование**, распределение по GPU (tensor parallelism) и бюджет VRAM (веса + KV-cache).
 
-- **Железо (фиксировано):** **Lenovo ThinkSystem SR675 V3, 2× NVIDIA H100 80 GB** (≈160 GB, NVLink). On-prem, в контуре (ADR-0001). _Уточнить SXM/HGX vs PCIe — влияет на NVLink и TP._
+- **Железо (фиксировано):** **Lenovo ThinkSystem SR675 V3, 2× NVIDIA H100 NVL 94 GB** (≈188 GB, NVLink-bridge). On-prem, в контуре (ADR-0001).
 - **Hopper → FP8 «из коробки»:** H100 имеет аппаратный FP8 (e4m3/e5m2). Это меняет дефолт относительно брифа (он писался под consumer GPU и предлагал AWQ/GGUF).
 - **Профиль:** RAG + агенты, длинный контекст (Qwen3.6 — 256k), параллельные запросы → важен запас под **KV-cache** и batch.
 - **Требование брифа «KV-cache optimization»** закрывается PagedAttention (vLLM) + FP8 KV-cache.
@@ -26,7 +26,7 @@ ADR-0002 выбрал baseline `Qwen3.6-27B` (dense), ADR-0003 — движок 
 ## Решение
 Рабочая precision — **FP8** на 2× H100.
 
-- **Baseline:** `Qwen3.6-27B` в **FP8 на одной H100 (TP=1)** — ~27 GB на веса, ~50 GB свободно под KV-cache (длинный контекст + высокий batch). Вторая H100 — под **throughput-реплику / HA-резерв**.
+- **Baseline:** `Qwen3.6-27B` в **FP8 на одной H100 NVL (TP=1)** — ~27 GB на веса, **~67 GB свободно** под KV-cache (длинный контекст + высокий batch). Вторая карта — под **throughput-реплику / HA-резерв**.
 - **Апгрейд качества:** MoE `Qwen3.5-122B-A10B` в FP8 (~122 GB) на **2× H100 (TP=2)** — решается eval'ом (ADR-0002).
 - **AWQ-4bit** — задокументированный **fallback** для max-density сценариев или если нет FP8-весов нужного чекпойнта.
 - **GGUF** — **Rejected** (не для vLLM).
@@ -35,7 +35,7 @@ ADR-0002 выбрал baseline `Qwen3.6-27B` (dense), ADR-0003 — движок 
 
 **Статус `proposed`:** перед `accepted` — бенчмарк FP8 vs BF16 на RU golden set (faithfulness/quality + tok/s, TTFT) и финализация модели (27B dense vs MoE) совместно с ADR-0002.
 
-## Sizing (ориентир, H100 80 GB; без KV-cache/overhead)
+## Sizing (ориентир, H100 NVL 94 GB; без KV-cache/overhead)
 | Модель | BF16 | FP8 | AWQ-4bit | Размещение |
 |---|---|---|---|---|
 | Qwen3.6-27B (dense, baseline) | ~54 GB | ~27 GB | ~15 GB | 1 GPU, большой запас под KV-cache |
