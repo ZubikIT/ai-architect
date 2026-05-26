@@ -25,6 +25,7 @@
 | [ADR-0006](0006-kvantovanie-i-sizing-gpu.md) | Квантование и sizing GPU — FP8 на 2× H100 NVL | proposed | 2026-05-26 |
 | [ADR-0007](0007-chat-interface.md) | Чат-интерфейс — Open WebUI (SSO + Pipelines, мобайл Conduit) | accepted | 2026-05-26 |
 | [ADR-0008](0008-knowledge-base-connectors.md) | Коннекторы к корпоративным БЗ — Onyx (Confluence/Jira/SharePoint) | accepted | 2026-05-26 |
+| [ADR-0009](0009-mcp-integration-layer.md) | MCP как стандартный слой интеграции (Open WebUI + Onyx) | proposed | 2026-05-26 |
 
 ## Планируемые ADR (из брифа проекта)
 - [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.6-27B (proposed)
@@ -36,3 +37,4 @@
 **Дополнительно (вне брифа):**
 - [x] **ADR-0007** — чат-интерфейс → [ADR-0007](0007-chat-interface.md): Open WebUI (accepted)
 - [x] **ADR-0008** — коннекторы к корпоративным БЗ → [ADR-0008](0008-knowledge-base-connectors.md): Onyx (accepted; роль: совместная работа/общий поиск, Open WebUI = персонально, общий LLM)
+- [x] **ADR-0009** — слой интеграции → [ADR-0009](0009-mcp-integration-layer.md): MCP (proposed; Open WebUI + Onyx, оба нативно поддерживают)
