@@ -45,10 +45,11 @@ tags: [ui, chat, open-webui, sso, oidc, pipelines, guardrails, conduit, air-gapp
 - **Положительные:**
   - Быстрый запуск UI без разработки; SSO/RBAC и аудит доступа из коробки (№ 99-З).
   - **Pipelines** = единая точка для Input/Output Guardrails (PII, prompt injection, toxicity) → закрывает Блок 3 Security.
-  - Мобильный доступ через Conduit без отдельной разработки.
+  - Мобильный доступ через **Conduit** (нативный iOS/Android, поддерживает SSO/LDAP/JWT) без отдельной разработки.
 - **Отрицательные / риски:**
   - User-facing web-tier — поверхность атаки: размещение в **DMZ**, security-review, секреты в Vault, TLS.
   - Open WebUI быстро развивается → **пинить версии**, регламент обновлений, проверять changelog на ломающие изменения.
+  - **Conduit — сторонний** open-source клиент (НЕ официальный проект Open WebUI): зависимость от внешнего мейнтейнера → проверять обновления/безопасность, пинить версию, рассмотреть форк/self-build при критичности.
   - Нужно отключить внешние коннекторы (web search) и телеметрию для air-gapped.
 - **Что придётся изменить дальше:**
   - Спроектировать Pipelines под guardrails (PII-фильтр, prompt-injection) — Блок 3.
@@ -61,5 +62,6 @@ tags: [ui, chat, open-webui, sso, oidc, pipelines, guardrails, conduit, air-gapp
 
 ## Связи
 - **Следует из:** [ADR-0001](0001-on-premise-self-hosted-llm.md) (air-gapped), [ADR-0003](0003-llm-serving-engine.md) (OpenAI-совместимый vLLM).
-- **Связан с:** Блок 3 «Security» (guardrails в Pipelines), Deployment-диаграмма (DMZ, Vault), ER-диаграмма (RBAC).
+- **Связан с:** Блок 3 «Security» (guardrails в Pipelines), Deployment-диаграмма (DMZ, Vault), ER-диаграмма (RBAC), [ADR-0004](0004-vector-db.md) (RAG-источник для UI).
+- **Мобильный клиент:** [Conduit](https://github.com/cogwheel0/conduit) — сторонний open-source клиент Open WebUI (App Store / Google Play).
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).
