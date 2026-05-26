@@ -83,7 +83,7 @@ ADR на каждый слой:
 - [x] ADR-пакет (serving, model, vector DB, orchestration, sizing + UI/connectors/MCP) → [`docs/adr/`](docs/adr/)
 - [ ] MVP: код выбранной темы (A/B/C) с инструкцией запуска
 - [ ] Observability: примеры трейсов и дашбордов
-- [ ] Экономическое обоснование (TCO, GPU-часы, лицензии)
+- [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`economics/tco.md`](economics/tco.md)
 - [ ] Презентация для защиты
 
 ## Структура
