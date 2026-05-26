@@ -72,15 +72,15 @@ ADR на каждый слой:
 
 ## Сводный чек-лист артефактов
 
-- [ ] Vision & Goals
-- [ ] Functional & Non-functional requirements
-- [ ] C4 L1 Context
-- [ ] C4 L2 Container
-- [ ] C4 L3 Component (Agent internals)
-- [ ] Deployment Diagram (GPU, DMZ, Vault)
-- [ ] Sequence Diagram (Guardrails → Rerank → Agent Loop → Tools)
-- [ ] ER Diagram (vectors, chunks, sessions, logs, RBAC)
-- [ ] ADR-пакет (минимум: serving, model, vector DB, orchestration, sizing)
+- [x] Vision & Goals → [`docs/vision-goals.md`](docs/vision-goals.md)
+- [x] Functional & Non-functional requirements → [`docs/requirements.md`](docs/requirements.md)
+- [x] C4 L1 Context → [`diagrams/c4.md`](diagrams/c4.md)
+- [x] C4 L2 Container → [`diagrams/c4.md`](diagrams/c4.md)
+- [x] C4 L3 Component (Agent internals) → [`diagrams/c4.md`](diagrams/c4.md)
+- [x] Deployment Diagram (GPU, DMZ, Vault) → [`diagrams/c4.md`](diagrams/c4.md)
+- [x] Sequence Diagram (Guardrails → Rerank → Agent Loop → Tools) → [`diagrams/sequence-er.md`](diagrams/sequence-er.md)
+- [x] ER Diagram (vectors, chunks, sessions, logs, RBAC) → [`diagrams/sequence-er.md`](diagrams/sequence-er.md)
+- [x] ADR-пакет (serving, model, vector DB, orchestration, sizing + UI/connectors/MCP) → [`docs/adr/`](docs/adr/)
 - [ ] MVP: код выбранной темы (A/B/C) с инструкцией запуска
 - [ ] Observability: примеры трейсов и дашбордов
 - [ ] Экономическое обоснование (TCO, GPU-часы, лицензии)
