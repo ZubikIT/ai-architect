@@ -26,7 +26,8 @@
 | [ADR-0007](0007-chat-interface.md) | Чат-интерфейс — Open WebUI (SSO + Pipelines, мобайл Conduit) | accepted | 2026-05-26 |
 | [ADR-0008](0008-knowledge-base-connectors.md) | Коннекторы к корпоративным БЗ — Onyx (Confluence/Jira/SharePoint) | accepted | 2026-05-26 |
 | [ADR-0009](0009-mcp-integration-layer.md) | MCP как стандартный слой интеграции (Open WebUI + Onyx) | proposed | 2026-05-26 |
-| [ADR-0010](0010-voice-stack.md) | Голосовой стек — self-hosted STT/TTS (faster-whisper + Silero) | proposed | 2026-05-27 |
+| [ADR-0010](0010-voice-stack.md) | Голосовой стек — self-hosted STT/TTS (faster-whisper/GigaAM + Silero) | proposed | 2026-05-27 |
+| [ADR-0011](0011-sufler-pipeline-integration.md) | Интеграция Суфлёра как Open WebUI Pipeline + RBAC через Keycloak | proposed | 2026-05-27 |
 
 ## Планируемые ADR (из брифа проекта)
 - [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.6-27B (proposed)
@@ -39,4 +40,5 @@
 - [x] **ADR-0007** — чат-интерфейс → [ADR-0007](0007-chat-interface.md): Open WebUI (accepted)
 - [x] **ADR-0008** — коннекторы к корпоративным БЗ → [ADR-0008](0008-knowledge-base-connectors.md): Onyx (accepted; роль: совместная работа/общий поиск, Open WebUI = персонально, общий LLM)
 - [x] **ADR-0009** — слой интеграции → [ADR-0009](0009-mcp-integration-layer.md): MCP (proposed; Open WebUI + Onyx, оба нативно поддерживают)
-- [x] **ADR-0010** — голосовой стек (MVP этап 3) → [ADR-0010](0010-voice-stack.md): self-hosted faster-whisper + Silero (proposed)
+- [x] **ADR-0010** — голосовой стек (MVP этап 3) → [ADR-0010](0010-voice-stack.md): self-hosted faster-whisper/GigaAM + Silero (proposed)
+- [x] **ADR-0011** — интеграция в реальный деплой → [ADR-0011](0011-sufler-pipeline-integration.md): Суфлёр-Pipe + Keycloak RBAC (proposed)

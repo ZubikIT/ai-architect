@@ -20,9 +20,10 @@ tags: [voice, stt, tts, whisper, silero, xtts, air-gapped, ru]
 
 ## Рассмотренные варианты
 **STT:**
-1. **faster-whisper (Whisper large-v3, CTranslate2)** _(выбран)_ — сильный RU, self-host, эффективен на GPU; стриминг через whisper-streaming/WhisperLive. Минус: large-v3 требует GPU-памяти (на H100 не проблема).
-2. Vosk — лёгкий, офлайн, RU, но точность ниже.
-3. NVIDIA Parakeet/Canary — быстрый, но RU-поддержка слабее Whisper.
+1. **faster-whisper (Whisper large-v3, CTranslate2)** _(выбран, baseline)_ — сильный RU, self-host, эффективен на GPU; стриминг через whisper-streaming/WhisperLive. Минус: large-v3 требует GPU-памяти (на H100 не проблема).
+2. **GigaAM-v3 (Sber)** _(сильный RU-кандидат)_ — ASR, заточенный под русский; в реальном деплое zubriq.by уже намечен как локальная замена облачного STT для прода МТБанка. Проверить на PoC против faster-whisper по RU-точности и латенси.
+3. Vosk — лёгкий, офлайн, RU, но точность ниже.
+4. NVIDIA Parakeet/Canary — быстрый, но RU-поддержка слабее.
 
 **TTS:**
 1. **Silero TTS** _(выбран, baseline)_ — RU-native, быстрый, лёгкий (CPU/GPU), free; хорошее качество для делового голоса.
@@ -32,7 +33,7 @@ tags: [voice, stt, tts, whisper, silero, xtts, air-gapped, ru]
 **Облачные (SpeechKit/SaluteSpeech)** — **Rejected:** cloud, санкции, не air-gapped, голосовые ПДн наружу.
 
 ## Решение
-Self-hosted: **STT — faster-whisper (Whisper large-v3)** на GPU; **TTS — Silero** (baseline), XTTS-v2 — апгрейд при необходимости брендового/клонированного голоса. Всё в контуре.
+Self-hosted: **STT — faster-whisper (Whisper large-v3) или GigaAM-v3** (выбор по RU-eval на PoC) на GPU; **TTS — Silero** (baseline), XTTS-v2 — апгрейд при необходимости брендового/клонированного голоса. Всё в контуре.
 
 - **Ассистент сотрудника:** STT/TTS подключаются к **voice-режиму Open WebUI** (и Conduit) — минимум интеграции.
 - **Копайлот оператора:** стриминговый STT по аудио клиента (SIP/Asterisk-шлюз из дизайна Суфлёр БФТ) → текст → RAG-ядро → подсказка оператору (текст/голос в ухо); **клиенту бот не отвечает напрямую** (HITL).
