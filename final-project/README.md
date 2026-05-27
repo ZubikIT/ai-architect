@@ -63,10 +63,10 @@ ADR на каждый слой:
 Реализовать функционал по **одной из тем** (выбор обосновать):
 
 - [ ] **A. Cognitive Architecture** — реализация паттернов **ReAct**, **Plan-and-Solve** или **Multi-Agent Collaboration**
-- [ ] **B. Advanced RAG** — **GraphRAG** (Knowledge Graphs) или **Multimodal RAG** (работа с изображениями / таблицами)
+- [x] **B. Advanced RAG** — hybrid search + reranking по ЛПА/внутренней БЗ (+ элементы A: Суфлёр-копайлот; + голос, этап 3)
 - [ ] **C. Security** — **Input/Output Guardrails** (фильтрация PII, защита от prompt injection)
 
-> **Моя тема:** _не выбрана_
+> **Моя тема:** **B. Advanced RAG** — MVP «Суфлёр» (копайлот оператора КЦ + ассистент по ЛПА + голос). Дизайн: [`docs/mvp.md`](docs/mvp.md).
 
 ---
 
@@ -81,7 +81,7 @@ ADR на каждый слой:
 - [x] Sequence Diagram (Guardrails → Rerank → Agent Loop → Tools) → [`diagrams/sequence-er.md`](diagrams/sequence-er.md)
 - [x] ER Diagram (vectors, chunks, sessions, logs, RBAC) → [`diagrams/sequence-er.md`](diagrams/sequence-er.md)
 - [x] ADR-пакет (serving, model, vector DB, orchestration, sizing + UI/connectors/MCP) → [`docs/adr/`](docs/adr/)
-- [ ] MVP: код выбранной темы (A/B/C) с инструкцией запуска
+- [~] MVP: тема B выбрана, дизайн готов ([`docs/mvp.md`](docs/mvp.md)); код — TODO
 - [ ] Observability: примеры трейсов и дашбордов
 - [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`economics/tco.md`](economics/tco.md)
 - [ ] Презентация для защиты
