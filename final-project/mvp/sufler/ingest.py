@@ -27,7 +27,8 @@ def load_documents(data_dir: str):
 
 def _parse_acl(text: str):
     """Права доступа из строки-комментария: <!-- acl: hr, legal -->."""
-    m = re.search(r"acl:\s*([^\n>]+)", text)
+    # только слова и запятые, чтобы не захватить хвост коммента "-->"
+    m = re.search(r"acl:\s*([\w,\s]+)", text)
     if m:
         return [r.strip() for r in m.group(1).split(",") if r.strip()]
     return ["all"]
