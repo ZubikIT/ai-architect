@@ -50,6 +50,19 @@ SUFLER_USE_LLM=0 python -m sufler.cli "Порядок доступа к перс
 pytest -q     # ингест, RBAC-фильтр, блок prompt-injection (нужен интернет для скачивания моделей)
 ```
 
+## Docker (air-gapped-ready)
+Образ запекает модели эмбеддера/реранкера на сборке → стартует без интернета.
+```bash
+cd final-project/mvp
+docker build -t sufler-rag:local .
+docker run --rm -p 8080:8080 \
+  -e OPENAI_BASE_URL=http://<vllm-host>:8000/v1 \
+  -e SUFLER_LLM_MODEL=Qwen/Qwen2.5-7B-Instruct \
+  sufler-rag:local
+```
+В деплое Open WebUI подключается как сервис `sufler` (см. `open-webui/docker-compose.yml`); Pipe `sufler_rag_v1.py` зовёт `http://sufler:8080`. Публикация в реестр: тег `registry.gitlab.com/artcloud/ai/sufler:latest`.
+Прод: смонтировать реальные ЛПА и переключить на Qdrant-сервер (ADR-0004) вместо in-memory.
+
 ## Структура
 ```
 mvp/
