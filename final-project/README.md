@@ -81,7 +81,7 @@ ADR на каждый слой:
 - [x] Sequence Diagram (Guardrails → Rerank → Agent Loop → Tools) → [`diagrams/sequence-er.md`](diagrams/sequence-er.md)
 - [x] ER Diagram (vectors, chunks, sessions, logs, RBAC) → [`diagrams/sequence-er.md`](diagrams/sequence-er.md)
 - [x] ADR-пакет (serving, model, vector DB, orchestration, sizing + UI/connectors/MCP) → [`docs/adr/`](docs/adr/)
-- [~] MVP: тема B выбрана, дизайн готов ([`docs/mvp.md`](docs/mvp.md)); код — TODO
+- [x] MVP: тема B, дизайн ([`docs/mvp.md`](docs/mvp.md)) + рабочий каркас кода ([`mvp/`](mvp/)) — этапы 1-2; голос (этап 3) TODO
 - [ ] Observability: примеры трейсов и дашбордов
 - [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`economics/tco.md`](economics/tco.md)
 - [ ] Презентация для защиты
