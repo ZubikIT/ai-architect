@@ -12,7 +12,10 @@ ENV PIP_NO_CACHE_DIR=1 \
     SUFLER_DATA_DIR=/app/data/lpa
 
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+# CPU-only torch: сервису не нужен GPU (эмбеддер/реранкер на CPU, LLM внешний).
+# Иначе pip тянет CUDA-сборку torch + nvidia-* (~6-7 ГБ). С CPU-торчем образ ~2-2.5 ГБ.
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu \
+ && pip install -r requirements.txt
 
 # Пред-загрузка моделей в образ (чтобы в проде не ходить в интернет).
 RUN python -c "from sentence_transformers import SentenceTransformer, CrossEncoder; import os; SentenceTransformer(os.environ['SUFLER_EMBED_MODEL']); CrossEncoder(os.environ['SUFLER_RERANK_MODEL'])"
