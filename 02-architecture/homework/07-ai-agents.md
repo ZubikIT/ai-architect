@@ -71,8 +71,22 @@ grade:
 ### Артефакты
 - [ ] Архитектурная схема (PNG/PDF из mermaid ниже + Structurizr DSL рядом с уроком 05).
 - [x] **Inline** в этом файле: C2-схема MAS, Sequence-диаграмма happy-path, описание RAG Flow, skeleton кода LangGraph.
-- [x] **Colab/Jupyter notebook:** [`07-ai-agents.ipynb`](./07-ai-agents.ipynb) — рабочий прототип в двух режимах (`mock` без ключей и `real` с реальной LLM). Прогон на mock прошёл end-to-end локально: supervisor 5 раз маршрутизирует, все 4 секции dossier заполняются, финальный пакет — `KC-0879 + Hampton by Hilton = 27 000 ₽, ALLOWED`; ассерт на отсечение устаревшей редакции политики (`v2025.10`) проходит.
+- [x] **Colab/Jupyter notebook:** [`07-ai-agents.ipynb`](./07-ai-agents.ipynb) — рабочий прототип в двух режимах (`mock` без ключей и `real` с реальной LLM). Прогон на mock end-to-end локально: supervisor 5 раз маршрутизирует, все 4 секции dossier заполняются, финальный пакет — `KC-0879 + Hampton by Hilton = 27 000 ₽, ALLOWED`; ассерт на отсечение устаревшей редакции политики (`v2025.10`) проходит. Дополнительно прогнан на python 3.13 + **langgraph 1.2.2 / langchain-core 1.4.0** (последние) — без breaking changes.
+- [x] **Workspace-репо ноутбуков:** [`artcloud/ai/agents`](https://gitlab.com/artcloud/ai/agents) (public) — рабочая копия notebook'ов курса, клонится в `/home/jovyan/work` на JupyterHub.
+- [x] **JupyterHub:** [`https://jupyterhub.acl.by/`](https://jupyterhub.acl.by/) — Keycloak OAuth, DockerSpawner, singleuser-образ с preinstalled langgraph/langchain/jupyterlab-git/jupyterlab-myst/graphviz/pyppeteer. Ноутбук открывается там в Lab, граф визуализируется через `draw_mermaid_png()`.
+- [x] **Production-деплой как Open WebUI Pipe:** [`pipelines/tripbuddy_v1.py`](https://gitlab.com/artcloud/ai/open-webui/-/blob/main/pipelines/tripbuddy_v1.py) — TripBuddy появляется в OWUI как «модель» в dropdown'е (`TripBuddy MAS v1`); пользователь пишет «Командировка в Минск 10-12.06, переговоры» → стрим прогресса нод + финальный пакет. Реализован как plain-Python state machine (та же логика, что в notebook: trip_supervisor → ticket_searcher → hotel_searcher → budget_analyst → package_assembler + Policy RAG). Public read-grant раздан кодом ([`devops/opentofu/modules/openwebui/model_access.tf`](https://gitlab.com/artcloud/devops/opentofu/-/blob/main/modules/openwebui/model_access.tf)).
 - [ ] ADR с обоснованием выбора топологии (Supervisor vs Network) и канала коммуникации (blackboard vs message-passing) — оформлю отдельно в `final-project/docs/adr/` если возьму TripBuddy как часть финального проекта.
+
+### Сопутствующая инфра (бонус, не требовалось задачей)
+
+| Слой | Где | Что |
+|---|---|---|
+| ВМ JupyterHub | [`devops/opentofu/239-jupyterhub.tf`](https://gitlab.com/artcloud/devops/opentofu/-/blob/main/239-jupyterhub.tf) | Proxmox VM 239, `modules/vms` (паттерн qdrant), SQLite + DockerSpawner |
+| Auth (SSO) | [`modules/keycloak/clients.tf`](https://gitlab.com/artcloud/devops/opentofu/-/blob/main/modules/keycloak/clients.tf) | Keycloak client `jupyterhub` + Vault для client_secret |
+| Compose hub | [`devops/jupyterhub`](https://gitlab.com/artcloud/devops/jupyterhub) | `jupyterhub-tripbuddy:latest` + `tripbuddy-singleuser:latest` (langgraph 1.x / jupyterlab-myst / graphviz / pyppeteer), CI build → registry → deploy_prod на ВМ |
+| DNS + TLS | [`modules/pfsense/dns_acl_by.tf`](https://gitlab.com/artcloud/devops/opentofu/-/blob/main/modules/pfsense/dns_acl_by.tf) + [`modules/npm/proxy_host_acl_by.tf`](https://gitlab.com/artcloud/devops/opentofu/-/blob/main/modules/npm/proxy_host_acl_by.tf) | `jupyterhub.acl.by` → NPM → 10.100.1.47:8000, wildcard TLS |
+| GitLab project | [`modules/gitlab/project_jupyterhub.tf`](https://gitlab.com/artcloud/devops/opentofu/-/blob/main/modules/gitlab/project_jupyterhub.tf) | deploy key + CI var `DEPLOY_HOST` |
+| Open WebUI pipe | [`ai/open-webui/pipelines/tripbuddy_v1.py`](https://gitlab.com/artcloud/ai/open-webui/-/blob/main/pipelines/tripbuddy_v1.py) | TripBuddy MAS v1 в OWUI model selector |
 
 ### Состав агентов и роли
 
