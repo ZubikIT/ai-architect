@@ -71,7 +71,7 @@ grade:
 ### Артефакты
 - [ ] Архитектурная схема (PNG/PDF из mermaid ниже + Structurizr DSL рядом с уроком 05).
 - [x] **Inline** в этом файле: C2-схема MAS, Sequence-диаграмма happy-path, описание RAG Flow, skeleton кода LangGraph.
-- [ ] Colab notebook — будет собран на основе skeleton ниже; пока сдаю **псевдокод/skeleton inline** (формулировка ДЗ это допускает: «Colab notebook ... **или псевдокодом**»).
+- [x] **Colab/Jupyter notebook:** [`07-ai-agents.ipynb`](./07-ai-agents.ipynb) — рабочий прототип в двух режимах (`mock` без ключей и `real` с реальной LLM). Прогон на mock прошёл end-to-end локально: supervisor 5 раз маршрутизирует, все 4 секции dossier заполняются, финальный пакет — `KC-0879 + Hampton by Hilton = 27 000 ₽, ALLOWED`; ассерт на отсечение устаревшей редакции политики (`v2025.10`) проходит.
 - [ ] ADR с обоснованием выбора топологии (Supervisor vs Network) и канала коммуникации (blackboard vs message-passing) — оформлю отдельно в `final-project/docs/adr/` если возьму TripBuddy как часть финального проекта.
 
 ### Состав агентов и роли
@@ -355,7 +355,7 @@ def run(prompt: str):
 |---|---|
 | **Логика декомпозиции (SRP)** | таблица «Состав агентов и роли» — каждый агент = одна ответственность; `trip_supervisor` не выполняет работу, только маршрутизирует |
 | **RAG: Vector DB и нюансы** | раздел «RAG Flow»: Qdrant + Hybrid (BM25 + dense) + Cross-Encoder reranker + metadata-фильтры по `region/effective_from` |
-| **Работоспособность кода** | skeleton выше воспроизводит структуру [демки урока](../artifacts/lesson-07-agents-demo/) (там это реально запускается на YandexGPT); Colab-вариант собирается из skeleton за ~30 мин |
+| **Работоспособность кода** | [`07-ai-agents.ipynb`](./07-ai-agents.ipynb) — `MODE=mock` запускается «cold», без ключей; граф LangGraph настоящий, supervisor маршрутизирует, воркеры обмениваются `AIMessage(name=<agent>)` и пишут в dossier. Структура копирует [демку урока](../artifacts/lesson-07-agents-demo/) |
 
 ## Сложности и решения
 
