@@ -1,0 +1,36 @@
+#cloud-config
+hostname: jupyterhub
+users:
+  - name: root
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${public_key}
+write_files:
+  - path: /root/.ssh/id_ed25519
+    permissions: '0600'
+    encoding: b64
+    content: ${private_key}
+  - path: /root/.ssh/id_ed25519.pub
+    content: ${public_key}
+    permissions: '0644'
+runcmd:
+  - systemctl enable --now qemu-guest-agent
+  - curl -fsSL https://get.docker.com | sh && systemctl enable --now docker
+  - docker plugin install grafana/loki-docker-driver --alias loki --grant-all-permissions && systemctl restart docker
+  - docker run -d --name node_exporter -p ${gray_ip}:9100:9100 --restart always -v /:/host:ro,rslave prom/node-exporter:latest --path.rootfs=/host
+  - docker run -d --name portainer_agent -p ${gray_ip}:9001:9001 --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v /var/lib/docker/volumes:/var/lib/docker/volumes -v /:/host portainer/agent:latest
+
+  - GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_ed25519" git clone git@gitlab.com:artcloud/devops/jupyterhub.git /opt/jupyterhub
+  - |
+    cat > /opt/jupyterhub/.env << 'EOF'
+    KEYCLOAK_CLIENT_ID=${keycloak_client_id}
+    KEYCLOAK_CLIENT_SECRET=${keycloak_client_secret}
+    KEYCLOAK_REALM_URL=${keycloak_realm_url}
+    WHITELIST=${whitelist}
+    CONFIGPROXY_AUTH_TOKEN=${proxy_token}
+    # OAUTH_CALLBACK_URL подставить под реальный домен после DNS-записи:
+    # OAUTH_CALLBACK_URL=https://jupyterhub.example.lan/hub/oauth_callback
+    EOF
+  # Собираем singleuser-образ локально (с пиннингом langgraph/langchain).
+  - cd /opt/jupyterhub && docker compose build singleuser
+  - cd /opt/jupyterhub && docker compose up -d
