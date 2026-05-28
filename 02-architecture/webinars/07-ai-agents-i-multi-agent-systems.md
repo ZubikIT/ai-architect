@@ -15,7 +15,7 @@ has_homework: true
 > **Цели:** (1) спроектировать AI-агент с архитектурой, подходящей именно под ваш сценарий; (2) выбирать, когда хватит **одного** агента, а когда нужна **мультиагентная** система; (3) проектировать MAS, подбирая сценарий взаимодействия агентов.
 > **Смысл:** _«Проектировать AI-агенты — за ними будущее»._
 >
-> Артефакты: [слайды (PDF)](../artifacts/lesson-07-ai-agents.pdf) · [ДЗ-07](../homework/07-ai-agents.md) (MAS + RAG для оформления командировок).
+> Артефакты: [слайды (PDF)](../artifacts/lesson-07-ai-agents.pdf) · [демка `7-agents`](../artifacts/lesson-07-agents-demo/README.md) (иерархический MAS на LangGraph: main supervisor → research team из 4 ReAct-агентов через safron.io API + editing team `fact_checker → summarizer`, общий notes-файл; YandexGPT через OpenAI-совместимый API) · [ДЗ-07](../homework/07-ai-agents.md) (MAS + RAG для оформления командировок).
 >
 > Маршрут вебинара: Введение в AI-агенты → Reasoning-паттерны (CoT → ReAct → Plan-and-Execute → ReWOO → LLM Compiler) → Мультиагентные системы → Практика.
 
