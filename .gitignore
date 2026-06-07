@@ -56,8 +56,6 @@ tmp/
 # Structurizr Lite runtime workdir (auto-generated cache + workspace.json)
 **/artifacts/structurizr/
 
-# OTUS — оригинальные материалы преподавателей (не для публикации)
+# OTUS — материалы курса (xlsx/docx/pptx) коммитим вместе с уроками.
+# Не-для-публикации складываем только сюда:
 otus-originals/
-*.xlsx
-*.docx
-*.pptx
