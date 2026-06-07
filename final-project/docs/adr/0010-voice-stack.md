@@ -60,5 +60,5 @@ Self-hosted: **STT — faster-whisper (Whisper large-v3) или GigaAM-v3** (в�
 
 ## Связи
 - **Следует из:** [ADR-0001](0001-on-premise-self-hosted-llm.md) (air-gapped), [mvp.md](../mvp.md) (этап 3).
-- **Связан с:** [ADR-0006](0006-kvantovanie-i-sizing-gpu.md) (GPU sizing — учесть STT), [ADR-0007](0007-chat-interface.md) (voice-режим Open WebUI), Суфлёр БФТ ([`../../../02-architecture/homework/05-lld.md`](../../../02-architecture/homework/05-lld.md)) — SIP/Asterisk.
+- **Связан с:** [ADR-0006](0006-kvantovanie-i-sizing-gpu.md) (GPU sizing — учесть STT), [ADR-0007](0007-chat-interface.md) (voice-режим Open WebUI), Суфлёр БФТ ([`../../../02-architecture/homework/05-lld.md`](../../../05-lld-komponenty/05-lld.md)) — SIP/Asterisk.
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).

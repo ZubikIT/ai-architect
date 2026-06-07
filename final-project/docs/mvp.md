@@ -94,4 +94,4 @@ def answer(question, user):
 
 ## Связи
 - [Vision & Goals](vision-goals.md) · [Requirements](requirements.md) · [ADR-пакет](adr/) · [C4](../diagrams/c4.md) · [Sequence + ER](../diagrams/sequence-er.md).
-- Преемственность: Суфлёр БФТ — [`../../02-architecture/homework/05-lld.md`](../../02-architecture/homework/05-lld.md).
+- Преемственность: Суфлёр БФТ — [`../../02-architecture/homework/05-lld.md`](../../05-lld-komponenty/05-lld.md).

@@ -54,5 +54,5 @@ tags: [orchestration, agents, langgraph, llamaindex, stateful, multi-agent, hitl
 
 ## Связи
 - **Следует из:** [ADR-0002](0002-vybor-modeli.md) (tool-calling), [ADR-0003](0003-llm-serving-engine.md) (vLLM), [ADR-0004](0004-vector-db.md) (RAG/Qdrant).
-- **Связан с:** урок 07 (ReAct / Plan-and-Execute, MAS), [ДЗ-07](../../../02-architecture/homework/07-ai-agents.md), C4 L3 «Agent internals» и Sequence-диаграмма из брифа.
+- **Связан с:** урок 07 (ReAct / Plan-and-Execute, MAS), [ДЗ-07](../../../07-ai-agents-i-multi-agent-systems/07-ai-agents.md), C4 L3 «Agent internals» и Sequence-диаграмма из брифа.
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).

@@ -56,5 +56,5 @@ tags: [llm, deployment, security, belarus-99z, sanctions, air-gapped]
 ## Связи
 - **Реализует требование ТЗ:** on-premise / air-gapped (см. [`../../README.md`](../../README.md)).
 - **Предшествует:** ADR-0002 (выбор модели), ADR-0003 (LLM Serving Engine), ADR-0004 (Vector DB), ADR-0005 (Orchestration), ADR-0006 (квантование и sizing GPU).
-- **Основано на:** разбор урока 08 «ADR» — пример ADR-005 «облачная vs локальная LLM» ([`../../../02-architecture/webinars/08-adr-documentation.md`](../../../02-architecture/webinars/08-adr-documentation.md)).
+- **Основано на:** разбор урока 08 «ADR» — пример ADR-005 «облачная vs локальная LLM» ([`../../../02-architecture/webinars/08-adr-documentation.md`](../../../08-adr-documentation/08-adr-documentation.md)).
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).
