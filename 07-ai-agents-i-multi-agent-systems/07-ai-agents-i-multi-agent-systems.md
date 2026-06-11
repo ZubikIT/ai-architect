@@ -15,7 +15,7 @@ has_homework: true
 > **Цели:** (1) спроектировать AI-агент с архитектурой, подходящей именно под ваш сценарий; (2) выбирать, когда хватит **одного** агента, а когда нужна **мультиагентная** система; (3) проектировать MAS, подбирая сценарий взаимодействия агентов.
 > **Смысл:** _«Проектировать AI-агенты — за ними будущее»._
 >
-> Артефакты: [слайды (PDF)](./artifacts/lesson-07-ai-agents.pdf) · [демка `7-agents`](./artifacts/lesson-07-agents-demo/README.md) (иерархический MAS на LangGraph: main supervisor → research team из 4 ReAct-агентов через safron.io API + editing team `fact_checker → summarizer`, общий notes-файл; YandexGPT через OpenAI-совместимый API) · [ДЗ-07](./07-ai-agents.md) + [Colab `07-ai-agents.ipynb`](./07-ai-agents.ipynb) (TripBuddy: MAS + RAG для оформления командировок, mock-режим запускается «cold»).
+> Артефакты: [слайды (PDF)](./artifacts/lesson-07-ai-agents.pdf) · [демка `7-agents`](./artifacts/lesson-07-agents-demo/README.md) (иерархический MAS на LangGraph: main supervisor → research team из 4 ReAct-агентов через safron.io API + editing team `fact_checker → summarizer`, общий notes-файл; YandexGPT через OpenAI-совместимый API) · [ДЗ-07](./Zubik_DZ-07_tripbuddy.md) + [Colab `Zubik_DZ-07_tripbuddy.ipynb`](./Zubik_DZ-07_tripbuddy.ipynb) (TripBuddy: MAS + RAG для оформления командировок, mock-режим запускается «cold»).
 >
 > Маршрут вебинара: Введение в AI-агенты → Reasoning-паттерны (CoT → ReAct → Plan-and-Execute → ReWOO → LLM Compiler) → Мультиагентные системы → Практика.
 
@@ -226,4 +226,4 @@ flowchart TB
 - **Главный takeaway:** **MAS — это не «больше агентов», а правильная развязка ответственностей**. Конкретные архитектурные рычаги: (1) где Supervisor — детерминированный, а где LLM; (2) канал коммуникации (messages vs blackboard); (3) обрезка контекста на входе воркера; (4) anti-loop в промптах + `recursion_limit`; (5) разные модели на разные роли. Без этого MAS становится «дороже одного агента в N раз», а не «качественнее».
 
 ## Связанное ДЗ
-- [`../homework/07-ai-agents.md`](./07-ai-agents.md) — MAS + RAG для бизнес-процесса оформления командировок.
+- [`Zubik_DZ-07_tripbuddy.md`](./Zubik_DZ-07_tripbuddy.md) — MAS + RAG для бизнес-процесса оформления командировок.

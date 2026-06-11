@@ -254,4 +254,4 @@ A: В OpenAPI/Protobuf (как часть контракта), но формат
 - Circuit Breaker / Retries / Timeouts отметить в LLD как НФТ для интеграции с внешним LLM — без этого архитектура не пройдёт даже визуальный осмотр на верификации (l9).
 
 ## Связанное ДЗ
-- [`../homework/05-lld.md`](./05-lld.md)
+- [`Zubik_DZ-05_lld-c4-api.md`](./Zubik_DZ-05_lld-c4-api.md)

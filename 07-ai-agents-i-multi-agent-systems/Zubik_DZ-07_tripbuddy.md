@@ -71,7 +71,7 @@ grade:
 ### Артефакты
 - [ ] Архитектурная схема (PNG/PDF из mermaid ниже + Structurizr DSL рядом с уроком 05).
 - [x] **Inline** в этом файле: C2-схема MAS, Sequence-диаграмма happy-path, описание RAG Flow, skeleton кода LangGraph.
-- [x] **Colab/Jupyter notebook:** [`07-ai-agents.ipynb`](./07-ai-agents.ipynb) — рабочий прототип в двух режимах (`mock` без ключей и `real` с реальной LLM). Прогон на mock end-to-end локально: supervisor 5 раз маршрутизирует, все 4 секции dossier заполняются, финальный пакет — `KC-0879 + Hampton by Hilton = 27 000 ₽, ALLOWED`; ассерт на отсечение устаревшей редакции политики (`v2025.10`) проходит. Дополнительно прогнан на python 3.13 + **langgraph 1.2.2 / langchain-core 1.4.0** (последние) — без breaking changes.
+- [x] **Colab/Jupyter notebook:** [`Zubik_DZ-07_tripbuddy.ipynb`](./Zubik_DZ-07_tripbuddy.ipynb) — рабочий прототип в двух режимах (`mock` без ключей и `real` с реальной LLM). Прогон на mock end-to-end локально: supervisor 5 раз маршрутизирует, все 4 секции dossier заполняются, финальный пакет — `KC-0879 + Hampton by Hilton = 27 000 ₽, ALLOWED`; ассерт на отсечение устаревшей редакции политики (`v2025.10`) проходит. Дополнительно прогнан на python 3.13 + **langgraph 1.2.2 / langchain-core 1.4.0** (последние) — без breaking changes.
 - [x] **Pre-rendered HTML с outputs** (для проверки без запуска): [https://architect-5ffe23.gitlab.io/07-ai-agents.html](https://architect-5ffe23.gitlab.io/07-ai-agents.html) — публикуется CI на каждый push в `main` (`.gitlab-ci.yml`: `nbconvert --execute` → GitLab Pages).
 - [x] **Workspace-репо ноутбуков:** [`artcloud/ai/agents`](https://gitlab.com/artcloud/ai/agents) (public) — рабочая копия notebook'ов курса, клонится в `/home/jovyan/work` на JupyterHub.
 - [x] **JupyterHub:** [`https://jupyterhub.acl.by/`](https://jupyterhub.acl.by/) — Keycloak OAuth, DockerSpawner, singleuser-образ с preinstalled langgraph/langchain/jupyterlab-git/jupyterlab-myst/graphviz/pyppeteer. Ноутбук открывается там в Lab, граф визуализируется через `draw_mermaid_png()`.
@@ -371,7 +371,7 @@ def run(prompt: str):
 |---|---|
 | **Логика декомпозиции (SRP)** | таблица «Состав агентов и роли» — каждый агент = одна ответственность; `trip_supervisor` не выполняет работу, только маршрутизирует |
 | **RAG: Vector DB и нюансы** | раздел «RAG Flow»: Qdrant + Hybrid (BM25 + dense) + Cross-Encoder reranker + metadata-фильтры по `region/effective_from` |
-| **Работоспособность кода** | [`07-ai-agents.ipynb`](./07-ai-agents.ipynb) — `MODE=mock` запускается «cold», без ключей; граф LangGraph настоящий, supervisor маршрутизирует, воркеры обмениваются `AIMessage(name=<agent>)` и пишут в dossier. Структура копирует [демку урока](./artifacts/lesson-07-agents-demo/) |
+| **Работоспособность кода** | [`Zubik_DZ-07_tripbuddy.ipynb`](./Zubik_DZ-07_tripbuddy.ipynb) — `MODE=mock` запускается «cold», без ключей; граф LangGraph настоящий, supervisor маршрутизирует, воркеры обмениваются `AIMessage(name=<agent>)` и пишут в dossier. Структура копирует [демку урока](./artifacts/lesson-07-agents-demo/) |
 
 ## Сложности и решения
 

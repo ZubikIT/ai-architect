@@ -45,11 +45,11 @@
 
 ### Блок 2. Проектирование архитектуры
 - [ ] [04. HLD с использованием C4 Model](./04-hld-c4-model/04-hld-c4-model.md)
-- [ ] [05. LLD: компоненты и взаимодействия](./05-lld-komponenty/05-lld-komponenty.md) — **ДЗ:** [`05-lld.md`](./05-lld-komponenty/05-lld.md)
+- [ ] [05. LLD: компоненты и взаимодействия](./05-lld-komponenty/05-lld-komponenty.md) — **ДЗ:** [`Zubik_DZ-05`](./05-lld-komponenty/Zubik_DZ-05_lld-c4-api.md) (задание + решение)
 - [ ] [06. RAG и его продвинутые вариации](./06-rag-i-prodvinutye-variacii/06-rag-i-prodvinutye-variacii.md)
-- [ ] [07. AI-агенты и Multi-Agent Systems](./07-ai-agents-i-multi-agent-systems/07-ai-agents-i-multi-agent-systems.md) — **ДЗ:** [`07-ai-agents.md`](./07-ai-agents-i-multi-agent-systems/07-ai-agents.md)
+- [ ] [07. AI-агенты и Multi-Agent Systems](./07-ai-agents-i-multi-agent-systems/07-ai-agents-i-multi-agent-systems.md) — **ДЗ:** [`Zubik_DZ-07`](./07-ai-agents-i-multi-agent-systems/Zubik_DZ-07_tripbuddy.md) (задание + решение + ipynb + PDF)
 - [ ] [08. Документирование решений: ADR](./08-adr-documentation/08-adr-documentation.md)
-- [ ] [09. Верификация архитектуры и «CTO Challenge»](./09-verifikaciya-cto-challenge/09-verifikaciya-cto-challenge.md) — **ДЗ:** [`Zubik_DZ-09`](./09-verifikaciya-cto-challenge/Zubik_DZ-09_adr-llm-hosting.pdf) (PDF сдачи)
+- [ ] [09. Верификация архитектуры и «CTO Challenge»](./09-verifikaciya-cto-challenge/09-verifikaciya-cto-challenge.md) — **ДЗ:** [`Zubik_DZ-09`](./09-verifikaciya-cto-challenge/Zubik_DZ-09_adr-llm-hosting.pdf) (PDF)
 - [ ] [10. Архитектурный надзор и управление техническим долгом](./10-arkhitekturnyy-nadzor-tekhdolg/10-arkhitekturnyy-nadzor-tekhdolg.md)
 
 ### Блок 3. Качество и безопасность
@@ -59,18 +59,18 @@
 - [ ] [14. Security by Design: архитектура для защиты AI-систем](./14-security-by-design/14-security-by-design.md)
 
 ### Блок 4. Инфраструктура
-- [ ] [15. Архитектура наблюдаемости (Observability)](./15-observability/15-observability.md) — **ДЗ:** [`15-observability-dz.md`](./15-observability/15-observability-dz.md)
+- [ ] [15. Архитектура наблюдаемости (Observability)](./15-observability/15-observability.md) — **ДЗ** _(после урока)_
 - [ ] [16. Расчёт ресурсов (Sizing) для приложений и данных](./16-sizing-resursov/16-sizing-resursov.md)
-- [ ] [17. Расчёт ресурсов и оптимизация инференса LLM](./17-optimizaciya-inferensa-llm/17-optimizaciya-inferensa-llm.md) — **ДЗ:** [`17-optimizaciya-inferensa.md`](./17-optimizaciya-inferensa-llm/17-optimizaciya-inferensa.md)
+- [ ] [17. Расчёт ресурсов и оптимизация инференса LLM](./17-optimizaciya-inferensa-llm/17-optimizaciya-inferensa-llm.md) — **ДЗ** _(после урока)_
 - [ ] [18. Инфраструктура как код (IaC) и CI/CD](./18-iac-ci-cd/18-iac-ci-cd.md)
 - [ ] [19. Архитектура MLOps-конвейеров](./19-mlops-konveyery/19-mlops-konveyery.md)
-- [ ] [20. Стратегии развёртывания и вывода в Production](./20-deployment-strategii-prod/20-deployment-strategii-prod.md) — **ДЗ:** [`20-deployment.md`](./20-deployment-strategii-prod/20-deployment.md)
+- [ ] [20. Стратегии развёртывания и вывода в Production](./20-deployment-strategii-prod/20-deployment-strategii-prod.md) — **ДЗ** _(после урока)_
 - [ ] [21. Архитектура высокой доступности (HA) и восстановления (DR)](./21-ha-i-dr/21-ha-i-dr.md)
 
 ### Блок 5. Продвинутые паттерны
 - [ ] [22. Serverless vs. Kubernetes для AI-ворклоадов](./22-serverless-vs-k8s/22-serverless-vs-k8s.md)
 - [ ] [23. Событийно-ориентированная архитектура (EDA) для AI](./23-eda-dlya-ai/23-eda-dlya-ai.md)
-- [ ] [24. Архитектура для High-Load и Low-Latency инференса](./24-high-load-low-latency/24-high-load-low-latency.md) — **ДЗ:** [`24-high-load.md`](./24-high-load-low-latency/24-high-load.md)
+- [ ] [24. Архитектура для High-Load и Low-Latency инференса](./24-high-load-low-latency/24-high-load-low-latency.md) — **ДЗ** _(после урока)_
 - [ ] [25. Гибридная и мультиоблачная архитектура для AI](./25-gibridnaya-multioblachnaya/25-gibridnaya-multioblachnaya.md)
 - [ ] [26. Архитектура для Multi-tenancy в AI SaaS](./26-multi-tenancy-ai-saas/26-multi-tenancy-ai-saas.md)
 - [ ] [27. Federated Learning и Privacy-Preserving архитектура](./27-federated-learning-privacy/27-federated-learning-privacy.md)
@@ -78,7 +78,7 @@
 ### Блок 6. Стратегия и экономика
 - [ ] [28. FinOps: архитектура, управляемая стоимостью](./28-finops/28-finops.md)
 - [ ] [29. Технологический радар и эволюция архитектуры](./29-tehradar-evolyuciya/29-tehradar-evolyuciya.md)
-- [ ] [30. Ethical AI by Design и архитектура для Governance](./30-ethical-ai-governance/30-ethical-ai-governance.md) — **ДЗ:** [`30-ethical-governance.md`](./30-ethical-ai-governance/30-ethical-governance.md)
+- [ ] [30. Ethical AI by Design и архитектура для Governance](./30-ethical-ai-governance/30-ethical-ai-governance.md) — **ДЗ** _(после урока)_
 - [ ] [31. API как продукт: проектирование и управление](./31-api-kak-produkt/31-api-kak-produkt.md)
 
 ### Финальный блок. Проектная работа
