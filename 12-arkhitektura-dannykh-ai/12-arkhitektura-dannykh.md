@@ -2,9 +2,9 @@
 module: 03-quality
 lesson: 12
 date_assigned: 2026-06-09
-date_submitted:
+date_submitted: 2026-06-11
 deadline: 2026-06-22
-status: ready-to-submit
+status: submitted
 grade:
 ---
 
