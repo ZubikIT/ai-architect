@@ -4,7 +4,7 @@ lesson: 12
 date_assigned: 2026-06-09
 date_submitted:
 deadline: 2026-06-22
-status: todo
+status: ready-to-submit
 grade:
 ---
 
@@ -45,11 +45,23 @@ _Из ЛК (дословно)._
 ## Решение
 
 ### Подход
+Кейс продолжает **ДЗ-03 (TechnoMart)** — тот же ритейлер, теперь data-слой его системы рекомендаций. Три осевых решения:
+1. **Lambda-light на одном движке:** клики — stream (Kafka → Spark Structured Streaming), каталог из ERP — ночной batch (Airflow + ACL, урок 11); оба контура на Spark, определения фич — в Feature Store, что снимает боль «двух кодовых баз» классической Lambda.
+2. **ELT + Lakehouse:** сырьё навсегда в MinIO + Iceberg (ACID, time travel = версионирование датасетов), очистка/DQ (Great Expectations, quarantine) — в transform-слое.
+3. **On-prem стек вместо референса** `Kafka → Spark → S3 → Pinecone`: Pinecone (SaaS) заменён на **Qdrant**, S3 — на MinIO; PII не покидает контур (РБ №99-З).
+
+Консистентность train/serve (критерий про **training-serving skew**): единые определения фич в **Feast** registry (offline = Iceberg → датасет с point-in-time joins; online = Redis через материализацию); версии «модель ↔ feature views ↔ эмбеддер» связаны в MLflow; коллекции Qdrant именованы версией эмбеддера (blue/green через alias).
 
 ### Артефакты
+- **Сдача:** [`Zubik_DZ-12_data-pipeline.pdf`](Zubik_DZ-12_data-pipeline.pdf) (4 стр.: источники → схема → таблица хранилищ → governance).
+- Источник: [`Zubik_DZ-12_data-pipeline.md`](Zubik_DZ-12_data-pipeline.md) (mermaid-схема внутри).
+- Диаграмма: [`artifacts/dz-12-diagram-1.png`](artifacts/dz-12-diagram-1.png).
 
 ### Реализация
+PDF собран путём B из [[md-to-pdf-toolchain]]: mermaid.ink (PNG, `?type=png&width=1400&scale=2`, диаграмма в ориентации TB — LR не читается на A4) → подмена блока на картинку → `scripts/md-to-pdf.sh` (pandoc + typst).
 
 ## Сложности и решения
+- `mermaid.ink` отдаёт 403 на python-urllib (режет UA) — качать через curl с браузерным User-Agent; `?scale=` работает только вместе с `?width=`.
+- Широкая LR-диаграмма ужимается в нечитаемую полосу на A4 — для PDF строить вертикально (TB).
 
 ## Обратная связь от преподавателя
