@@ -49,12 +49,12 @@
 - [ ] [06. RAG и его продвинутые вариации](./06-rag-i-prodvinutye-variacii/06-rag-i-prodvinutye-variacii.md)
 - [ ] [07. AI-агенты и Multi-Agent Systems](./07-ai-agents-i-multi-agent-systems/07-ai-agents-i-multi-agent-systems.md) — **ДЗ:** [`07-ai-agents.md`](./07-ai-agents-i-multi-agent-systems/07-ai-agents.md)
 - [ ] [08. Документирование решений: ADR](./08-adr-documentation/08-adr-documentation.md)
-- [ ] [09. Верификация архитектуры и «CTO Challenge»](./09-verifikaciya-cto-challenge/09-verifikaciya-cto-challenge.md) — **ДЗ:** [`09-verifikaciya.md`](./09-verifikaciya-cto-challenge/09-verifikaciya.md)
+- [ ] [09. Верификация архитектуры и «CTO Challenge»](./09-verifikaciya-cto-challenge/09-verifikaciya-cto-challenge.md) — **ДЗ:** [`Zubik_DZ-09`](./09-verifikaciya-cto-challenge/Zubik_DZ-09_adr-llm-hosting.pdf) (PDF сдачи)
 - [ ] [10. Архитектурный надзор и управление техническим долгом](./10-arkhitekturnyy-nadzor-tekhdolg/10-arkhitekturnyy-nadzor-tekhdolg.md)
 
 ### Блок 3. Качество и безопасность
 - [ ] [11. Проектирование интеграций: от классики до AI-стандартов](./11-integratsii-klassika-ai/11-integratsii-klassika-ai.md)
-- [ ] [12. Архитектура данных для AI-систем](./12-arkhitektura-dannykh-ai/12-arkhitektura-dannykh-ai.md) — **ДЗ:** [`12-arkhitektura-dannykh.md`](./12-arkhitektura-dannykh-ai/12-arkhitektura-dannykh.md)
+- [ ] [12. Архитектура данных для AI-систем](./12-arkhitektura-dannykh-ai/12-arkhitektura-dannykh-ai.md) — **ДЗ:** [`Zubik_DZ-12`](./12-arkhitektura-dannykh-ai/Zubik_DZ-12_data-pipeline.md) (задание + решение + PDF)
 - [ ] [13. Оценка качества и тестирование GenAI-компонентов](./13-ocenka-kachestva-genai/13-ocenka-kachestva-genai.md)
 - [ ] [14. Security by Design: архитектура для защиты AI-систем](./14-security-by-design/14-security-by-design.md)
 
