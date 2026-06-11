@@ -16,7 +16,7 @@ has_homework: true
 > **Смысл (со слайда):** «чтобы **AI-компоненты не потеряли связь с окружающим миром**».
 > **Маршрут:** Синхронные протоколы и паттерны → Асинхронные протоколы и паттерны → **Практический кейс** (банковский чат-бот) → AI-стандарты и новые протоколы → Основные тезисы.
 >
-> Артефакт: `11. Проектирование интеграций_ от классики до AI-стандартов.pptx.pdf` (43 слайда, в ЛК / `~/Downloads`).
+> Артефакт: [слайды лекции](artifacts/lesson-11-integratsii-klassika-ai.pdf) (43 слайда).
 >
 > Связь: прямое продолжение урока 09 ([[09-verifikaciya-cto-challenge]]) — circuit breaker, retry+backoff, **Async Callback** как митигация latency ([[async-callback-200ok-pattern]]); урока 10 ([[10-arkhitekturnyy-nadzor-tekhdolg]]) — «все LLM-вызовы через Gateway», Pipeline Jungle / Data Debt; и финала ([[final-project-hardware]], [[zubriq-openwebui-deployment]]) — практический кейс лекции **дословно совпадает** с нашим: банк, on-prem LLM, PII, медленный legacy-core.
 
