@@ -3,8 +3,8 @@ module: 02-architecture
 lesson: 7
 date_assigned: 2026-05-27
 date_due: 2026-05-28
-date_submitted:
-status: in-progress
+date_submitted: 2026-05-28
+status: submitted
 grade:
 ---
 
