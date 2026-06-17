@@ -5,7 +5,7 @@ date:
 lecturer:
 tags: [ethics, governance, fairness, transparency]
 status: todo
-has_homework: true
+has_homework: false
 ---
 
 # 30. Ethical AI by Design и архитектура для Governance

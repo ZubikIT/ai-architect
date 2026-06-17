@@ -5,7 +5,7 @@ date:
 lecturer:
 tags: [inference, quantization, KV-cache, vLLM, GPU]
 status: todo
-has_homework: true
+has_homework: false
 ---
 
 # 17. Расчёт ресурсов и оптимизация инференса LLM

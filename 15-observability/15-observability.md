@@ -5,7 +5,7 @@ date:
 lecturer:
 tags: [observability, OpenTelemetry, Prometheus, traces]
 status: todo
-has_homework: true
+has_homework: false
 ---
 
 # 15. Архитектура наблюдаемости (Observability)

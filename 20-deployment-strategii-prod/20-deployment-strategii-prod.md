@@ -5,7 +5,7 @@ date:
 lecturer:
 tags: [deployment, blue-green, canary, shadow]
 status: todo
-has_homework: true
+has_homework: false
 ---
 
 # 20. Стратегии развёртывания и вывода в Production

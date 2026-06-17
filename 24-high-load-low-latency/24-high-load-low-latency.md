@@ -5,7 +5,7 @@ date:
 lecturer:
 tags: [high-load, low-latency, batching, caching]
 status: todo
-has_homework: true
+has_homework: false
 ---
 
 # 24. Архитектура для High-Load и Low-Latency инференса
