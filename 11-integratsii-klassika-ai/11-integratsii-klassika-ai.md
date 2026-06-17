@@ -5,7 +5,7 @@ date: 2026-06-05
 lecturer: Иван Четвериков
 tags: [интеграции, api-gateway, message-broker, etl, elt, http2, http3, quic, grpc, sse, smtp, cdc, idempotency, dlq, circuit-breaker, polling, webhooks, semantic-cache, json-rpc, mcp, a2a, onnx, legacy, anti-corruption-layer]
 status: done
-has_homework: true
+has_homework: false
 ---
 
 # 11. Проектирование интеграций: от классики до AI-стандартов

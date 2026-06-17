@@ -5,7 +5,7 @@ date: 2026-06-02
 lecturer: Дмитрий Фомин
 tags: [надзор, governance, tech-debt, architectural-erosion, dora, fitness-functions, code-review, ml-debt, cace, rice, post-mortem]
 status: done
-has_homework: true
+has_homework: false
 ---
 
 # 10. Архитектурный надзор и управление техническим долгом
