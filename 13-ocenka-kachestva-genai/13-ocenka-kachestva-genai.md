@@ -162,6 +162,32 @@ LLM ломают привычное тестирование по **пяти о�
 
 > Это и есть «Test Plan для сравнения двух LLM на RAG-задаче» в коде — берём как шаблон для практического задания и для приёмки Суфлёра.
 
+## Практика: воспроизвели LIVE-репо + подняли Yandex через IaC (17.06.2026)
+Прогнали все 3 скрипта артефакта **на месте** (`artifacts/llm-app/`, `.venv`+`.env` локальные/gitignored), сначала локально (Ollama+gemma), затем **аутентично через Yandex Cloud**.
+
+### Авторизация Yandex — главный инженерный затык и решение
+- **Блокер:** аккаунт под управляемой оргой **`org-mtbankby`** (субаккаунт ЗАО МТБанк) → обмен **пользовательского OAuth→IAM запрещён** орг-политикой (`OAuth issued after 2026-06-01 not supported for IAM token exchange`). `yc init`/браузер не проходит, и это **не тумблер** в Cloud Center — следствие федеративной модели.
+- **Решение (обходит политику):** **service-account `tofu-admin`** + **authorized-key (JSON)** — SA аутентифицируется подписанным JWT→IAM, политика на это не распространяется. Ключ положили в **Vault `secret/yandex/bootstrap`**.
+- **API-key vs authorized-key:** для *eval-скриптов* нужен **Api-Key** (`Authorization: Api-Key`, только AI-вызовы); для *управления облаком из tofu* — **authorized-key** (`service_account_key_file`). Разные артефакты, не путать.
+
+### IaC: модуль `modules/yc` в `devops/opentofu` (на `main`)
+По паттерну репо «секреты в Vault, tofu их читает» ([[prefer-iac-over-ui]]):
+- `provider "yandex"` (provider.tf) читает authorized-key из Vault → `service_account_key_file`.
+- `module "yc"` (count = `var.yandex_enabled`) выпускает SA **`llm-eval`** + роль `ai.languageModels.user` + **Api-Key**, который пишется в **Vault `secret/yandex/fm`** (поля `api_key`/`folder_id`/`cloud_id`).
+- **Тумблер `yandex_enabled`** гасит всё (count=0) при смене/удалении облака — провайдер дремлет, на мёртвое облако не стучится (как `gitea_enabled`).
+- `tofu apply` → **4 added, 0 changed, 0 destroyed**; ключ из Vault проверен (`HTTP 200`, YandexGPT-lite ответил). Облако `cloud-alexzubtutby` (`b1gcfkv85a2cuao8lv72`) / folder `default` (`b1gie0lf9sncrae5aube`). Детали — [[yandex-yc-opentofu]].
+
+### Результаты прогонов (eval-пайплайн потребляет ключ из Vault)
+**Потребление:** `export YC_API_KEY=$(vault kv get -field=api_key secret/yandex/fm)`.
+
+| Скрипт | Что показал |
+|---|---|
+| `run_ragas_demo_test.py` (YandexGPT-lite) | **PASS**: faithfulness 1.00, answer_rel 0.67, ctx_prec 0.83, qa_sim 0.85 |
+| `pre_deploy_test.py` (Qwen3-0.6B vs YandexGPT-lite → MLflow) | YandexGPT-lite **PASS** (`deployment_ready=true`) vs Qwen3-0.6B **FAIL** (faithfulness 0.40) → сьют exit 1 блокирует слабую |
+| `toxic_test.py` (judge=yandexgpt) | вежливый → ОК; грубый «не пиши, я занят» → токс 0.30/груб **0.70** → **ПРОВАЛ [ГРУБО]** |
+
+**Методический вывод (вживую):** одну и ту же Qwen3-0.6B судья-**gemma** оценил `answer_rel=0.71`, а судья-**yandexgpt** — `0.46`. Метрика зависит от харнесса → **для честного сравнения моделей судью и эмбеддинги фиксируем одинаковыми** (мы свели оба к Yandex). Это прямое подтверждение тезиса «эксплуатационная метрика — часть качества, зависит от харнесса».
+
 ## Диаграммы
 
 **Test Plan как воронка с гейтами (OFFLINE → PRE-PROD → ONLINE):**
