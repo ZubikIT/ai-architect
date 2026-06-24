@@ -56,7 +56,7 @@
 - [ ] [11. Проектирование интеграций: от классики до AI-стандартов](./11-integratsii-klassika-ai/11-integratsii-klassika-ai.md)
 - [ ] [12. Архитектура данных для AI-систем](./12-arkhitektura-dannykh-ai/12-arkhitektura-dannykh-ai.md) — **ДЗ:** [`Zubik_DZ-12`](./12-arkhitektura-dannykh-ai/Zubik_DZ-12_data-pipeline.md) (задание + решение + PDF; [вариант 2 — БЗ из звонков КЦ](./12-arkhitektura-dannykh-ai/Zubik_DZ-12_callcenter-kb.md))
 - [ ] [13. Оценка качества и тестирование GenAI-компонентов](./13-ocenka-kachestva-genai/13-ocenka-kachestva-genai.md) — **LIVE-снапшот:** [`artifacts/llm-app`](./13-ocenka-kachestva-genai/artifacts/llm-app/ReadMe.md) (демо лектора: RAGAS-сравнение моделей, MLflow/Langfuse/Ollama; коммит `b4cdc19`, [PROVENANCE](./13-ocenka-kachestva-genai/artifacts/llm-app/PROVENANCE.md))
-- [ ] [14. Security by Design: архитектура для защиты AI-систем](./14-security-by-design/14-security-by-design.md)
+- [ ] [14. Security by Design: архитектура для защиты AI-систем](./14-security-by-design/14-security-by-design.md) — **практика:** [`secure_agent_practice.ipynb`](./14-security-by-design/artifacts/secure_agent_practice.ipynb) (эталон `SecureAgent`: Presidio-санитайзер + Vault JIT + output-валидатор)
 
 ### Блок 4. Инфраструктура
 - [ ] [15. Архитектура наблюдаемости (Observability)](./15-observability/15-observability.md) — **ДЗ** _(после урока)_
