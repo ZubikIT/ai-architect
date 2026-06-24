@@ -2,9 +2,9 @@
 module: 04-infrastructure
 lesson: 15
 type: homework-solution
-status: in-progress
+status: submitted
 date_assigned: 2026-06-23
-date_submitted:
+date_submitted: 2026-06-24
 deadline: 2026-06-29
 grade:
 ---
@@ -63,6 +63,7 @@ flowchart LR
 
 ### 2.1. Как оцениваем качество RAG
 Воронка из 4 стадий с гейтами (offline → integration → pre-prod → online). Ключевые **RAG-метрики**:
+
 | Метрика | Что меряет | Порог-гейт (Суфлёр) |
 |---|---|---|
 | **Faithfulness** | ответ опирается на извлечённую БЗ, не выдумывает (детектор галлюцинаций верности) | ≥ 0.95 (критично — ответ строго из БЗ банка) |
@@ -92,15 +93,17 @@ flowchart LR
 ### 3.1. Список виджетов — Golden Signals + AI-метрики
 Дашборд «Суфлёр — Production Health», источник **Prometheus** (инфра/латентность) + **Langfuse**/Tempo (LLM-трейсы/качество). 4 Golden Signals + AI-панель:
 
-| # | Виджет | Метрика / PromQL (схематично) | Тип | Алерт |
-|---|---|---|---|---|
-| **1. Latency** | p95/p99 времени ответа | `histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))` | time series | p95 > 4s (SLO) — Warning; > 8s — Critical |
-| **2. Traffic** | RPS запросов к Суфлёру | `sum(rate(http_requests_total[1m]))` | time series | absence (heartbeat) — Critical |
-| **3. Errors** | error rate 5xx + неуспешные tool-calls | `sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))` | stat + graph | error_rate > 2% — Error |
-| **4. Saturation** | **GPU/VRAM utilization 2×H100**, KV-cache | `DCGM_FI_DEV_GPU_UTIL`, `DCGM_FI_DEV_FB_USED` | gauge | GPU > 90% sustained / VRAM > 90% — Warning |
-| **5. AI — Cost** | Token usage + **Average Cost per Request** | `rate(llm_tokens_total[5m])`, `llm_cost_per_request` (Langfuse) | time series | рост $/req > 1.5× baseline — Warning (FinOps) |
-| **6. AI — Quality** | online **Faithfulness**, Toxicity rate, **PII-leak count** | Langfuse/Evidently scorers | gauge + stat | faithfulness < 0.9 / любой PII-leak — Critical |
-| **7. AI — Drift** | Query/Response/Retrieval drift | Evidently AI (anomaly) | heatmap | drift anomaly — Warning |
+| # | Виджет | Тип | Алерт |
+|---|---|---|---|
+| **1. Latency** | p95/p99 времени ответа | time series | p95 > 4s (SLO) → Warning; > 8s → Critical |
+| **2. Traffic** | RPS запросов к Суфлёру | time series | absence (heartbeat) → Critical |
+| **3. Errors** | error rate 5xx + неуспешные tool-calls | stat + graph | error_rate > 2% → Error |
+| **4. Saturation** | GPU/VRAM 2×H100, KV-cache | gauge | GPU/VRAM > 90% → Warning |
+| **5. AI — Cost** | Token usage + Cost per Request | time series | $/req > 1.5× baseline → Warning (FinOps) |
+| **6. AI — Quality** | online Faithfulness, Toxicity, PII-leak | gauge + stat | faithfulness < 0.9 / PII-leak → Critical |
+| **7. AI — Drift** | Query/Response/Retrieval drift | heatmap | drift anomaly → Warning |
+
+**PromQL/источник (схематично):** ① `histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))` · ② `sum(rate(http_requests_total[1m]))` · ③ `sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))` · ④ `DCGM_FI_DEV_GPU_UTIL`, `DCGM_FI_DEV_FB_USED` · ⑤ `rate(llm_tokens_total[5m])`, `llm_cost_per_request` (Langfuse) · ⑥–⑦ Langfuse / Evidently scorers.
 
 ### 3.2. Мокап раскладки (ASCII)
 ```
