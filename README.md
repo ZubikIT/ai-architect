@@ -59,7 +59,7 @@
 - [ ] [14. Security by Design: архитектура для защиты AI-систем](./14-security-by-design/14-security-by-design.md) — **практика:** [`secure_agent_practice.ipynb`](./14-security-by-design/artifacts/secure_agent_practice.ipynb) (эталон `SecureAgent`: Presidio-санитайзер + Vault JIT + output-валидатор)
 
 ### Блок 4. Инфраструктура
-- [ ] [15. Архитектура наблюдаемости (Observability)](./15-observability/15-observability.md) — **ДЗ** _(после урока)_
+- [ ] [15. Архитектура наблюдаемости (Observability)](./15-observability/15-observability.md) — **ДЗ-капстоун:** [`Zubik_DZ-15`](./15-observability/Zubik_DZ-15_quality-assurance.md) (Security + Testing RAG + Observability; синтез уроков 13–14–15; дедлайн 29.06)
 - [ ] [16. Расчёт ресурсов (Sizing) для приложений и данных](./16-sizing-resursov/16-sizing-resursov.md)
 - [ ] [17. Расчёт ресурсов и оптимизация инференса LLM](./17-optimizaciya-inferensa-llm/17-optimizaciya-inferensa-llm.md) — **ДЗ** _(после урока)_
 - [ ] [18. Инфраструктура как код (IaC) и CI/CD](./18-iac-ci-cd/18-iac-ci-cd.md)
