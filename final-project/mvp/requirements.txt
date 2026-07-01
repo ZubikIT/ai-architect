@@ -4,6 +4,7 @@ rank-bm25>=0.2.2
 openai>=1.30
 fastapi>=0.110
 uvicorn>=0.29
+prometheus-client>=0.20
 numpy>=1.26
 pydantic>=2.6
 pytest>=8
