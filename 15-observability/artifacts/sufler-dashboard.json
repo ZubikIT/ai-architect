@@ -162,23 +162,31 @@
       "title": "⑤ AI — Token usage & Cost/req (FinOps)",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "description": "Расход токенов и стоимость за запрос (Langfuse → Prometheus). $/req > 1.5× baseline → Warning.",
+      "description": "Расход токенов (нативные метрики vLLM, job 'vllm-engine' 192.168.50.123:8000). $/req — из Langfuse (recording rule sufler_cost_per_request_usd). $/req > 1.5× baseline → Warning.",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "editorMode": "code",
-          "expr": "sum(rate(sufler_llm_tokens_total[5m])) by (type)",
-          "legendFormat": "tokens/s {{type}}",
+          "expr": "sum(rate(vllm:generation_tokens_total[5m]))",
+          "legendFormat": "output tok/s",
           "range": true,
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "editorMode": "code",
-          "expr": "avg(sufler_cost_per_request_usd)",
-          "legendFormat": "$/req",
+          "expr": "sum(rate(vllm:prompt_tokens_total[5m]))",
+          "legendFormat": "input tok/s",
           "range": true,
           "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
+          "editorMode": "code",
+          "expr": "avg(sufler_cost_per_request_usd)",
+          "legendFormat": "$/req (Langfuse)",
+          "range": true,
+          "refId": "C"
         }
       ],
       "fieldConfig": {
