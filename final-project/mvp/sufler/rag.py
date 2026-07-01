@@ -26,10 +26,11 @@ class Sufler:
         ctx = self.retriever.search(question, list(roles))
         if not ctx:
             return {"answer": "Не нашёл релевантных пунктов ЛПА для вашего уровня доступа.",
-                    "sources": []}
+                    "sources": [], "contexts": []}
 
         context = "\n\n".join(f"[{c.doc} · {c.section}]\n{c.text}" for c in ctx)
         sources = [{"doc": c.doc, "section": c.section} for c in ctx]
+        contexts = [c.text for c in ctx]  # тексты чанков — для RAGAS faithfulness (трейсинг)
 
         if self.llm:
             draft = self.llm.chat(SYSTEM, f"Контекст:\n{context}\n\nВопрос: {question}")
@@ -38,4 +39,4 @@ class Sufler:
             draft = ("(демо без LLM) Наиболее релевантный пункт:\n\n"
                      f"{ctx[0].text}")
 
-        return {"answer": mask_pii(draft), "sources": sources}  # output-guardrail
+        return {"answer": mask_pii(draft), "sources": sources, "contexts": contexts}  # output-guardrail
