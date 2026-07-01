@@ -105,6 +105,8 @@ flowchart LR
 
 **PromQL/источник (схематично):** ① `histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))` · ② `sum(rate(http_requests_total[1m]))` · ③ `sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))` · ④ `DCGM_FI_DEV_GPU_UTIL`, `DCGM_FI_DEV_FB_USED` · ⑤ `rate(llm_tokens_total[5m])`, `llm_cost_per_request` (Langfuse) · ⑥–⑦ Langfuse / Evidently scorers.
 
+> **Референс-стенд (практика урока):** рабочая Kind-лаба преподавателя — [artifacts/alerting-demo](artifacts/alerting-demo/README.md) (FastAPI ML-сервис с инъекцией ошибок/latency → Prometheus Operator/ServiceMonitor → Grafana + Alertmanager). Golden-Signals-панели ① Latency p95 и ③ Error Rate и alert-правило `error_rate > 15% за 2 мин → Firing → Telegram` в моём дизайне взяты 1:1 из этого стенда; AI-слой (⑤–⑦, Langfuse/Evidently) — надстройка над ним.
+
 ### 3.2. Мокап раскладки (ASCII)
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
