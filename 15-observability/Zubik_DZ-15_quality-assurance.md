@@ -107,6 +107,8 @@ flowchart LR
 
 > **Референс-стенд (практика урока):** рабочая Kind-лаба преподавателя — [artifacts/alerting-demo](artifacts/alerting-demo/README.md) (FastAPI ML-сервис с инъекцией ошибок/latency → Prometheus Operator/ServiceMonitor → Grafana + Alertmanager). Golden-Signals-панели ① Latency p95 и ③ Error Rate и alert-правило `error_rate > 15% за 2 мин → Firing → Telegram` в моём дизайне взяты 1:1 из этого стенда; AI-слой (⑤–⑦, Langfuse/Evidently) — надстройка над ним.
 
+> **Готовый дашборд:** [artifacts/sufler-dashboard.json](artifacts/sufler-dashboard.json) — импортируемый в Grafana (schemaVersion 38), 7 панелей = таблица выше. Структура и пороги (percentunit, thresholds) — от [референс-стенда](artifacts/alerting-demo/dashboard.json), метрики переписаны под наш стек: `sufler_*` (инструментированный FastAPI), `DCGM_FI_DEV_*` (GPU 2×H100), Langfuse/Evidently scorers (AI-качество/дрейф).
+
 ### 3.2. Мокап раскладки (ASCII)
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
