@@ -121,21 +121,21 @@
       "title": "④ GPU / VRAM 2×H100 (Golden: Saturation)",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "description": "Утилизация GPU и занятость VRAM (DCGM exporter). > 90% → Warning.",
+      "description": "Утилизация GPU и занятость VRAM (nvidia_gpu_exporter, job 'gpu' 192.168.50.123:9835). > 90% → Warning.",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "editorMode": "code",
-          "expr": "DCGM_FI_DEV_GPU_UTIL",
-          "legendFormat": "GPU util {{gpu}}",
+          "expr": "nvidia_smi_utilization_gpu_ratio * 100",
+          "legendFormat": "GPU util {{name}}",
           "range": true,
           "refId": "A"
         },
         {
           "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
           "editorMode": "code",
-          "expr": "100 * DCGM_FI_DEV_FB_USED / (DCGM_FI_DEV_FB_USED + DCGM_FI_DEV_FB_FREE)",
-          "legendFormat": "VRAM% {{gpu}}",
+          "expr": "100 * nvidia_smi_memory_used_bytes / nvidia_smi_memory_total_bytes",
+          "legendFormat": "VRAM% {{name}}",
           "range": true,
           "refId": "B"
         }
