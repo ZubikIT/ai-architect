@@ -47,14 +47,14 @@ jobs:
           THRESH_QA_SIM: "0.80"
           THRESH_PASS_RATE: "0.85"
         run: | 
-          python3 pre_deploy_test.py
+          python3 -m testing.pre_deploy_test
 
       - name: Upload passed model placeholder to MinIO
         if: success()
         env:
           MODEL_NAME: ${{ matrix.model_name }}
         run: |
-          python3 publish_model_placeholder.py
+          python3 -m testing.publish_model_placeholder
 
   toxicity-test:
     runs-on: self-hosted
@@ -78,7 +78,7 @@ jobs:
           RUDE_THRESHOLD: "0.50"
         run: |
           set -e
-          python3 toxic_test.py | tee tox.out
+          python3 -m testing.toxic_test | tee tox.out
           if grep -E -q "ГЕЙТ:\s*ПРОВАЛ" tox.out; then
             echo "::error::Toxicity gate failed"
             exit 1

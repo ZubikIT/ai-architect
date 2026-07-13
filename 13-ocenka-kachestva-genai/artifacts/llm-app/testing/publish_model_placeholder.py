@@ -8,7 +8,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-load_dotenv()
+REPO_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(REPO_ROOT / ".env")
 
 
 def _safe_filename(value: str) -> str:

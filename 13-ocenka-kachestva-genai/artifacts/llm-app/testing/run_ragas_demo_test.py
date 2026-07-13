@@ -12,6 +12,7 @@ import sys
 import logging
 import warnings
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Dict, Any
 
 from dotenv import load_dotenv
@@ -35,7 +36,8 @@ from ragas.embeddings import OpenAIEmbeddings  # для остальных ме�
 from langchain_openai import ChatOpenAI
 from datasets import Dataset
 
-load_dotenv()
+REPO_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(REPO_ROOT / ".env")
 
 warnings.filterwarnings(
     "ignore",

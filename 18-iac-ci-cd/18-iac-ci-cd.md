@@ -17,7 +17,7 @@ has_homework: true
 > **Компетенция:** писать Terraform-конфигурации для базовой инфраструктуры (VPC, Kubernetes-кластер, S3).
 > **Результаты:** практическое задание (ДЗ-18: Terraform-конфигурация VPC + K8s + S3 — детали в ЛК), конспект, шаблон настройки.
 >
-> Артефакты: [слайды лекции](artifacts/lesson-18-iac-cicd.pdf) (31 стр.) · практика: [снапшот otus-mlops-terraform-nov](artifacts/otus-mlops-terraform-nov/PROVENANCE.md) (live-деплой VM + VPC + SA + S3 в Yandex Cloud) · [llm-app — снапшот урока 13](../13-ocenka-kachestva-genai/artifacts/llm-app/PROVENANCE.md) (приложение-объект CI/CD; [апстрим](https://github.com/Ilia2704/llm-app) после урока 13 реорганизован в пакеты `testing/`, `rag/`, `agent/`).
+> Артефакты: [слайды лекции](artifacts/lesson-18-iac-cicd.pdf) (31 стр.) · практика: [снапшот otus-mlops-terraform-nov](artifacts/otus-mlops-terraform-nov/PROVENANCE.md) (live-деплой VM + VPC + SA + S3 в Yandex Cloud) · [llm-app — общий снапшот в уроке 13](../13-ocenka-kachestva-genai/artifacts/llm-app/PROVENANCE.md) (приложение-объект CI/CD; обновлён до актуального коммита `3c6d4bc`: пакеты `testing/`, `rag/`, `agent/`).
 >
 > Связь: инженерное продолжение блока — уроки 13–15 дали *содержание* гейтов (eval-метрики, security-сканы, observability), урок 18 даёт *конвейер*, который эти гейты исполняет. Для нас ([[prefer-iac-over-ui]], [[zubriq-openwebui-deployment]]) это скорее валидация уже принятой практики: весь zubriq.by ведётся как OpenTofu workspace-as-code, а [[yandex-yc-opentofu]] — живой пример provider/state/plan/apply из лекции.
 

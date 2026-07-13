@@ -20,7 +20,9 @@ warnings.filterwarnings(
 )
 
 
-load_dotenv()
+TESTING_ROOT = Path(__file__).resolve().parent
+REPO_ROOT = TESTING_ROOT.parent
+load_dotenv(REPO_ROOT / ".env")
 
 
 OLLAMA_BASE_URL = (os.getenv("OLLAMA_BASE_URL") or "http://localhost:11434/v1").strip()
@@ -169,10 +171,11 @@ def run_model_test(model_cfg: dict[str, str]) -> bool:
                 pull_ollama_model(model_cfg["model"])
 
             completed = subprocess.run(
-                [sys.executable, "run_ragas_demo_test.py"],
+                [sys.executable, "-m", "testing.run_ragas_demo_test"],
                 env=env,
                 capture_output=True,
                 text=True,
+                cwd=str(REPO_ROOT),
             )
             stdout_text = completed.stdout
             stderr_text = completed.stderr

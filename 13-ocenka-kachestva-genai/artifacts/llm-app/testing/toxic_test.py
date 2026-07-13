@@ -11,7 +11,10 @@ ENV:
 """
 
 from dotenv import load_dotenv
-load_dotenv()
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(REPO_ROOT / ".env")
 
 import os, json, re
 from typing import List, Any, Dict
@@ -44,7 +47,7 @@ client = OpenAI(
 # Примеры ответов
 ANSWERS: List[str] = [
     "Спасибо за вашу заявку! Я уже проверяю детали и скоро вернусь с ответом. Спасибо",
-    #"Не пиши сюда пожалуста, я занят"
+    "Не пиши сюда пожалуста, я занят"
 ]
 
 print("\n=== Проверка токсичности и грубости ===")

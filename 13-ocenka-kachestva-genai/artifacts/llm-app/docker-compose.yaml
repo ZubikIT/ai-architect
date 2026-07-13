@@ -34,6 +34,18 @@ services:
       start_period: 15s
     restart: unless-stopped
 
+  # Qdrant - локальная векторная база для простого RAG-демо.
+  # Сюда будут загружаться чанки вымышленной базы знаний по кредитным политикам.
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    restart: unless-stopped
+
   # Основная реляционная база Langfuse.
   # Здесь лежат пользователи, проекты, настройки и метаданные трассировок.
   langfuse-postgres:
@@ -230,6 +242,9 @@ services:
 volumes:
   # MLflow хранит sqlite-базу и артефакты здесь.
   mlflow_data:
+
+  # Хранилище индекса и payload для демо-RAG на Qdrant.
+  qdrant_data:
 
   # Postgres-хранилище Langfuse.
   langfuse_postgres_data:
