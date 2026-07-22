@@ -1,0 +1,64 @@
+site_name: AI Architect — конспекты курса
+site_description: >-
+  Конспекты курса OTUS «AI Architect»: уроки по блокам, домашние задания,
+  финальный проект. Собирается из дерева репозитория (GitLab Pages).
+
+# Внутренний Pages (path-based namespace_in_path, доступ только участникам
+# проекта: pages_access_level=private). Наружу зона acl.by не публикуется.
+site_url: "https://pages.acl.by/ai/architect/"
+# docs/ генерируется в CI из корня репо (scripts/build-docs.sh) — в git его нет.
+docs_dir: docs
+use_directory_urls: true
+
+# Навигация не задана намеренно: mkdocs строит её из дерева docs/ — новый
+# урок (NN-nazvanie/NN-nazvanie.md) появляется на сайте сам, без правки конфига.
+
+# Часть ссылок в конспектах ведёт в соседние репозитории (ai/*, devops/*),
+# на [[wiki-имена]] памяти и файлы вне docs/ — внутри сайта они не резолвятся
+# намеренно, иначе --strict валит сборку.
+validation:
+  links:
+    not_found: ignore
+    absolute_links: ignore
+    unrecognized_links: ignore
+
+theme:
+  name: material
+  language: ru
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Тёмная тема
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      accent: deep purple
+      toggle:
+        icon: material/weather-sunny
+        name: Светлая тема
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.top
+    - navigation.indexes
+    - search.highlight
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+
+plugins:
+  - search:
+      lang: ru

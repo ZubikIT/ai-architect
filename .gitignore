@@ -47,6 +47,11 @@ credentials
 *.tar.gz
 *.iso
 
+# MkDocs: docs/ и public/ генерируются в CI (scripts/build-docs.sh)
+/docs/
+/public/
+/site/
+
 # Локальные черновики
 scratch/
 tmp/

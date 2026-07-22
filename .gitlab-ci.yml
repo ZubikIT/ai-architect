@@ -1,45 +1,51 @@
 stages:
-  - prerender
   - deploy
 
-# Прогоняет ноутбук ДЗ-07 «TripBuddy» (MAS + RAG) через nbconvert --execute
-# и сохраняет HTML с встроенными outputs как артефакт для следующего stage.
-# Это даёт преподавателю **готовый прогон** по статичной ссылке — без Jupyter,
-# без ключей API (MODE=mock), без ожидания. Если ноутбук сломается — CI красный.
-prerender_notebook:
-  stage: prerender
+# Конспекты курса → MkDocs Material → GitLab Pages на git.artcloud.by
+# (тот же паттерн, что devops/opentofu). Пуш в main пересобирает сайт;
+# навигация строится из дерева docs/, которое собирает scripts/build-docs.sh.
+# Доступ приватный (pages_access_level=private): только участники проекта.
+pages:
+  stage: deploy
+  image: python:3.12-slim
+  tags:
+    - devops
+  script:
+    - pip install --no-cache-dir -r requirements-docs.txt
+    - bash scripts/build-docs.sh
+    - mkdocs build --strict --site-dir public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_SERVER_HOST == "git.artcloud.by" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# gitlab.com: сохраняет публичные ссылки из уже сданных ДЗ
+# (https://architect-5ffe23.gitlab.io — C4-диаграммы ДЗ-05 в корне,
+# /07-ai-agents.html — прогон ноутбука TripBuddy ДЗ-07). Имена файлов в
+# public/ менять нельзя. Ноутбук прогоняется через nbconvert --execute
+# (MODE=mock, без ключей API) — если он сломается, CI красный.
+pages-legacy:
+  stage: deploy
+  pages: true
   image: python:3.11-slim
   script:
     - pip install --quiet --no-cache-dir
         "langgraph>=0.2,<1.0"
         "langchain-core>=0.3,<1.0"
         jupyter nbconvert grandalf
-    - mkdir -p public-prerender
+    - mkdir -p public
+    - cp 04-hld-c4-model/artifacts/diagrams/index.html public/index.html
+    - cp 04-hld-c4-model/artifacts/diagrams/*.png public/
+    - cp 05-lld-komponenty/artifacts/lesson-05-workspace.dsl public/workspace.dsl
+    - cp 05-lld-komponenty/artifacts/lesson-05-openapi.yaml public/openapi.yaml
     - jupyter nbconvert --to html --execute
-        02-architecture/homework/07-ai-agents.ipynb
+        07-ai-agents-i-multi-agent-systems/Zubik_DZ-07_tripbuddy.ipynb
         --output 07-ai-agents.html
-        --output-dir public-prerender
+        --output-dir public
         --ExecutePreprocessor.timeout=180
   artifacts:
     paths:
-      - public-prerender
-    expire_in: 1 week
-  only:
-    - main
-
-pages:
-  stage: deploy
-  image: alpine:3.19
-  needs: ["prerender_notebook"]
-  script:
-    - mkdir -p public
-    - cp 02-architecture/artifacts/diagrams/index.html public/index.html
-    - cp 02-architecture/artifacts/diagrams/*.png public/
-    - cp 02-architecture/artifacts/lesson-05-workspace.dsl public/workspace.dsl
-    - cp 02-architecture/artifacts/lesson-05-openapi.yaml public/openapi.yaml
-    - cp public-prerender/07-ai-agents.html public/07-ai-agents.html
-  artifacts:
-    paths:
       - public
-  only:
-    - main
+  rules:
+    - if: '$CI_SERVER_HOST == "gitlab.com" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
