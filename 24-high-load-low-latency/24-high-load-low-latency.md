@@ -15,7 +15,7 @@ has_homework: true
 > **Цели (из ЛК):** разрабатывать архитектуру, способную выдерживать высокие нагрузки и обеспечивать минимальную задержку при обработке запросов к моделям; использовать техники кэширования, репликации и геолокации для оптимизации производительности.
 > **Краткое содержание:** паттерны кэширования (in-memory, distributed, semantic cache); edge computing для AI; практика — проектирование архитектуры высоконагруженного рекомендательного сервиса с требованием latency < 50 мс.
 > **Компетенция:** проектировать архитектуру высоконагруженных рекомендательных сервисов с требованиями к низкой задержке.
-> **Результаты:** конспект; **практическое задание** (в заголовке урока в ЛК стоит «// ДЗ», методички пока нет — дополню, когда появится).
+> **Результаты:** конспект; **ДЗ-24 «Архитектура для высоких нагрузок и Real-time обработки»** — капстоун блока 5 по урокам 22–24 (10 000 RPS, latency < 200 мс; кэш + KEDA + async + Geo-DNS/edge), **дедлайн 20.08.2026**, статус — не сдано → [`Zubik_DZ-24`](Zubik_DZ-24_highload-realtime.md).
 >
 > Артефакты: [слайды лекции](artifacts/lesson-24-highload.pdf) (31 стр.) — тезисы ниже по ним.
 >
@@ -97,7 +97,8 @@ Semantic cache через AI Gateway + векторную БД (два прох�
 ## Что почитать / посмотреть
 - [x] [Слайды лекции](artifacts/lesson-24-highload.pdf) (31 стр.)
 - [ ] Запись вебинара в ЛК
-- [ ] Методичка ДЗ-24 (в ЛК пока нет)
+- [x] Методичка ДЗ-24 → постановка в [`Zubik_DZ-24`](Zubik_DZ-24_highload-realtime.md)
+- [ ] [Semantic Cache · Azure Cosmos DB (Microsoft Learn)](https://learn.microsoft.com/ru-ru/azure/cosmos-db/gen-ai/semantic-cache) и [KEDA](https://keda.sh/) — вспомогательные материалы к ДЗ-24
 - [ ] [vLLM · Automatic Prefix Caching](https://docs.vllm.ai/en/latest/features/automatic_prefix_caching.html) — тот самый prefix cache в нашем движке
 - [ ] [NVIDIA Triton · Model Analyzer / dynamic batching](https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/user_guide/model_configuration.html) — батчинг и конфигурация инстансов из кейса лекции
 
