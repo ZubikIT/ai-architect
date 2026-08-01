@@ -69,7 +69,7 @@
 
 ### Блок 5. Продвинутые паттерны
 - [ ] [22. Serverless vs. Kubernetes для AI-ворклоадов](./22-serverless-vs-k8s/22-serverless-vs-k8s.md)
-- [ ] [23. Событийно-ориентированная архитектура (EDA) для AI](./23-eda-dlya-ai/23-eda-dlya-ai.md)
+- [ ] [23. Событийно-ориентированная архитектура (EDA) для AI](./23-eda-dlya-ai/23-eda-dlya-ai.md) — **ДЗ** _(методичка ожидается)_
 - [ ] [24. Архитектура для High-Load и Low-Latency инференса](./24-high-load-low-latency/24-high-load-low-latency.md) — **ДЗ** _(после урока)_
 - [ ] [25. Гибридная и мультиоблачная архитектура для AI](./25-gibridnaya-multioblachnaya/25-gibridnaya-multioblachnaya.md)
 - [ ] [26. Архитектура для Multi-tenancy в AI SaaS](./26-multi-tenancy-ai-saas/26-multi-tenancy-ai-saas.md)
