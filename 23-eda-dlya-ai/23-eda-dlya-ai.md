@@ -5,7 +5,7 @@ date: 2026-07-28
 lecturer: Дмитрий Фомин
 tags: [EDA, events, pub-sub, event-sourcing, CQRS, kafka, rabbitmq, dead-letter-queue, idempotency, ordering, partition-key, saga, choreography, domain-events, ddd, feature-store, streaming-aggregation, training-serving-skew, fraud-detection, flink, rocksdb, grpc, sidecar, xai]
 status: done
-has_homework: true
+has_homework: false
 ---
 
 # 23. Событийно-ориентированная архитектура (EDA) для AI
@@ -15,7 +15,7 @@ has_homework: true
 > **Цели (из ЛК):** проектировать асинхронные, слабосвязанные системы на основе событий для real-time обработки данных и реакции на изменения; применять EDA для построения масштабируемых AI-пайплайнов и систем принятия решений.
 > **Краткое содержание:** принципы EDA; паттерны (Pub/Sub, Event Sourcing, CQRS); реактивные AI-системы; практика — проектирование EDA-архитектуры для системы real-time fraud detection.
 > **Компетенция:** проектировать EDA-архитектуру для систем real-time fraud detection.
-> **Результаты:** конспект; **практическое задание** (методички в ЛК пока нет — дополню, когда появится).
+> **Результаты:** конспект. В ЛК заявлено «практическое задание», но **ДЗ по уроку 23 не выдано** — практика разобрана прямо на занятии кейсом real-time fraud monitoring (слайды 48–52).
 >
 > Артефакты: [слайды лекции](artifacts/lesson-23-eda.pdf) (59 стр.) — тезисы ниже по ним.
 >
@@ -110,7 +110,6 @@ Feature Engineering: Online vs Offline Consistency (Kafka → Flink/Spark → Re
 ## Что почитать / посмотреть
 - [x] [Слайды лекции](artifacts/lesson-23-eda.pdf) (59 стр.)
 - [ ] Запись вебинара в ЛК
-- [ ] Методичка практического задания (в ЛК пока нет)
 - [ ] [microservices.io · Saga](https://microservices.io/patterns/data/saga.html) — оркестрация vs хореография (со слайдов)
 - [ ] Фергюсон Д. «Проектирование событийно-ориентированных систем. Концепции и паттерны» (Питер, 2022)
 - [ ] Янг Г. «Событийная модель. Проектирование и реализация» (ДМК Пресс, 2022)
