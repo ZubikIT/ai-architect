@@ -70,7 +70,7 @@
 ### Блок 5. Продвинутые паттерны
 - [ ] [22. Serverless vs. Kubernetes для AI-ворклоадов](./22-serverless-vs-k8s/22-serverless-vs-k8s.md)
 - [ ] [23. Событийно-ориентированная архитектура (EDA) для AI](./23-eda-dlya-ai/23-eda-dlya-ai.md)
-- [ ] [24. Архитектура для High-Load и Low-Latency инференса](./24-high-load-low-latency/24-high-load-low-latency.md) — **ДЗ-капстоун:** [`Zubik_DZ-24`](./24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md) (10 000 RPS / latency < 200 мс; уроки 22–24; дедлайн 20.08)
+- [ ] [24. Архитектура для High-Load и Low-Latency инференса](./24-high-load-low-latency/24-high-load-low-latency.md) — **ДЗ-капстоун:** [`Zubik_DZ-24`](./24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md) (10 000 RPS / latency < 200 мс; уроки 22–24; решение + [PDF](./24-high-load-low-latency/Zubik_DZ-24_highload-realtime.pdf), дедлайн 20.08)
 - [ ] [25. Гибридная и мультиоблачная архитектура для AI](./25-gibridnaya-multioblachnaya/25-gibridnaya-multioblachnaya.md)
 - [ ] [26. Архитектура для Multi-tenancy в AI SaaS](./26-multi-tenancy-ai-saas/26-multi-tenancy-ai-saas.md)
 - [ ] [27. Federated Learning и Privacy-Preserving архитектура](./27-federated-learning-privacy/27-federated-learning-privacy.md)
