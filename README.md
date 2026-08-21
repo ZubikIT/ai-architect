@@ -78,7 +78,7 @@
 ### Блок 6. Стратегия и экономика
 - [ ] [28. FinOps: архитектура, управляемая стоимостью](./28-finops/28-finops.md) — Cost = f(Architecture, Load, Efficiency), три утечки, кейс $23k → $10k/мес, shift-left (Infracost); **ДЗ** — часть 2 капстоуна [`Zubik_DZ-30`](./30-ethical-ai-governance/Zubik_DZ-30_finops-governance.md)
 - [ ] [29. Технологический радар и эволюция архитектуры](./29-tehradar-evolyuciya/29-tehradar-evolyuciya.md) — квадранты × кольца Adopt/Trial/Assess/Hold, Hold как бэклог техдолга, кейс Java → Go/K8s; ДЗ по уроку нет
-- [ ] [30. Ethical AI by Design и архитектура для Governance](./30-ethical-ai-governance/30-ethical-ai-governance.md) — **ДЗ** _(после урока)_
+- [ ] [30. Ethical AI by Design и архитектура для Governance](./30-ethical-ai-governance/30-ethical-ai-governance.md) — Responsible AI, 4 слоя governance, Decision Log, Model Card — **ДЗ-капстоун блока 6:** [`Zubik_DZ-30`](./30-ethical-ai-governance/Zubik_DZ-30_finops-governance.md) (Model Card + FinOps-отчёт; уроки 28 + 30, дедлайн 27.08)
 - [ ] [31. API как продукт: проектирование и управление](./31-api-kak-produkt/31-api-kak-produkt.md)
 
 ### Финальный блок. Проектная работа
