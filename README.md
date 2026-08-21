@@ -73,7 +73,7 @@
 - [ ] [24. Архитектура для High-Load и Low-Latency инференса](./24-high-load-low-latency/24-high-load-low-latency.md) — **ДЗ-капстоун:** [`Zubik_DZ-24`](./24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md) (10 000 RPS / latency < 200 мс; уроки 22–24; решение + [PDF](./24-high-load-low-latency/Zubik_DZ-24_highload-realtime.pdf), принято 12.08)
 - [ ] [25. Гибридная и мультиоблачная архитектура для AI](./25-gibridnaya-multioblachnaya/25-gibridnaya-multioblachnaya.md) — Split MLOps, Cloud Bursting, Deckhouse/Karmada/Kueue, Split-Context RAG; **ДЗ** _(методичка ожидается)_
 - [ ] [26. Архитектура для Multi-tenancy в AI SaaS](./26-multi-tenancy-ai-saas/26-multi-tenancy-ai-saas.md) — Silo/Pool/Bridge, tenant context, RLS + payload-фильтры Qdrant, token budget per tenant; **ДЗ** _(методичка ожидается)_
-- [ ] [27. Federated Learning и Privacy-Preserving архитектура](./27-federated-learning-privacy/27-federated-learning-privacy.md)
+- [ ] [27. Federated Learning и Privacy-Preserving архитектура](./27-federated-learning-privacy/27-federated-learning-privacy.md) — PPA (DP / FL / FHE-SMPC), cross-silo vs cross-device, парадокс SecAgg ↔ BFT; **Colab лектора:** [`Federated_Learning.ipynb`](./27-federated-learning-privacy/artifacts/Federated_Learning.ipynb) (Flower + Opacus) + [DDP-лаба](./27-federated-learning-privacy/artifacts/Raspredelennye_vychisleniya_Chast_1.ipynb); **ДЗ** _(методичка ожидается)_
 
 ### Блок 6. Стратегия и экономика
 - [ ] [28. FinOps: архитектура, управляемая стоимостью](./28-finops/28-finops.md)
