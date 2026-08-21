@@ -348,7 +348,7 @@ grade:
 
 ## Артефакты
 
-- [ ] `Zubik_DZ-30_finops-governance.pdf` — сборка через [`scripts/md-to-pdf.sh`](../scripts/md-to-pdf.sh)
+- [x] [`Zubik_DZ-30_finops-governance.pdf`](Zubik_DZ-30_finops-governance.pdf) — 16 стр., сборка через [`scripts/md-to-pdf.sh`](../scripts/md-to-pdf.sh)
 - [x] Опора на пакет финального проекта: [ADR-0002 (выбор модели)](../final-project/docs/adr/0002-vybor-modeli.md), [ADR-0006 (FP8 и sizing)](../final-project/docs/adr/0006-kvantovanie-i-sizing-gpu.md), [TCO](../final-project/economics/tco.md), [MVP «Суфлёр»](../final-project/mvp/README.md)
 
 ## Сложности и решения
