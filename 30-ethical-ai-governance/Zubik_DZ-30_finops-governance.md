@@ -2,9 +2,9 @@
 module: 06-strategy
 lesson: 30
 date_assigned: 2026-08-21
-date_submitted:
+date_submitted: 2026-08-24
 deadline: 2026-08-27
-status: in-progress
+status: submitted
 grade:
 ---
 
