@@ -79,7 +79,7 @@
 - [ ] [28. FinOps: архитектура, управляемая стоимостью](./28-finops/28-finops.md) — Cost = f(Architecture, Load, Efficiency), три утечки, кейс $23k → $10k/мес, shift-left (Infracost); **ДЗ** — часть 2 капстоуна [`Zubik_DZ-30`](./30-ethical-ai-governance/Zubik_DZ-30_finops-governance.md)
 - [ ] [29. Технологический радар и эволюция архитектуры](./29-tehradar-evolyuciya/29-tehradar-evolyuciya.md) — квадранты × кольца Adopt/Trial/Assess/Hold, Hold как бэклог техдолга, кейс Java → Go/K8s; ДЗ по уроку нет
 - [ ] [30. Ethical AI by Design и архитектура для Governance](./30-ethical-ai-governance/30-ethical-ai-governance.md) — Responsible AI, 4 слоя governance, Decision Log, Model Card — **ДЗ-капстоун блока 6:** [`Zubik_DZ-30`](./30-ethical-ai-governance/Zubik_DZ-30_finops-governance.md) (Model Card + FinOps-отчёт; уроки 28 + 30; решение + [PDF](./30-ethical-ai-governance/Zubik_DZ-30_finops-governance.pdf), сдано 24.08)
-- [ ] [31. API как продукт: проектирование и управление](./31-api-kak-produkt/31-api-kak-produkt.md)
+- [ ] [31. API как продукт: проектирование и управление](./31-api-kak-produkt/31-api-kak-produkt.md) — Consumer-First/Design-First, версионирование и deprecation, API Gateway, монетизация, специфика AI API, кейсы Enterprise vs SMB; **ДЗ** _(методичка ожидается)_
 
 ### Финальный блок. Проектная работа
 - [ ] [32. Выбор темы и организация проектной работы](./final-project/sessions/32-vybor-temy.md)
