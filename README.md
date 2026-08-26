@@ -64,7 +64,7 @@
 - [ ] [17. Расчёт ресурсов и оптимизация инференса LLM](./17-optimizaciya-inferensa-llm/17-optimizaciya-inferensa-llm.md) — **ДЗ** _(после урока)_
 - [ ] [18. Инфраструктура как код (IaC) и CI/CD](./18-iac-ci-cd/18-iac-ci-cd.md)
 - [ ] [19. Архитектура MLOps-конвейеров](./19-mlops-konveyery/19-mlops-konveyery.md)
-- [ ] [20. Стратегии развёртывания и вывода в Production](./20-deployment-strategii-prod/20-deployment-strategii-prod.md) — **ДЗ** _(после урока)_
+- [ ] [20. Стратегии развёртывания и вывода в Production](./20-deployment-strategii-prod/20-deployment-strategii-prod.md) — **ДЗ-капстоун:** [`Zubik_DZ-20`](./20-deployment-strategii-prod/Zubik_DZ-20_delivery-pipeline.md) (IaC + CI/CD + MLOps + Canary; уроки 18–20; принято 16.07)
 - [ ] [21. Архитектура высокой доступности (HA) и восстановления (DR)](./21-ha-i-dr/21-ha-i-dr.md)
 
 ### Блок 5. Продвинутые паттерны
