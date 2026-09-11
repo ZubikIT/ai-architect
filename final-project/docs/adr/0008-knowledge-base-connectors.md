@@ -35,7 +35,7 @@ tags: [connectors, ingestion, onyx, danswer, confluence, jira, sharepoint, permi
 
 - **Onyx — для совместной работы:** enterprise-search по **общим базам знаний** (Confluence/Jira/SharePoint) с **permission-aware** retrieval, со своим UI / RAG / индексом и hybrid+rerank из коробки.
 - **Open WebUI ([ADR-0007](0007-chat-interface.md)) — для персонального** использования (личный ассистент / агентный чат).
-- **Один LLM на обе системы:** Qwen3.6 ([ADR-0002](0002-vybor-modeli.md)) через vLLM ([ADR-0003](0003-llm-serving-engine.md)) — обе указывают на единый OpenAI-совместимый эндпоинт.
+- **Один LLM на обе системы:** Qwen3.5 ([ADR-0002](0002-vybor-modeli.md)) через vLLM ([ADR-0003](0003-llm-serving-engine.md)) — обе указывают на единый OpenAI-совместимый эндпоинт.
 
 Конфликта с ADR-0004/0007 нет: системы **разграничены по сценарию** (личный ассистент vs общий поиск) при **общем LLM-бэкенде**. Кастомные коннекторы и коммерческие SaaS — **Rejected**.
 

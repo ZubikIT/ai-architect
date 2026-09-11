@@ -15,7 +15,7 @@ tags: [orchestration, agents, langgraph, llamaindex, stateful, multi-agent, hitl
 - **Бриф:** «Линейные цепочки **запрещены** — нужна **stateful**-оркестрация»; кандидаты — LangGraph или LlamaIndex Workflows.
 - **Сценарий (ДЗ-07):** мультиагентность с делегированием (Менеджер → Поисковик/Аналитик/Бронировщик), циклы ReAct / Plan-and-Execute, **human-in-the-loop** на подтверждениях.
 - **Надёжность:** нужны **checkpointing / персистентность состояния** (возобновление, аудит шагов), лимиты циклов и бюджета (safety-net из урока 07).
-- **Совместимость:** tool-calling модели (ADR-0002 Qwen3.6), vLLM через OpenAI API (ADR-0003), RAG поверх Qdrant (ADR-0004).
+- **Совместимость:** tool-calling модели (ADR-0002 Qwen3.5), vLLM через OpenAI API (ADR-0003), RAG поверх Qdrant (ADR-0004).
 - **Air-gapped:** это Python-библиотека, работает офлайн — ограничение ADR-0001 не мешает.
 - **Команда:** начальный ML → ценится большое сообщество и примеры.
 
@@ -33,7 +33,7 @@ tags: [orchestration, agents, langgraph, llamaindex, stateful, multi-agent, hitl
 ## Решение
 Берём **LangGraph** как фреймворк оркестрации агентов. Что перевесило: граф состояний идеально кладётся на stateful мультиагентный сценарий с циклами и HITL, встроенные checkpointing/persistence, крупнейшее сообщество и прямое указание брифа. **LlamaIndex Workflows** — сильная альтернатива для RAG-центричной части (может использоваться точечно для retrieval-пайплайна), кастом — **Rejected**.
 
-**Статус `proposed`:** подтвердить на прототипе ДЗ-07 (Менеджер делегирует Поисковику) — проверить tool-calling Qwen3.6 через vLLM в графе и persistence. Возможна гибридизация: LangGraph — оркестрация агентов, LlamaIndex — retrieval-слой.
+**Статус `proposed`:** подтвердить на прототипе ДЗ-07 (Менеджер делегирует Поисковику) — проверить tool-calling Qwen3.5 через vLLM в графе и persistence. Возможна гибридизация: LangGraph — оркестрация агентов, LlamaIndex — retrieval-слой.
 
 ## Последствия
 - **Положительные:**

@@ -15,7 +15,7 @@ tags: [mcp, integration, tools, open-webui, onyx, langgraph, security]
 - **Не плодить кастом под каждый фронт:** две плоскости (Open WebUI — персонально, Onyx — совместно) + LangGraph-агенты (ADR-0005) → интеграции хочется писать **один раз**, а не отдельно под каждую систему.
 - **Air-gapped (ADR-0001):** интеграции и их серверы — в контуре.
 - **Безопасность:** инструмент = доступ к действиям → нужны least-privilege, scoping, аудит.
-- **Стек:** Qwen3.6 с tool-calling (ADR-0002); Open WebUI (ADR-0007) и Onyx (ADR-0008) — обе нативно поддерживают MCP.
+- **Стек:** Qwen3.5 с tool-calling (ADR-0002); Open WebUI (ADR-0007) и Onyx (ADR-0008) — обе нативно поддерживают MCP.
 
 ## Рассмотренные варианты
 1. **MCP (Model Context Protocol)** _(выбран)_
@@ -52,5 +52,5 @@ tags: [mcp, integration, tools, open-webui, onyx, langgraph, security]
 
 ## Связи
 - **Следует из:** [ADR-0007](0007-chat-interface.md) (Open WebUI — MCP-клиент), [ADR-0008](0008-knowledge-base-connectors.md) (Onyx — MCP клиент+сервер).
-- **Связан с:** [ADR-0005](0005-orchestration.md) (LangGraph-агенты — потребители MCP-инструментов), [ADR-0002](0002-vybor-modeli.md) (tool-calling Qwen3.6).
+- **Связан с:** [ADR-0005](0005-orchestration.md) (LangGraph-агенты — потребители MCP-инструментов), [ADR-0002](0002-vybor-modeli.md) (tool-calling Qwen3.5).
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).

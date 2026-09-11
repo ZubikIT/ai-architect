@@ -44,7 +44,7 @@
 | Слой | Требование ТЗ | Решение | ADR |
 |---|---|---|---|
 | **LLM Serving** | vLLM / SGLang / TGI; квантование (AWQ/GGUF для Consumer GPU), KV-cache optimization | vLLM, FP8 на 2× H100 NVL | [0003](docs/adr/0003-llm-serving-engine.md), [0006](docs/adr/0006-kvantovanie-i-sizing-gpu.md) |
-| **Models** | Open Source с RU: Qwen 2.5/3, DeepSeek-V3, T-lite/Saiga | Qwen3.6-27B + собственная Zubr-VL-32B (мультимодальный парсинг) | [0002](docs/adr/0002-vybor-modeli.md), +ADR |
+| **Models** | Open Source с RU: Qwen 2.5/3, DeepSeek-V3, T-lite/Saiga | Qwen3.5-27B + собственная Zubr-VL-32B (мультимодальный парсинг) | [0002](docs/adr/0002-vybor-modeli.md), +ADR |
 | **Vector DB** | self-hosted: Qdrant / Milvus / Weaviate | Qdrant | [0004](docs/adr/0004-vector-db.md) |
 | **Graph DB** | Neo4j (образ в материалах ЛК) | **решение не принято** | +ADR |
 | **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph | [0005](docs/adr/0005-orchestration.md) |

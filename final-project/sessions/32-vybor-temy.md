@@ -55,7 +55,7 @@ project_theme: Мультиагентная платформа цифровых 
 | Слой | Требование ТЗ | Моё решение (ADR) |
 |---|---|---|
 | **LLM Serving** | vLLM / SGLang / TGI; обязательно квантование (AWQ/GGUF для Consumer GPU), KV-cache optimization | vLLM ([ADR-0003](../docs/adr/0003-llm-serving-engine.md)), FP8 на 2× H100 NVL ([ADR-0006](../docs/adr/0006-kvantovanie-i-sizing-gpu.md)) |
-| **Models** | Open Source с поддержкой русского: Qwen 2.5/3, DeepSeek-V3, T-lite/Saiga | Qwen3.6-27B ([ADR-0002](../docs/adr/0002-vybor-modeli.md)) + собственная **Zubr-VL-32B** (QLoRA по праву РБ) для мультимодального парсинга |
+| **Models** | Open Source с поддержкой русского: Qwen 2.5/3, DeepSeek-V3, T-lite/Saiga | Qwen3.5-27B ([ADR-0002](../docs/adr/0002-vybor-modeli.md)) + собственная **Zubr-VL-32B** (QLoRA по праву РБ) для мультимодального парсинга |
 | **Vector DB** | self-hosted: Qdrant / Milvus / Weaviate | Qdrant ([ADR-0004](../docs/adr/0004-vector-db.md)) |
 | **Graph DB** | Neo4j (образ в материалах ЛК) | **новый ADR** |
 | **Orchestration** | **LangGraph** или LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph ([ADR-0005](../docs/adr/0005-orchestration.md)) — уже выбран |
@@ -117,7 +117,7 @@ flowchart TB
   S --> A4[Комплаенс]
   A1 & A2 & A3 & A4 --> R[GraphRAG Retriever<br/>Neo4j + Qdrant, ACL-фильтр]
   R --> RR[Rerank cross-encoder]
-  RR --> L[vLLM · Qwen3.6-27B]
+  RR --> L[vLLM · Qwen3.5-27B]
   L --> GO[Guardrails OUT<br/>PII + цитаты + «не знаю»]
   GO --> U
 ```

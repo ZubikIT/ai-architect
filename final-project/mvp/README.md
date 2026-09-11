@@ -5,7 +5,7 @@
 ## Что внутри (= принятый стек, ADR)
 - **Ingestion** ([ingest.py](sufler/ingest.py)) — загрузка ЛПА, recursive-чанкинг по разделам, метаданные + ACL (RBAC).
 - **Hybrid retrieval + rerank** ([retriever.py](sufler/retriever.py)) — dense (Qdrant) + BM25, объединение **RRF**, **cross-encoder rerank**, **RBAC pre-filter** (урок 06, [ADR-0004](../docs/adr/0004-vector-db.md)).
-- **LLM** ([llm.py](sufler/llm.py)) — OpenAI-совместимый клиент (в проде vLLM + Qwen3.6, [ADR-0002/0003](../docs/adr/)).
+- **LLM** ([llm.py](sufler/llm.py)) — OpenAI-совместимый клиент (в проде vLLM + Qwen3.5, [ADR-0002/0003](../docs/adr/)).
 - **Guardrails** ([guardrails.py](sufler/guardrails.py)) — input (prompt-injection) + output (PII-маска).
 - **API** ([api.py](sufler/api.py)) — `/ask` + OpenAI-совместимый `/v1/chat/completions` (для Open WebUI, [ADR-0007](../docs/adr/0007-chat-interface.md)).
 
@@ -25,7 +25,7 @@ SUFLER_USE_LLM=0 python -m sufler.cli "Сколько дней основной 
 ### Вариант B — с LLM (vLLM/Qwen или любой OpenAI-совместимый)
 ```bash
 export OPENAI_BASE_URL=http://<vllm-host>:8000/v1
-export SUFLER_LLM_MODEL=Qwen/Qwen2.5-7B-Instruct   # в проде Qwen3.6-27B
+export SUFLER_LLM_MODEL=Qwen/Qwen2.5-7B-Instruct   # в проде Qwen3.5-27B
 export SUFLER_USE_LLM=1
 python -m sufler.cli "Какие суточные в командировке по стране?"
 ```

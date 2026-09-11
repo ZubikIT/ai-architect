@@ -8,7 +8,7 @@
 Две пользовательские плоскости поверх **одного LLM**:
 - **Персональная:** Open WebUI (ADR-0007) → личный ассистент / агентный чат (LangGraph, ADR-0005; RAG на Qdrant, ADR-0004).
 - **Совместная:** Onyx (ADR-0008) → поиск по общим базам знаний (Confluence/Jira/SharePoint), permission-aware.
-- **Общее ядро:** Qwen3.6 (ADR-0002) на vLLM/FP8 (ADR-0003/0006), 2× H100 NVL, on-prem/air-gapped (ADR-0001).
+- **Общее ядро:** Qwen3.5 (ADR-0002) на vLLM/FP8 (ADR-0003/0006), 2× H100 NVL, on-prem/air-gapped (ADR-0001).
 
 ## Статусы
 `proposed` → `accepted` → (`deprecated` | `superseded by ADR-MMMM`) · либо `rejected` (с сохранением причины).
@@ -18,7 +18,7 @@
 | ID | Решение | Статус | Дата |
 |---|---|---|---|
 | [ADR-0001](0001-on-premise-self-hosted-llm.md) | Self-hosted open-weight LLM вместо облачного API (on-premise / air-gapped) | accepted | 2026-05-26 |
-| [ADR-0002](0002-vybor-modeli.md) | Выбор LLM — Qwen3.6-27B (open-weight, dense) | proposed | 2026-05-26 |
+| [ADR-0002](0002-vybor-modeli.md) | Выбор LLM — Qwen3.5-27B (open-weight, dense) | proposed | 2026-05-26 |
 | [ADR-0003](0003-llm-serving-engine.md) | LLM Serving Engine — vLLM (vs SGLang, TGI) | proposed | 2026-05-26 |
 | [ADR-0004](0004-vector-db.md) | Vector Database — Qdrant (vs Milvus, Weaviate) | proposed | 2026-05-26 |
 | [ADR-0005](0005-orchestration.md) | Orchestration — LangGraph (vs LlamaIndex Workflows) | proposed | 2026-05-26 |
@@ -30,7 +30,7 @@
 | [ADR-0011](0011-sufler-pipeline-integration.md) | Интеграция Суфлёра как Open WebUI Pipeline + RBAC через Keycloak | proposed | 2026-05-27 |
 
 ## Планируемые ADR (из брифа проекта)
-- [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.6-27B (proposed)
+- [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.5-27B (proposed)
 - [x] **ADR-0003** — LLM Serving Engine: vLLM vs SGLang vs TGI → [ADR-0003](0003-llm-serving-engine.md) (proposed)
 - [x] **ADR-0004** — Vector Database → [ADR-0004](0004-vector-db.md): Qdrant (proposed)
 - [x] **ADR-0005** — Orchestration framework → [ADR-0005](0005-orchestration.md): LangGraph (proposed)

@@ -24,7 +24,7 @@ status: draft
 
 ## Как ложится на принятый стек (ADR)
 Ничего нового для этапов 1–2 изобретать не нужно — переиспользуем:
-- **LLM:** Qwen3.6-27B на vLLM/FP8 ([ADR-0002/0003/0006](adr/)).
+- **LLM:** Qwen3.5-27B на vLLM/FP8 ([ADR-0002/0003/0006](adr/)).
 - **RAG:** Qdrant + hybrid (dense+BM25) + rerank ([ADR-0004](adr/0004-vector-db.md), урок 06).
 - **Коннекторы БЗ:** Onyx (Confluence/Jira/SharePoint, permission-aware) ([ADR-0008](adr/0008-knowledge-base-connectors.md)).
 - **Оркестрация:** LangGraph (когда нужен агентный путь/инструменты) ([ADR-0005](adr/0005-orchestration.md)).
@@ -49,7 +49,7 @@ status: draft
 Поток (см. также [Sequence](../diagrams/sequence-er.md)):
 ```
 вопрос → guardrails(in) → hybrid retrieve (Qdrant, RBAC-фильтр) → rerank (cross-encoder)
-       → промпт «отвечай ТОЛЬКО по контексту, иначе „не знаю“» → Qwen3.6 (vLLM)
+       → промпт «отвечай ТОЛЬКО по контексту, иначе „не знаю“» → Qwen3.5 (vLLM)
        → guardrails(out: PII, «не знаю») → ответ + цитаты [ЛПА §, ссылка]
 ```
 
@@ -72,7 +72,7 @@ def answer(question, user):
         acl_filter=user.roles)                      # permission-aware (№99-З)
     top = cross_encoder_rerank(question, cands)[:5] # урок 06
     prompt = build_prompt(question, context=top)    # "Отвечай ТОЛЬКО по контексту, иначе 'не знаю'"
-    draft = vllm_chat(prompt)                        # Qwen3.6 через OpenAI API
+    draft = vllm_chat(prompt)                        # Qwen3.5 через OpenAI API
     return guard_out(draft) + citations(top)         # PII-маска + ссылки на ЛПА §
 ```
 Развёртывание: ядро как сервис (FastAPI) → подключается к Open WebUI (OpenAI-совместимый) и/или как MCP-инструмент для агента.

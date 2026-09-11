@@ -4,7 +4,7 @@
 
 ## Sequence — обработка сложного запроса (персональный агентный чат)
 
-Поток по брифу: `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response`. Плоскость — Open WebUI + LangGraph-агент; общий LLM — Qwen3.6 (vLLM).
+Поток по брифу: `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response`. Плоскость — Open WebUI + LangGraph-агент; общий LLM — Qwen3.5 (vLLM).
 
 ```mermaid
 sequenceDiagram
@@ -16,7 +16,7 @@ sequenceDiagram
   participant R as Retriever (hybrid+rerank)
   participant Q as Qdrant
   participant M as MCP-серверы
-  participant L as vLLM · Qwen3.6
+  participant L as vLLM · Qwen3.5
   participant P as Postgres (state/logs)
 
   U->>W: запрос (SSO-сессия)
