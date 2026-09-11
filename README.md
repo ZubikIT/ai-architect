@@ -37,6 +37,7 @@
 
 ### Орг. задачи
 - [ ] [Заполнить раздел «О себе»](./00-o-sebe/00-o-sebe.md) в ЛК OTUS
+- [ ] Получить УПК/ДПП после защиты проекта — [инструкция](./final-project/sessions/artifacts/33-chek-list-UPK-DPP.pdf) (нужен СНИЛС — уточнить замену для РБ на help@otus.ru)
 
 ### Блок 1. Стратегический фундамент
 - [ ] [01. Пресейл, контракты и работа с требованиями](./01-presale-i-trebovaniya/01-presale-i-trebovaniya.md)
@@ -82,13 +83,13 @@
 - [ ] [31. API как продукт: проектирование и управление](./31-api-kak-produkt/31-api-kak-produkt.md) — Consumer-First/Design-First, версионирование и deprecation, API Gateway, монетизация, специфика AI API, кейсы Enterprise vs SMB; ДЗ по уроку не выдано
 
 ### Финальный блок. Проектная работа
-- [ ] [32. Выбор темы и организация проектной работы](./final-project/sessions/32-vybor-temy.md)
-- [ ] [33. Консультация по проектам и домашним заданиям](./final-project/sessions/33-konsultaciya.md)
+- [ ] [32. Выбор темы и организация проектной работы](./final-project/sessions/32-vybor-temy.md) — уточнённое ТЗ проекта (GraphRAG + Security-by-Design), **моя тема:** «Мультиагентная платформа цифровых корпоративных сотрудников»
+- [ ] [33. Консультация по проектам и домашним заданиям](./final-project/sessions/33-konsultaciya.md) — **методика проверки защищённости LLM** (Red Teaming, OWASP GenAI Top 10, MITRE ATLAS, ASR-гейт в CI) + [шаблон презентации защиты](./final-project/sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf)
 - [ ] [34. Защита проектных работ](./final-project/sessions/34-zashchita.md)
 - [ ] [35. Подведение итогов курса](./final-project/sessions/35-podvedenie-itogov.md)
 - [ ] [36. Итоговый опрос по курсу](./final-project/sessions/36-itogovyy-opros.md)
 
-📦 Финальный проект: см. [`final-project/README.md`](./final-project/README.md) (полное ТЗ).
+📦 Финальный проект: **«Мультиагентная платформа цифровых корпоративных сотрудников»** — см. [`final-project/README.md`](./final-project/README.md) (полное ТЗ, критерии оценки, формат сдачи).
 
 ## Лицензия и доступ
 
