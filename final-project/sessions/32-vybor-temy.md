@@ -149,7 +149,7 @@ flowchart LR
 | LangGraph (не линейные скрипты) | ✅ ADR-0005 | в коде MVP пока прямой пайплайн → переписать на state machine |
 | Self-hosted Vector DB | ✅ Qdrant | остаётся как dense-слой гибрида |
 | **GraphRAG (Neo4j)** | 🟡 спроектирован ([ADR-0012](../docs/adr/0012-graph-db.md), [ADR-0013](../docs/adr/0013-graphrag-strategiya.md)) | **блокер «Не принято»** — реализовать ядро |
-| **Мультимодальный ingestion** (сканы/чертежи) | ❌ нет | Zubr-VL-32B + layout-парсер |
+| **Мультимодальный ingestion** (сканы/чертежи) | 🟡 спроектирован ([ADR-0014](../docs/adr/0014-multimodalnyy-ingestion.md)) | реализовать каскад: layout-парсер + VL на исключениях |
 | **ACL на уровне узлов/чанков** | 🟡 спроектирован ([ADR-0016](../docs/adr/0016-acl-na-uzlah-grafa.md)) | реализовать фильтр в графе + **тест «User B не видит секретный документ»** |
 | **Control Plane / Data Plane** | 🟡 размечено в [Data Flow](../diagrams/data-flow.md) | перенести на C4 L2 и Deployment |
 | **Observability (OTel + Prom/Grafana)** | ❌ пункт чек-листа открыт | Langfuse + OTel → Jaeger, дашборд токены/сек + latency |
@@ -176,8 +176,8 @@ flowchart LR
 - [ ] Перевести `final-project/` в monorepo-раскладку (`/infra`, `/backend`, `/docs`)
 - [x] ADR-0012 — Graph DB: [Neo4j Community](../docs/adr/0012-graph-db.md) (vs ArangoDB, NebulaGraph, Memgraph)
 - [x] ADR-0013 — [стратегия GraphRAG-retrieval](../docs/adr/0013-graphrag-strategiya.md): гибрид «вектор → обход 1–2 хопа» + онтология из 4 типов узлов
-- [ ] ADR-0014 — мультимодальный ingestion (Zubr-VL-32B + layout-парсинг сканов/чертежей)
-- [ ] ADR-0015 — топология MAS «цифровые сотрудники» (supervisor + role-agents на LangGraph)
+- [x] ADR-0014 — [мультимодальный ingestion](../docs/adr/0014-multimodalnyy-ingestion.md): каскад «текст → layout → VL на исключениях», провенанс и понижение доверия
+- [x] ADR-0015 — [топология MAS «цифровые сотрудники»](../docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md): иерархия, checkpointer, лимиты, видимый ReAct-trace
 - [x] ADR-0016 — [ACL на уровне узлов графа и чанков](../docs/adr/0016-acl-na-uzlah-grafa.md): материализованные метки, контекст из JWT, тест «User B»
 - [ ] ADR-0017 — Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana
 - [x] Добавить **[Data Flow](../diagrams/data-flow.md)** диаграмму (обязательна по ТЗ)
