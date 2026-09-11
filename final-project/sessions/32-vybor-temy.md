@@ -148,7 +148,7 @@ flowchart LR
 | Open-source RU-модель | ✅ ADR-0002 | — |
 | LangGraph (не линейные скрипты) | ✅ ADR-0005 | в коде MVP пока прямой пайплайн → переписать на state machine |
 | Self-hosted Vector DB | ✅ Qdrant | остаётся как dense-слой гибрида |
-| **GraphRAG (Neo4j)** | ❌ **нет** | **блокер «Не принято»** — ядро работы |
+| **GraphRAG (Neo4j)** | 🟡 спроектирован ([ADR-0012](../docs/adr/0012-graph-db.md), [ADR-0013](../docs/adr/0013-graphrag-strategiya.md)) | **блокер «Не принято»** — реализовать ядро |
 | **Мультимодальный ingestion** (сканы/чертежи) | ❌ нет | Zubr-VL-32B + layout-парсер |
 | **ACL на уровне узлов/чанков** | 🟡 спроектирован RBAC через Keycloak (ADR-0011) | реализовать фильтр в графе + **тест «User B не видит секретный документ»** |
 | **Control Plane / Data Plane** | 🟡 неявно | явно выделить на C4 L2 и Deployment |
@@ -174,8 +174,8 @@ flowchart LR
 ## Следующие шаги
 
 - [ ] Перевести `final-project/` в monorepo-раскладку (`/infra`, `/backend`, `/docs`)
-- [ ] ADR-0012 — Graph DB: Neo4j (vs ArangoDB, NebulaGraph)
-- [ ] ADR-0013 — стратегия GraphRAG-retrieval (граф + вектор, гибрид) и онтология
+- [x] ADR-0012 — Graph DB: [Neo4j Community](../docs/adr/0012-graph-db.md) (vs ArangoDB, NebulaGraph, Memgraph)
+- [x] ADR-0013 — [стратегия GraphRAG-retrieval](../docs/adr/0013-graphrag-strategiya.md): гибрид «вектор → обход 1–2 хопа» + онтология из 4 типов узлов
 - [ ] ADR-0014 — мультимодальный ingestion (Zubr-VL-32B + layout-парсинг сканов/чертежей)
 - [ ] ADR-0015 — топология MAS «цифровые сотрудники» (supervisor + role-agents на LangGraph)
 - [ ] ADR-0016 — ACL на уровне узлов графа и чанков (Keycloak → tenant/role context → фильтр в Neo4j/Qdrant)

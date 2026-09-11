@@ -35,7 +35,7 @@
 | **Sequence** | `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response` | [x] [`diagrams/sequence-er.md`](diagrams/sequence-er.md) |
 | **ER** | векторы, чанки, история сессий, логи, права доступа (RBAC) | [x] — +схема графа |
 | **Data Flow** | поток данных ingestion → граф → retrieval → ответ | [ ] **нет — критерий «Не принято»** |
-| **ADR-пакет** | ключевые решения с trade-off анализом | [x] 11 ADR → [`docs/adr/`](docs/adr/), нужны +6 |
+| **ADR-пакет** | ключевые решения с trade-off анализом | [x] 13 ADR → [`docs/adr/`](docs/adr/), нужны +5 |
 
 ## Блок 2. Infrastructure & Stack (2026)
 
@@ -46,11 +46,11 @@
 | **LLM Serving** | vLLM / SGLang / TGI; квантование (AWQ/GGUF для Consumer GPU), KV-cache optimization | vLLM, FP8 на 2× H100 NVL | [0003](docs/adr/0003-llm-serving-engine.md), [0006](docs/adr/0006-kvantovanie-i-sizing-gpu.md) |
 | **Models** | Open Source с RU: Qwen 2.5/3, DeepSeek-V3, T-lite/Saiga | Qwen3.5-27B + собственная Zubr-VL-32B (мультимодальный парсинг) | [0002](docs/adr/0002-vybor-modeli.md), +ADR |
 | **Vector DB** | self-hosted: Qdrant / Milvus / Weaviate | Qdrant | [0004](docs/adr/0004-vector-db.md) |
-| **Graph DB** | Neo4j (образ в материалах ЛК) | **решение не принято** | +ADR |
+| **Graph DB** | Neo4j (образ в материалах ЛК) | Neo4j Community 5.x + гибрид с Qdrant | [0012](docs/adr/0012-graph-db.md), [0013](docs/adr/0013-graphrag-strategiya.md) |
 | **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph | [0005](docs/adr/0005-orchestration.md) |
 | **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | **не реализовано** | +ADR |
 
-**Планируемые ADR:** Graph DB · стратегия GraphRAG-retrieval и онтология · мультимодальный ingestion · топология MAS «цифровые сотрудники» · ACL на узлах графа · Observability · Security testing / red teaming (по [методике урока 33](sessions/33-konsultaciya.md)).
+**Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). **Планируется:** мультимодальный ingestion · топология MAS «цифровые сотрудники» · ACL на узлах графа · Observability · Security testing / red teaming (по [методике урока 33](sessions/33-konsultaciya.md)).
 
 ## Блок 3. Implementation (MVP)
 
@@ -101,10 +101,10 @@
 - [x] C4 L1 / L2 / L3 + Deployment → [`diagrams/c4.md`](diagrams/c4.md) _(обновить под граф, MAS, Control/Data Plane)_
 - [x] Sequence + ER → [`diagrams/sequence-er.md`](diagrams/sequence-er.md) _(обновить: схема графа)_
 - [ ] **Data Flow диаграмма** — обязательна
-- [x] ADR-пакет (11 решений) → [`docs/adr/`](docs/adr/) _(+6 планируемых)_
+- [x] ADR-пакет (13 решений, включая [Graph DB](docs/adr/0012-graph-db.md) и [стратегию GraphRAG](docs/adr/0013-graphrag-strategiya.md)) → [`docs/adr/`](docs/adr/) _(+5 планируемых)_
 - [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`economics/tco.md`](economics/tco.md)
 - [x] MVP: домен, ingestion ЛПА, hybrid RAG (этапы 1–2) → [`mvp/`](mvp/)
-- [ ] **GraphRAG-ядро** (Neo4j: онтология, построение графа, graph-augmented retrieval)
+- [ ] **GraphRAG-ядро** (Neo4j: онтология, построение графа, graph-augmented retrieval) — _спроектировано в [ADR-0013](docs/adr/0013-graphrag-strategiya.md), не реализовано_
 - [ ] **Мультимодальный ingestion** (сканы, чертежи, сложные PDF)
 - [ ] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph)
 - [ ] **ACL на уровне узлов графа + тест «User B»**
