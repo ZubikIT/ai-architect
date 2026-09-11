@@ -82,5 +82,5 @@ SaaS-LLM (GPT-4-класс) ориентировочно ~$2.5–10 за 1M вх
 - SaaS исключён не ценой, а **комплаенсом и санкциями** (ADR-0001); CapEx-инвестиция в 2× H100 NVL — обоснована.
 
 ## Связи
-- [ADR-0001](../docs/adr/0001-on-premise-self-hosted-llm.md) (CapEx vs OpEx, комплаенс), [ADR-0006](../docs/adr/0006-kvantovanie-i-sizing-gpu.md) (FP8 → throughput → удельная цена), [ADR-0002](../docs/adr/0002-vybor-modeli.md) (Apache 2.0 → $0 лицензий).
-- [Vision & Goals](../docs/vision-goals.md) · [Requirements](../docs/requirements.md) (NFR: стоимость/TCO).
+- [ADR-0001](../adr/0001-on-premise-self-hosted-llm.md) (CapEx vs OpEx, комплаенс), [ADR-0006](../adr/0006-kvantovanie-i-sizing-gpu.md) (FP8 → throughput → удельная цена), [ADR-0002](../adr/0002-vybor-modeli.md) (Apache 2.0 → $0 лицензий).
+- [Vision & Goals](../vision-goals.md) · [Requirements](../requirements.md) (NFR: стоимость/TCO).

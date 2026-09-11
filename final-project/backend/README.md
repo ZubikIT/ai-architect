@@ -5,7 +5,7 @@
 ## Что внутри (= принятый стек, ADR)
 - **Ingestion** ([ingest.py](sufler/ingest.py)) — загрузка ЛПА, recursive-чанкинг по разделам, метаданные + ACL (RBAC).
 - **Hybrid retrieval + rerank** ([retriever.py](sufler/retriever.py)) — dense (Qdrant) + BM25, объединение **RRF**, **cross-encoder rerank**, **RBAC pre-filter** (урок 06, [ADR-0004](../docs/adr/0004-vector-db.md)).
-- **LLM** ([llm.py](sufler/llm.py)) — OpenAI-совместимый клиент (в проде vLLM + Qwen3.5, [ADR-0002/0003](../docs/adr/)).
+- **LLM** ([llm.py](sufler/llm.py)) — OpenAI-совместимый клиент (в проде vLLM + Qwen3.5, [ADR-0002/0003](../docs/adr)).
 - **Guardrails** ([guardrails.py](sufler/guardrails.py)) — input (prompt-injection) + output (PII-маска).
 - **API** ([api.py](sufler/api.py)) — `/ask` + OpenAI-совместимый `/v1/chat/completions` (для Open WebUI, [ADR-0007](../docs/adr/0007-chat-interface.md)).
 

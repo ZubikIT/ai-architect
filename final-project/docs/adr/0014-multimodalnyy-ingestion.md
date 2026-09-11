@@ -93,6 +93,6 @@ flowchart TB
 ## Связи
 
 - **Следует из:** ТЗ занятия [32](../../sessions/32-vybor-temy.md), [ADR-0001](0001-on-premise-self-hosted-llm.md) (всё локально).
-- **Связан с:** [ADR-0013](0013-graphrag-strategiya.md) (экстракция связей и онтология), [ADR-0016](0016-acl-na-uzlah-grafa.md) (ACL материализуется на том же шаге), [ADR-0002](0002-vybor-modeli.md) (Qwen3.5-27B — текстовое ядро, VL отдельно), [Data Flow](../../diagrams/data-flow.md).
+- **Связан с:** [ADR-0013](0013-graphrag-strategiya.md) (экстракция связей и онтология), [ADR-0016](0016-acl-na-uzlah-grafa.md) (ACL материализуется на том же шаге), [ADR-0002](0002-vybor-modeli.md) (Qwen3.5-27B — текстовое ядро, VL отдельно), [Data Flow](../diagrams/data-flow.md).
 - **Модель:** Zubr-VL-32B (QLoRA поверх Qwen3-VL-32B-Instruct, vision заморожена) — [Model Card и тест на memorization](../../../30-ethical-ai-governance/30-ethical-ai-governance.md).
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).

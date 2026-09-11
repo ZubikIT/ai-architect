@@ -17,7 +17,7 @@ class Settings:
     top_k_retrieve: int = int(os.getenv("SUFLER_TOP_K", "20"))
     top_k_context: int = int(os.getenv("SUFLER_TOP_CTX", "5"))
 
-    # LLM — OpenAI-совместимый эндпоинт (в проде vLLM + Qwen3.6, ADR-0002/0003)
+    # LLM — OpenAI-совместимый эндпоинт (в проде vLLM + Qwen3.5, ADR-0002/0003)
     openai_base_url: str = os.getenv("OPENAI_BASE_URL", "http://localhost:8000/v1")
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "not-needed")
     llm_model: str = os.getenv("SUFLER_LLM_MODEL", "Qwen/Qwen2.5-7B-Instruct")

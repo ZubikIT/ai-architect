@@ -283,7 +283,7 @@ flowchart TB
 ## Артефакты
 
 - [x] [`Zubik_DZ-24_highload-realtime.pdf`](Zubik_DZ-24_highload-realtime.pdf) — 15 стр., сборка через [`scripts/md-to-pdf.sh`](../scripts/md-to-pdf.sh) (путь B: mermaid.ink → PNG → pandoc + typst)
-- [x] Три диаграммы в Mermaid: алгоритм semantic cache, async-контур, итоговая архитектура → [`artifacts/dz-24-diagram-1..3.png`](artifacts/)
+- [x] Три диаграммы в Mermaid: алгоритм semantic cache, async-контур, итоговая архитектура → [`artifacts/dz-24-diagram-1..3.png`](artifacts)
 
 ## Сложности и решения
 

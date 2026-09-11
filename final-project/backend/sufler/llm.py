@@ -1,4 +1,4 @@
-"""LLM-клиент — OpenAI-совместимый (в проде vLLM + Qwen3.6, ADR-0002/0003)."""
+"""LLM-клиент — OpenAI-совместимый (в проде vLLM + Qwen3.5, ADR-0002/0003)."""
 from openai import OpenAI
 
 from .config import settings

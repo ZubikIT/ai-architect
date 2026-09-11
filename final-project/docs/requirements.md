@@ -8,7 +8,7 @@ status: draft
 
 # Требования (FR / NFR)
 
-> Дополняет [Vision & Goals](vision-goals.md). Обоснования решений — в [ADR-пакете](adr/). Часть NFR-целей зависит от профиля нагрузки (открытый вопрос) — помечены ⚠.
+> Дополняет [Vision & Goals](vision-goals.md). Обоснования решений — в [ADR-пакете](adr). Часть NFR-целей зависит от профиля нагрузки (открытый вопрос) — помечены ⚠.
 
 ## Функциональные требования (FR)
 
@@ -48,7 +48,7 @@ status: draft
 
 ### FR-7. Администрирование и RBAC
 - FR-7.1 Управление пользователями, ролями, группами.
-- FR-7.2 ACL на документы (см. [ER](../diagrams/sequence-er.md)).
+- FR-7.2 ACL на документы (см. [ER](diagrams/sequence-er.md)).
 - FR-7.3 **Аудит-лог** доступа и действий (№ 99-З).
 
 ### FR-8. Наблюдаемость
@@ -85,4 +85,4 @@ status: draft
 | NFR air-gapped / № 99-З | ADR-0001 |
 
 ## Связи
-- [Vision & Goals](vision-goals.md) · [ADR-пакет](adr/) · [C4](../diagrams/c4.md) · [Sequence + ER](../diagrams/sequence-er.md).
+- [Vision & Goals](vision-goals.md) · [ADR-пакет](adr) · [C4](diagrams/c4.md) · [Sequence + ER](diagrams/sequence-er.md).

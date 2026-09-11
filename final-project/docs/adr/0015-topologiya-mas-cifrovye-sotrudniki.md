@@ -97,6 +97,6 @@ flowchart TB
 ## Связи
 
 - **Следует из:** [ADR-0005](0005-orchestration.md) (LangGraph как оркестратор), ТЗ занятия [32](../../sessions/32-vybor-temy.md).
-- **Связан с:** [ADR-0013](0013-graphrag-strategiya.md) (инструменты retrieval), [ADR-0016](0016-acl-na-uzlah-grafa.md) (права ролей), [ADR-0009](0009-mcp-integration-layer.md) (инструменты через MCP), [ADR-0011](0011-sufler-pipeline-integration.md) (ограничения среды Pipelines), [Data Flow](../../diagrams/data-flow.md).
+- **Связан с:** [ADR-0013](0013-graphrag-strategiya.md) (инструменты retrieval), [ADR-0016](0016-acl-na-uzlah-grafa.md) (права ролей), [ADR-0009](0009-mcp-integration-layer.md) (инструменты через MCP), [ADR-0011](0011-sufler-pipeline-integration.md) (ограничения среды Pipelines), [Data Flow](../diagrams/data-flow.md).
 - **Преемственность:** [ДЗ-07 TripBuddy](../../../07-ai-agents-i-multi-agent-systems/Zubik_DZ-07_tripbuddy.md) — иерархический MAS, зачтён; рекомендация «показывать ReAct-trace» учтена.
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).

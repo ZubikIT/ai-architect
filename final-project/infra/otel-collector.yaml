@@ -1,0 +1,44 @@
+# OTel Collector — единая точка приёма спанов и метрик (ADR-0017).
+# Экспорт: трейсы → Jaeger, метрики → скрейп VictoriaMetrics.
+# ВАЖНО: санитизация ПДн выполняется в приложении ДО экспорта; здесь — только
+# страховочное удаление заведомо чувствительных атрибутов.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 5s
+  attributes/scrub:
+    actions:
+      - key: user.email
+        action: delete
+      - key: http.request.header.authorization
+        action: delete
+  # полные трейсы для ошибок и медленных запросов, сэмплирование для остальных
+  probabilistic_sampler:
+    sampling_percentage: 20
+
+exporters:
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [attributes/scrub, probabilistic_sampler, batch]
+      exporters: [otlp/jaeger]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus]

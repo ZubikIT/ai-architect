@@ -1,0 +1,23 @@
+# Скрейп-конфиг (Prometheus-совместимый, ADR-0017).
+# Прод-контур: те же job'ы заведены в VictoriaMetrics рядом с Grafana.
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: backend
+    static_configs:
+      - targets: ["backend:8080"]
+
+  - job_name: otel-collector
+    static_configs:
+      - targets: ["otel-collector:8889"]
+
+  # vLLM на GPU-ноде — серии vllm:* (токены, latency, очередь)
+  - job_name: vllm-engine
+    static_configs:
+      - targets: ["${VLLM_METRICS_TARGET:-host.docker.internal:8000}"]
+
+  # GPU — nvidia_gpu_exporter (серии nvidia_smi_*), не DCGM
+  - job_name: gpu
+    static_configs:
+      - targets: ["${GPU_EXPORTER_TARGET:-host.docker.internal:9835}"]

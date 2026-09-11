@@ -62,6 +62,6 @@ status: draft
 - [ ] Выбор темы MVP (Блок 3): Cognitive / Advanced RAG / Security.
 
 ## Связи
-- Архитектурные решения: [`adr/`](adr/) (9 ADR).
-- Диаграммы: [C4](../diagrams/c4.md), [Sequence + ER](../diagrams/sequence-er.md).
+- Архитектурные решения: [`adr/`](adr) (9 ADR).
+- Диаграммы: [C4](diagrams/c4.md), [Sequence + ER](diagrams/sequence-er.md).
 - Требования: [requirements.md](requirements.md).

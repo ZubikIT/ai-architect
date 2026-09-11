@@ -141,7 +141,7 @@ flowchart LR
 
 | Требование ТЗ | Статус | Что делать |
 |---|---|---|
-| C4 L1/L2/L3, Deployment, Sequence, ER | ✅ есть ([diagrams/](../diagrams/)) | обновить под граф + мультиагентность, добавить **Data Flow** |
+| C4 L1/L2/L3, Deployment, Sequence, ER | ✅ есть ([diagrams/](../docs/diagrams)) | обновить под граф + мультиагентность, добавить **Data Flow** |
 | ADR-пакет с trade-off | ✅ 11 ADR | +ADR: Graph DB, GraphRAG-retrieval, мультимодальный ingestion, MAS-топология, ACL на узлах, Observability |
 | On-prem / air-gapped, без облачных API | ✅ ADR-0001 | — |
 | vLLM + квантование + KV-cache | ✅ ADR-0003/0006 | — |
@@ -151,7 +151,7 @@ flowchart LR
 | **GraphRAG (Neo4j)** | 🟡 спроектирован ([ADR-0012](../docs/adr/0012-graph-db.md), [ADR-0013](../docs/adr/0013-graphrag-strategiya.md)) | **блокер «Не принято»** — реализовать ядро |
 | **Мультимодальный ingestion** (сканы/чертежи) | 🟡 спроектирован ([ADR-0014](../docs/adr/0014-multimodalnyy-ingestion.md)) | реализовать каскад: layout-парсер + VL на исключениях |
 | **ACL на уровне узлов/чанков** | 🟡 спроектирован ([ADR-0016](../docs/adr/0016-acl-na-uzlah-grafa.md)) | реализовать фильтр в графе + **тест «User B не видит секретный документ»** |
-| **Control Plane / Data Plane** | 🟡 размечено в [Data Flow](../diagrams/data-flow.md) | перенести на C4 L2 и Deployment |
+| **Control Plane / Data Plane** | 🟡 размечено в [Data Flow](../docs/diagrams/data-flow.md) | перенести на C4 L2 и Deployment |
 | **Observability (OTel + Prom/Grafana)** | ❌ пункт чек-листа открыт | Langfuse + OTel → Jaeger, дашборд токены/сек + latency |
 | **Monorepo /infra /backend /docs** | 🟡 структура иная | реорганизовать + docker-compose всего стека |
 | **Видео-демо 5–7 мин** | ❌ | сценарий: граф в Neo4j Browser, трейсы, логи vLLM, ACL-отказ |
@@ -180,7 +180,7 @@ flowchart LR
 - [x] ADR-0015 — [топология MAS «цифровые сотрудники»](../docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md): иерархия, checkpointer, лимиты, видимый ReAct-trace
 - [x] ADR-0016 — [ACL на уровне узлов графа и чанков](../docs/adr/0016-acl-na-uzlah-grafa.md): материализованные метки, контекст из JWT, тест «User B»
 - [x] ADR-0017 — [Observability](../docs/adr/0017-observability.md): единый OTel-слой, Golden Signals + метрики графа, SLO первой редакции
-- [x] Добавить **[Data Flow](../diagrams/data-flow.md)** диаграмму (обязательна по ТЗ)
+- [x] Добавить **[Data Flow](../docs/diagrams/data-flow.md)** диаграмму (обязательна по ТЗ)
 - [ ] Обновить C4 (Control Plane / Data Plane, Neo4j в Data Plane)
 - [ ] `docker-compose` всего стека: Neo4j + Qdrant + vLLM + backend + Langfuse/Jaeger + Grafana
 - [ ] Реализация: ingestion → граф → GraphRAG-retriever → LangGraph-агенты → SSE-стриминг

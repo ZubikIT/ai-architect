@@ -93,6 +93,6 @@ tags: [observability, opentelemetry, jaeger, langfuse, prometheus, victoriametri
 ## Связи
 
 - **Следует из:** ТЗ занятия [32](../../sessions/32-vybor-temy.md), [урок 15](../../../15-observability/15-observability.md).
-- **Связан с:** [ADR-0015](0015-topologiya-mas-cifrovye-sotrudniki.md) (шаги агента в трейсе), [ADR-0013](0013-graphrag-strategiya.md) (метрики графа), [ADR-0016](0016-acl-na-uzlah-grafa.md) (`request_id`, аудит отказов), [ADR-0018](0018-security-testing.md) (ASR как метрика), [Data Flow](../../diagrams/data-flow.md) (трейсы как поверхность утечки).
+- **Связан с:** [ADR-0015](0015-topologiya-mas-cifrovye-sotrudniki.md) (шаги агента в трейсе), [ADR-0013](0013-graphrag-strategiya.md) (метрики графа), [ADR-0016](0016-acl-na-uzlah-grafa.md) (`request_id`, аудит отказов), [ADR-0018](0018-security-testing.md) (ASR как метрика), [Data Flow](../diagrams/data-flow.md) (трейсы как поверхность утечки).
 - **Задел:** [ДЗ-15](../../../15-observability/Zubik_DZ-15_quality-assurance.md) — Golden Signals + AI-панель, дашборд в коде, Telegram-алерты.
 - **Шаблон:** [`../../../templates/adr.md`](../../../templates/adr.md).

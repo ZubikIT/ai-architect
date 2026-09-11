@@ -28,13 +28,13 @@
 
 | Диаграмма | Обязательное содержание | Статус |
 |---|---|---|
-| **C4 L1 — Context** | интеграция в ландшафт: ERP, CRM, User Channels | [x] [`diagrams/c4.md`](diagrams/c4.md) |
-| **C4 L2 — Container** | API Gateway, Vector DB, LLM Serving Engine, Orchestrator, Frontend | [x] — обновить: +Graph DB, Control/Data Plane |
-| **C4 L3 — Component** | внутреннее устройство агента: Memory, Planner, Tools interface | [x] — обновить под MAS |
-| **Deployment** | GPU-ресурсы, балансировка, сегментация сети (DMZ / Internal), секреты (Vault) | [x] — обновить |
-| **Sequence** | `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response` | [x] [`diagrams/sequence-er.md`](diagrams/sequence-er.md) |
-| **ER** | векторы, чанки, история сессий, логи, права доступа (RBAC) | [x] — +схема графа |
-| **Data Flow** | поток данных ingestion → граф → retrieval → ответ | [x] [`diagrams/data-flow.md`](diagrams/data-flow.md) |
+| **C4 L1 — Context** | интеграция в ландшафт: ERP, CRM, User Channels | [x] [`docs/diagrams/c4.md`](docs/diagrams/c4.md) |
+| **C4 L2 — Container** | API Gateway, Vector DB, LLM Serving Engine, Orchestrator, Frontend | [x] +Neo4j, Control/Data Plane, Observability |
+| **C4 L3 — Component** | внутреннее устройство агента: Memory, Planner, Tools interface | [x] под MAS: RequestContext, supervisor, роли, Repository |
+| **Deployment** | GPU-ресурсы, балансировка, сегментация сети (DMZ / Internal), секреты (Vault) | [x] Internal разделён на Control/Data Plane |
+| **Sequence** | `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response` | [x] [`docs/diagrams/sequence-er.md`](docs/diagrams/sequence-er.md) |
+| **ER** | векторы, чанки, история сессий, логи, права доступа (RBAC) | [x] _(дополнить схемой графа и полями провенанса)_ |
+| **Data Flow** | поток данных ingestion → граф → retrieval → ответ | [x] [`docs/diagrams/data-flow.md`](docs/diagrams/data-flow.md) |
 | **ADR-пакет** | ключевые решения с trade-off анализом | [x] **18 ADR** → [`docs/adr/`](docs/adr/) — пакет закрыт |
 
 ## Блок 2. Infrastructure & Stack (2026)
@@ -50,7 +50,7 @@
 | **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph | [0005](docs/adr/0005-orchestration.md) |
 | **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | OTel → Jaeger + Langfuse, VictoriaMetrics + Grafana | [0017](docs/adr/0017-observability.md) |
 
-**Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). [ACL на узлах графа](docs/adr/0016-acl-na-uzlah-grafa.md) · [мультимодальный ingestion](docs/adr/0014-multimodalnyy-ingestion.md) · [топология MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) · [Observability](docs/adr/0017-observability.md) · [security testing](docs/adr/0018-security-testing.md) — **ADR-пакет закрыт** · Security testing / red teaming (по [методике урока 33](sessions/33-konsultaciya.md)).
+**Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). [ACL на узлах графа](docs/adr/0016-acl-na-uzlah-grafa.md) · [мультимодальный ingestion](docs/adr/0014-multimodalnyy-ingestion.md) · [топология MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) · [Observability](docs/adr/0017-observability.md) · [security testing](docs/adr/0018-security-testing.md) — **ADR-пакет закрыт** (18 решений).
 
 ## Блок 3. Implementation (MVP)
 
@@ -68,12 +68,12 @@
 
 **«Не принято», если:**
 - [ ] используются облачные API (OpenAI / Anthropic) — ✅ исключено ([ADR-0001](docs/adr/0001-on-premise-self-hosted-llm.md))
-- [ ] отсутствует диаграмма **Deployment** или **Data Flow** — ⚠️ Data Flow нет
+- [x] отсутствует диаграмма **Deployment** или **Data Flow** — ✅ обе есть ([Deployment](docs/diagrams/c4.md#deployment), [Data Flow](docs/diagrams/data-flow.md))
 - [ ] **нет реализации GraphRAG** (простой векторный поиск не принимается) — ⚠️ **главный блокер**
 
 **Критично:**
 - [ ] **Security** — User B не получает ответ по секретному документу (демонстрируемый тест)
-- [ ] **Architecture** — явное разделение **Control Plane** (агенты) и **Data Plane** (БД / модели) — размечено в [Data Flow](diagrams/data-flow.md), перенести в C4 L2
+- [x] **Architecture** — явное разделение **Control Plane** / **Data Plane** ✅ в [C4 L2](docs/diagrams/c4.md#c2--containers), [C3](docs/diagrams/c4.md#c3--components-agent-internals--langgraph), [Deployment](docs/diagrams/c4.md#deployment) и [Data Flow](docs/diagrams/data-flow.md) — осталось подтвердить реализацией
 - [ ] **Stack** — LangGraph / state machine, а не линейные скрипты
 
 **Желательно:**
@@ -98,31 +98,37 @@
 
 - [x] Vision & Goals → [`docs/vision-goals.md`](docs/vision-goals.md)
 - [x] Functional & Non-functional requirements → [`docs/requirements.md`](docs/requirements.md)
-- [x] C4 L1 / L2 / L3 + Deployment → [`diagrams/c4.md`](diagrams/c4.md) _(обновить под граф, MAS, Control/Data Plane)_
-- [x] Sequence + ER → [`diagrams/sequence-er.md`](diagrams/sequence-er.md) _(обновить: схема графа)_
-- [x] **Data Flow диаграмма** (ingestion, query, границы доверия, классификация данных) → [`diagrams/data-flow.md`](diagrams/data-flow.md)
-- [x] ADR-пакет (**18 решений**, включая [Graph DB](docs/adr/0012-graph-db.md), [GraphRAG](docs/adr/0013-graphrag-strategiya.md), [ingestion](docs/adr/0014-multimodalnyy-ingestion.md), [MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), [ACL](docs/adr/0016-acl-na-uzlah-grafa.md), [Observability](docs/adr/0017-observability.md), [security testing](docs/adr/0018-security-testing.md)) → [`docs/adr/`](docs/adr/)
-- [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`economics/tco.md`](economics/tco.md)
-- [x] MVP: домен, ingestion ЛПА, hybrid RAG (этапы 1–2) → [`mvp/`](mvp/)
+- [x] C4 L1 / L2 / L3 + Deployment → [`docs/diagrams/c4.md`](docs/diagrams/c4.md) _(обновлены под граф, MAS, Control/Data Plane)_
+- [x] Sequence + ER → [`docs/diagrams/sequence-er.md`](docs/diagrams/sequence-er.md) _(дополнить схемой графа и провенансом)_
+- [x] **Data Flow диаграмма** (ingestion, query, границы доверия, классификация данных) → [`docs/diagrams/data-flow.md`](docs/diagrams/data-flow.md)
+- [x] ADR-пакет (**18 решений**, включая [Graph DB](docs/adr/0012-graph-db.md), [GraphRAG](docs/adr/0013-graphrag-strategiya.md), [ingestion](docs/adr/0014-multimodalnyy-ingestion.md), [MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), [ACL](docs/adr/0016-acl-na-uzlah-grafa.md), [Observability](docs/adr/0017-observability.md), [security testing](docs/adr/0018-security-testing.md)) → [`docs/adr/`](docs/adr)
+- [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`docs/economics/tco.md`](docs/economics/tco.md)
+- [x] MVP: домен, ingestion ЛПА, hybrid RAG (этапы 1–2) → [`backend/`](backend/)
 - [ ] **GraphRAG-ядро** (Neo4j: онтология, построение графа, graph-augmented retrieval) — _спроектировано в [ADR-0013](docs/adr/0013-graphrag-strategiya.md), не реализовано_
 - [ ] **Мультимодальный ingestion** (сканы, чертежи, сложные PDF) — _спроектирован в [ADR-0014](docs/adr/0014-multimodalnyy-ingestion.md), не реализован_
 - [ ] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph) — _спроектирован в [ADR-0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), не реализован_
 - [ ] **ACL на уровне узлов графа + тест «User B»** — _спроектировано в [ADR-0016](docs/adr/0016-acl-na-uzlah-grafa.md), не реализовано_
 - [ ] Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana, примеры трейсов и дашбордов — _спроектировано в [ADR-0017](docs/adr/0017-observability.md); дашборд Суфлёра уже в коде_
-- [ ] Monorepo-раскладка `/infra`, `/backend`, `/docs` + `docker-compose` всего стека
+- [x] Monorepo-раскладка `/infra`, `/backend`, `/docs` + [`docker-compose`](infra/docker-compose.yml) всего стека _(пины образов и профиль red teaming — TODO)_
 - [ ] Streaming (SSE) и LLM-as-a-Judge тесты промптов — _методика в [ADR-0018](docs/adr/0018-security-testing.md)_
 - [ ] Нагрузочный отчёт (RPS / latency)
 - [ ] Видео-демо 5–7 мин
 - [ ] Презентация для защиты
 - [ ] Голос (STT/TTS) — [ADR-0010](docs/adr/0010-voice-stack.md), опциональное расширение вне требований ТЗ
 
-## Структура
+## Структура (monorepo по формату сдачи)
 
-- [`sessions/`](./sessions/) — конспекты занятий проектного блока (32–36) и материалы ЛК
-- [`docs/`](./docs/) — Vision, требования, дизайн MVP, ADR
-- [`diagrams/`](./diagrams/) — C4 (L1–L3), Deployment, Sequence, ER
-- [`economics/`](./economics/) — расчёты, обоснования, TCO
-- [`mvp/`](./mvp/) — код MVP (переедет в `/backend` при переходе на monorepo-раскладку)
+```
+final-project/
+├── infra/        docker-compose всего стека (DBs + Apps + observability)
+├── backend/      код сервиса и агентов (Python, FastAPI)
+├── docs/         архитектурная документация: ADR, диаграммы, требования, экономика
+└── sessions/     конспекты занятий проектного блока (32–36) и материалы ЛК
+```
+
+- [`infra/`](infra/) — [состав стека и запуск](infra/README.md)
+- [`backend/`](backend/) — RAG-сервис «Суфлёр» (этапы 1–2); станет одним из цифровых сотрудников платформы
+- [`docs/adr/`](docs/adr/) — 18 ADR · [`docs/diagrams/`](docs/diagrams/) — C4, Deployment, Data Flow, Sequence, ER · [`docs/economics/`](docs/economics/) — TCO · [`docs/mvp.md`](docs/mvp.md) — дизайн MVP
 
 ## Открытые вопросы
 

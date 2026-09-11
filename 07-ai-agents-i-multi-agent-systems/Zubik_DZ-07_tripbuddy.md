@@ -27,7 +27,7 @@ grade:
 ### Полезные материалы
 - Шаблон кода: [LangChain — Agents](https://reference.langchain.com/python/langchain/agents/)
 - Статья: [Pinecone — Retrieval-Augmented Generation](https://www.pinecone.io/learn/retrieval-augmented-generation/)
-- Референс-демка к уроку 07: [`../artifacts/lesson-07-agents-demo/`](./artifacts/lesson-07-agents-demo/README.md) — иерархический MAS на LangGraph (двухуровневый Supervisor + shared notes-blackboard + ReAct-воркеры через `create_react_agent`); многие архитектурные приёмы беру оттуда.
+- Референс-демка к уроку 07: [`../artifacts/lesson-07-agents-demo/`](artifacts/lesson-07-agents-demo/README.md) — иерархический MAS на LangGraph (двухуровневый Supervisor + shared notes-blackboard + ReAct-воркеры через `create_react_agent`); многие архитектурные приёмы беру оттуда.
 
 ### Формат сдачи
 - Схема архитектуры (PNG / PDF).
@@ -59,7 +59,7 @@ grade:
 
 ### Подход
 
-1. **Топология = двухуровневый Supervisor** (как в [демке](./artifacts/lesson-07-agents-demo/) и как рекомендует слайд «Иерархия / Supervisor» лекции для средних задач). Network отбрасываем сразу: 4+ инструмента, доменная разнородность (поиск, RAG, бронирование) — на Network появятся проблемы с обнаружением и шарингом контекста.
+1. **Топология = двухуровневый Supervisor** (как в [демке](artifacts/lesson-07-agents-demo) и как рекомендует слайд «Иерархия / Supervisor» лекции для средних задач). Network отбрасываем сразу: 4+ инструмента, доменная разнородность (поиск, RAG, бронирование) — на Network появятся проблемы с обнаружением и шарингом контекста.
 2. **Гибридный supervisor.** Главный `trip_supervisor` — **детерминированная state machine** (порядок жёсткий: brief → tickets → policy → hotel → assemble), без вызова LLM. Так делает `main supervisor` в демке (`utils/nodes.py:104`). Экономия: ~½ LLM-вызовов на роутинге. LLM-роутер оставляю только для `clarifier_supervisor` (опциональная ветка, когда исходный запрос неполный).
 3. **Reasoning-паттерн воркеров — ReAct** через `create_react_agent` (как в демке). Каждый воркер — короткий цикл `think → tool call → write to dossier → finish`, один-два шага. Дорогой ReAct оправдан тем, что у воркера 1–2 tool-вызова, не 20.
 4. **Канал коммуникации — shared «trip-dossier» (MD-blackboard)** по образу `notes/` из демки, секции типизированы: `Trip Brief / Ticket Options / Hotel Options / Policy Check / Final Package`. Гейты завершения супервайзера — `_notes_section_exists("Final Package")`.
@@ -71,7 +71,7 @@ grade:
 ### Артефакты
 - [ ] Архитектурная схема (PNG/PDF из mermaid ниже + Structurizr DSL рядом с уроком 05).
 - [x] **Inline** в этом файле: C2-схема MAS, Sequence-диаграмма happy-path, описание RAG Flow, skeleton кода LangGraph.
-- [x] **Colab/Jupyter notebook:** [`Zubik_DZ-07_tripbuddy.ipynb`](./Zubik_DZ-07_tripbuddy.ipynb) — рабочий прототип в двух режимах (`mock` без ключей и `real` с реальной LLM). Прогон на mock end-to-end локально: supervisor 5 раз маршрутизирует, все 4 секции dossier заполняются, финальный пакет — `KC-0879 + Hampton by Hilton = 27 000 ₽, ALLOWED`; ассерт на отсечение устаревшей редакции политики (`v2025.10`) проходит. Дополнительно прогнан на python 3.13 + **langgraph 1.2.2 / langchain-core 1.4.0** (последние) — без breaking changes.
+- [x] **Colab/Jupyter notebook:** [`Zubik_DZ-07_tripbuddy.ipynb`](Zubik_DZ-07_tripbuddy.ipynb) — рабочий прототип в двух режимах (`mock` без ключей и `real` с реальной LLM). Прогон на mock end-to-end локально: supervisor 5 раз маршрутизирует, все 4 секции dossier заполняются, финальный пакет — `KC-0879 + Hampton by Hilton = 27 000 ₽, ALLOWED`; ассерт на отсечение устаревшей редакции политики (`v2025.10`) проходит. Дополнительно прогнан на python 3.13 + **langgraph 1.2.2 / langchain-core 1.4.0** (последние) — без breaking changes.
 - [x] **Pre-rendered HTML с outputs** (для проверки без запуска): [https://architect-5ffe23.gitlab.io/07-ai-agents.html](https://architect-5ffe23.gitlab.io/07-ai-agents.html) — публикуется CI на каждый push в `main` (`.gitlab-ci.yml`: `nbconvert --execute` → GitLab Pages).
 - [x] **Workspace-репо ноутбуков:** [`artcloud/ai/agents`](https://gitlab.com/artcloud/ai/agents) (public) — рабочая копия notebook'ов курса, клонится в `/home/jovyan/work` на JupyterHub.
 - [x] **JupyterHub:** [`https://jupyterhub.acl.by/`](https://jupyterhub.acl.by/) — Keycloak OAuth, DockerSpawner, singleuser-образ с preinstalled langgraph/langchain/jupyterlab-git/jupyterlab-myst/graphviz/pyppeteer. Ноутбук открывается там в Lab, граф визуализируется через `draw_mermaid_png()`.
@@ -240,7 +240,7 @@ cited: policy_docs/v2026.04 §3.2 «эконом для рейсов <5ч», §4
 
 ### Реализация — LangGraph skeleton (псевдокод)
 
-Структура файлов копирует [`lesson-07-agents-demo/`](./artifacts/lesson-07-agents-demo/) — что и есть пример из лекции:
+Структура файлов копирует [`lesson-07-agents-demo/`](artifacts/lesson-07-agents-demo) — что и есть пример из лекции:
 
 ```
 trip_buddy/
@@ -371,7 +371,7 @@ def run(prompt: str):
 |---|---|
 | **Логика декомпозиции (SRP)** | таблица «Состав агентов и роли» — каждый агент = одна ответственность; `trip_supervisor` не выполняет работу, только маршрутизирует |
 | **RAG: Vector DB и нюансы** | раздел «RAG Flow»: Qdrant + Hybrid (BM25 + dense) + Cross-Encoder reranker + metadata-фильтры по `region/effective_from` |
-| **Работоспособность кода** | [`Zubik_DZ-07_tripbuddy.ipynb`](./Zubik_DZ-07_tripbuddy.ipynb) — `MODE=mock` запускается «cold», без ключей; граф LangGraph настоящий, supervisor маршрутизирует, воркеры обмениваются `AIMessage(name=<agent>)` и пишут в dossier. Структура копирует [демку урока](./artifacts/lesson-07-agents-demo/) |
+| **Работоспособность кода** | [`Zubik_DZ-07_tripbuddy.ipynb`](Zubik_DZ-07_tripbuddy.ipynb) — `MODE=mock` запускается «cold», без ключей; граф LangGraph настоящий, supervisor маршрутизирует, воркеры обмениваются `AIMessage(name=<agent>)` и пишут в dossier. Структура копирует [демку урока](artifacts/lesson-07-agents-demo) |
 
 ## Сложности и решения
 
