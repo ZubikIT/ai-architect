@@ -17,6 +17,15 @@ class Settings:
     top_k_retrieve: int = int(os.getenv("SUFLER_TOP_K", "20"))
     top_k_context: int = int(os.getenv("SUFLER_TOP_CTX", "5"))
 
+    # граф знаний (ADR-0012/0013). Без NEO4J_URI — in-memory режим (офлайн-демо, тесты)
+    neo4j_uri: str = os.getenv("NEO4J_URI", "")
+    neo4j_user: str = os.getenv("NEO4J_USER", "neo4j")
+    neo4j_password: str = os.getenv("NEO4J_PASSWORD", "")
+    graph_enabled: bool = os.getenv("SUFLER_GRAPH", "1") == "1"
+    graph_hops: int = int(os.getenv("SUFLER_GRAPH_HOPS", "2"))
+    graph_limit: int = int(os.getenv("SUFLER_GRAPH_LIMIT", "10"))
+    graph_slots: int = int(os.getenv("SUFLER_GRAPH_SLOTS", "3"))  # резерв мест под связанные пункты
+
     # LLM — OpenAI-совместимый эндпоинт (в проде vLLM + Qwen3.5, ADR-0002/0003)
     openai_base_url: str = os.getenv("OPENAI_BASE_URL", "http://localhost:8000/v1")
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "not-needed")

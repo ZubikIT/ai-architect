@@ -52,12 +52,22 @@ def get_engine() -> Sufler:
 
 class AskReq(BaseModel):
     question: str
+    # ВРЕМЕННО: роли из тела запроса — только для локальной отладки и демо.
+    # Целевой путь (ADR-0016): роли берутся из проверенного по JWKS токена
+    # Keycloak, тело запроса на доступ не влияет. Пока OIDC_JWKS_URL не задан,
+    # сервис обязан работать в доверенном контуре.
     roles: list[str] = ["all"]
 
 
 @app.get("/healthz")
 def healthz():
     return {"status": "ok"}
+
+
+@app.get("/graph/stats")
+def graph_stats():
+    """Статистика графа знаний — для демо и проверки, что ingestion отработал."""
+    return get_engine().graph_stats()
 
 
 @app.post("/ask")

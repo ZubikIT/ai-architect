@@ -1,5 +1,6 @@
 sentence-transformers>=2.7
 qdrant-client>=1.7,<1.13
+neo4j>=5.20,<6   # драйвер графа (ADR-0012); без NEO4J_URI не используется
 rank-bm25>=0.2.2
 openai>=1.30
 fastapi>=0.110
