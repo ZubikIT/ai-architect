@@ -10,6 +10,7 @@
 - **Совместная:** Onyx (ADR-0008) → поиск по общим базам знаний (Confluence/Jira/SharePoint), permission-aware.
 - **Общее ядро:** Qwen3.5 (ADR-0002) на vLLM/FP8 (ADR-0003/0006), 2× H100 NVL, on-prem/air-gapped (ADR-0001).
 - **Знания:** гибрид **Qdrant** (dense+BM25, ADR-0004) + **Neo4j** (граф связей ЛПА, ADR-0012); retrieval — vector-first с обходом графа на 1–2 хопа и ACL-предикатом (ADR-0013).
+- **Доступ:** роли из проверенного JWT Keycloak → материализованные `acl_roles` на чанках и узлах, pre-filtering в обеих БД (ADR-0016).
 
 ## Статусы
 `proposed` → `accepted` → (`deprecated` | `superseded by ADR-MMMM`) · либо `rejected` (с сохранением причины).
@@ -31,6 +32,7 @@
 | [ADR-0011](0011-sufler-pipeline-integration.md) | Интеграция Суфлёра как Open WebUI Pipeline + RBAC через Keycloak | proposed | 2026-05-27 |
 | [ADR-0012](0012-graph-db.md) | Graph Database — Neo4j Community (vs ArangoDB, NebulaGraph, Memgraph) | proposed | 2026-09-11 |
 | [ADR-0013](0013-graphrag-strategiya.md) | Стратегия GraphRAG — гибрид «вектор → обход графа» + онтология из 4 узлов | proposed | 2026-09-11 |
+| [ADR-0016](0016-acl-na-uzlah-grafa.md) | ACL на уровне узлов графа и чанков — материализованные метки + предикат в каждом запросе | proposed | 2026-09-11 |
 
 ## Планируемые ADR (из брифа проекта)
 - [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.5-27B (proposed)
@@ -51,6 +53,6 @@
 - [x] **ADR-0013** — стратегия GraphRAG и онтология → [ADR-0013](0013-graphrag-strategiya.md): гибрид + 4 типа узлов (proposed)
 - [ ] **ADR-0014** — мультимодальный ingestion (сканы, чертежи, сложные PDF): Zubr-VL-32B + layout-парсинг
 - [ ] **ADR-0015** — топология MAS «цифровые сотрудники»: supervisor + роли-агенты на LangGraph
-- [ ] **ADR-0016** — ACL на уровне узлов графа и чанков (Keycloak → role context → предикат в Cypher и payload-фильтр Qdrant)
+- [x] **ADR-0016** — [ACL на уровне узлов графа и чанков](0016-acl-na-uzlah-grafa.md): материализованные метки + предикат в каждом запросе, контекст из JWT (proposed)
 - [ ] **ADR-0017** — Observability: OpenTelemetry → Jaeger, Langfuse, Prometheus/Grafana
 - [ ] **ADR-0018** — security testing и red teaming по [методике занятия 33](../../sessions/33-konsultaciya.md): Garak + PyRIT, порог ASR в CI

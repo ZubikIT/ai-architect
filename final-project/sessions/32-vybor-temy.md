@@ -150,8 +150,8 @@ flowchart LR
 | Self-hosted Vector DB | ✅ Qdrant | остаётся как dense-слой гибрида |
 | **GraphRAG (Neo4j)** | 🟡 спроектирован ([ADR-0012](../docs/adr/0012-graph-db.md), [ADR-0013](../docs/adr/0013-graphrag-strategiya.md)) | **блокер «Не принято»** — реализовать ядро |
 | **Мультимодальный ingestion** (сканы/чертежи) | ❌ нет | Zubr-VL-32B + layout-парсер |
-| **ACL на уровне узлов/чанков** | 🟡 спроектирован RBAC через Keycloak (ADR-0011) | реализовать фильтр в графе + **тест «User B не видит секретный документ»** |
-| **Control Plane / Data Plane** | 🟡 неявно | явно выделить на C4 L2 и Deployment |
+| **ACL на уровне узлов/чанков** | 🟡 спроектирован ([ADR-0016](../docs/adr/0016-acl-na-uzlah-grafa.md)) | реализовать фильтр в графе + **тест «User B не видит секретный документ»** |
+| **Control Plane / Data Plane** | 🟡 размечено в [Data Flow](../diagrams/data-flow.md) | перенести на C4 L2 и Deployment |
 | **Observability (OTel + Prom/Grafana)** | ❌ пункт чек-листа открыт | Langfuse + OTel → Jaeger, дашборд токены/сек + latency |
 | **Monorepo /infra /backend /docs** | 🟡 структура иная | реорганизовать + docker-compose всего стека |
 | **Видео-демо 5–7 мин** | ❌ | сценарий: граф в Neo4j Browser, трейсы, логи vLLM, ACL-отказ |
@@ -178,9 +178,10 @@ flowchart LR
 - [x] ADR-0013 — [стратегия GraphRAG-retrieval](../docs/adr/0013-graphrag-strategiya.md): гибрид «вектор → обход 1–2 хопа» + онтология из 4 типов узлов
 - [ ] ADR-0014 — мультимодальный ingestion (Zubr-VL-32B + layout-парсинг сканов/чертежей)
 - [ ] ADR-0015 — топология MAS «цифровые сотрудники» (supervisor + role-agents на LangGraph)
-- [ ] ADR-0016 — ACL на уровне узлов графа и чанков (Keycloak → tenant/role context → фильтр в Neo4j/Qdrant)
+- [x] ADR-0016 — [ACL на уровне узлов графа и чанков](../docs/adr/0016-acl-na-uzlah-grafa.md): материализованные метки, контекст из JWT, тест «User B»
 - [ ] ADR-0017 — Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana
-- [ ] Обновить C4 (Control Plane / Data Plane) + добавить **Data Flow** диаграмму
+- [x] Добавить **[Data Flow](../diagrams/data-flow.md)** диаграмму (обязательна по ТЗ)
+- [ ] Обновить C4 (Control Plane / Data Plane, Neo4j в Data Plane)
 - [ ] `docker-compose` всего стека: Neo4j + Qdrant + vLLM + backend + Langfuse/Jaeger + Grafana
 - [ ] Реализация: ingestion → граф → GraphRAG-retriever → LangGraph-агенты → SSE-стриминг
 - [ ] Тест безопасности «User B не получает секретный документ» (в CI)

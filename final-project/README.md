@@ -34,8 +34,8 @@
 | **Deployment** | GPU-ресурсы, балансировка, сегментация сети (DMZ / Internal), секреты (Vault) | [x] — обновить |
 | **Sequence** | `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response` | [x] [`diagrams/sequence-er.md`](diagrams/sequence-er.md) |
 | **ER** | векторы, чанки, история сессий, логи, права доступа (RBAC) | [x] — +схема графа |
-| **Data Flow** | поток данных ingestion → граф → retrieval → ответ | [ ] **нет — критерий «Не принято»** |
-| **ADR-пакет** | ключевые решения с trade-off анализом | [x] 13 ADR → [`docs/adr/`](docs/adr/), нужны +5 |
+| **Data Flow** | поток данных ingestion → граф → retrieval → ответ | [x] [`diagrams/data-flow.md`](diagrams/data-flow.md) |
+| **ADR-пакет** | ключевые решения с trade-off анализом | [x] 14 ADR → [`docs/adr/`](docs/adr/), нужны +4 |
 
 ## Блок 2. Infrastructure & Stack (2026)
 
@@ -50,7 +50,7 @@
 | **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph | [0005](docs/adr/0005-orchestration.md) |
 | **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | **не реализовано** | +ADR |
 
-**Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). **Планируется:** мультимодальный ingestion · топология MAS «цифровые сотрудники» · ACL на узлах графа · Observability · Security testing / red teaming (по [методике урока 33](sessions/33-konsultaciya.md)).
+**Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). [ACL на узлах графа](docs/adr/0016-acl-na-uzlah-grafa.md). **Планируется:** мультимодальный ingestion · топология MAS «цифровые сотрудники» · Observability · Security testing / red teaming (по [методике урока 33](sessions/33-konsultaciya.md)).
 
 ## Блок 3. Implementation (MVP)
 
@@ -73,7 +73,7 @@
 
 **Критично:**
 - [ ] **Security** — User B не получает ответ по секретному документу (демонстрируемый тест)
-- [ ] **Architecture** — явное разделение **Control Plane** (агенты) и **Data Plane** (БД / модели)
+- [ ] **Architecture** — явное разделение **Control Plane** (агенты) и **Data Plane** (БД / модели) — размечено в [Data Flow](diagrams/data-flow.md), перенести в C4 L2
 - [ ] **Stack** — LangGraph / state machine, а не линейные скрипты
 
 **Желательно:**
@@ -100,14 +100,14 @@
 - [x] Functional & Non-functional requirements → [`docs/requirements.md`](docs/requirements.md)
 - [x] C4 L1 / L2 / L3 + Deployment → [`diagrams/c4.md`](diagrams/c4.md) _(обновить под граф, MAS, Control/Data Plane)_
 - [x] Sequence + ER → [`diagrams/sequence-er.md`](diagrams/sequence-er.md) _(обновить: схема графа)_
-- [ ] **Data Flow диаграмма** — обязательна
-- [x] ADR-пакет (13 решений, включая [Graph DB](docs/adr/0012-graph-db.md) и [стратегию GraphRAG](docs/adr/0013-graphrag-strategiya.md)) → [`docs/adr/`](docs/adr/) _(+5 планируемых)_
+- [x] **Data Flow диаграмма** (ingestion, query, границы доверия, классификация данных) → [`diagrams/data-flow.md`](diagrams/data-flow.md)
+- [x] ADR-пакет (14 решений, включая [Graph DB](docs/adr/0012-graph-db.md), [стратегию GraphRAG](docs/adr/0013-graphrag-strategiya.md), [ACL](docs/adr/0016-acl-na-uzlah-grafa.md)) → [`docs/adr/`](docs/adr/) _(+4 планируемых)_
 - [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`economics/tco.md`](economics/tco.md)
 - [x] MVP: домен, ingestion ЛПА, hybrid RAG (этапы 1–2) → [`mvp/`](mvp/)
 - [ ] **GraphRAG-ядро** (Neo4j: онтология, построение графа, graph-augmented retrieval) — _спроектировано в [ADR-0013](docs/adr/0013-graphrag-strategiya.md), не реализовано_
 - [ ] **Мультимодальный ingestion** (сканы, чертежи, сложные PDF)
 - [ ] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph)
-- [ ] **ACL на уровне узлов графа + тест «User B»**
+- [ ] **ACL на уровне узлов графа + тест «User B»** — _спроектировано в [ADR-0016](docs/adr/0016-acl-na-uzlah-grafa.md), не реализовано_
 - [ ] Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana, примеры трейсов и дашбордов
 - [ ] Monorepo-раскладка `/infra`, `/backend`, `/docs` + `docker-compose` всего стека
 - [ ] Streaming (SSE) и LLM-as-a-Judge тесты промптов
