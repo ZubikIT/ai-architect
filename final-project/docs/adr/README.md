@@ -12,6 +12,7 @@
 - **Знания:** гибрид **Qdrant** (dense+BM25, ADR-0004) + **Neo4j** (граф связей ЛПА, ADR-0012); retrieval — vector-first с обходом графа на 1–2 хопа и ACL-предикатом (ADR-0013).
 - **Агенты:** иерархия supervisor + роли-агенты «цифровые сотрудники» на LangGraph, состояние в PostgreSQL-checkpointer (ADR-0015); ingestion — каскад «текст → layout → VL» (ADR-0014).
 - **Доступ:** роли из проверенного JWT Keycloak → материализованные `acl_roles` на чанках и узлах, pre-filtering в обеих БД (ADR-0016).
+- **Наблюдаемость и проверка:** OTel → Jaeger + Langfuse, метрики в Grafana (ADR-0017); red teaming с ASR-гейтом в CI (ADR-0018).
 
 ## Статусы
 `proposed` → `accepted` → (`deprecated` | `superseded by ADR-MMMM`) · либо `rejected` (с сохранением причины).
@@ -36,6 +37,8 @@
 | [ADR-0014](0014-multimodalnyy-ingestion.md) | Мультимодальный ingestion — каскад «текстовый слой → layout → VL» с понижением доверия | proposed | 2026-09-11 |
 | [ADR-0015](0015-topologiya-mas-cifrovye-sotrudniki.md) | Топология MAS «цифровые сотрудники» — supervisor + роли-агенты на LangGraph | proposed | 2026-09-11 |
 | [ADR-0016](0016-acl-na-uzlah-grafa.md) | ACL на уровне узлов графа и чанков — материализованные метки + предикат в каждом запросе | proposed | 2026-09-11 |
+| [ADR-0017](0017-observability.md) | Observability — единый OTel-слой → Jaeger + Langfuse, метрики в Prometheus-совместимое хранилище | proposed | 2026-09-11 |
+| [ADR-0018](0018-security-testing.md) | Security testing и red teaming — вендор-нейтральный стек с ASR-гейтом в CI | proposed | 2026-09-11 |
 
 ## Планируемые ADR (из брифа проекта)
 - [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.5-27B (proposed)
@@ -57,5 +60,5 @@
 - [x] **ADR-0014** — [мультимодальный ingestion](0014-multimodalnyy-ingestion.md): каскад «текстовый слой → layout-парсер → VL на исключениях», провенанс `extracted_by` (proposed)
 - [x] **ADR-0015** — [топология MAS «цифровые сотрудники»](0015-topologiya-mas-cifrovye-sotrudniki.md): иерархия supervisor + 4 роли, checkpointer, лимиты, ReAct-trace (proposed)
 - [x] **ADR-0016** — [ACL на уровне узлов графа и чанков](0016-acl-na-uzlah-grafa.md): материализованные метки + предикат в каждом запросе, контекст из JWT (proposed)
-- [ ] **ADR-0017** — Observability: OpenTelemetry → Jaeger, Langfuse, Prometheus/Grafana
-- [ ] **ADR-0018** — security testing и red teaming по [методике занятия 33](../../sessions/33-konsultaciya.md): Garak + PyRIT, порог ASR в CI
+- [x] **ADR-0017** — [Observability](0017-observability.md): единый OTel-слой → Jaeger + Langfuse, Golden Signals + GraphRAG-метрики, threshold-алерты с runbook (proposed)
+- [x] **ADR-0018** — [security testing и red teaming](0018-security-testing.md): три контура (PR / ночь / релиз), Garak + PyRIT + Giskard, гейт по верхней границе интервала Уилсона (proposed)

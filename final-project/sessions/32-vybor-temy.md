@@ -179,7 +179,7 @@ flowchart LR
 - [x] ADR-0014 — [мультимодальный ingestion](../docs/adr/0014-multimodalnyy-ingestion.md): каскад «текст → layout → VL на исключениях», провенанс и понижение доверия
 - [x] ADR-0015 — [топология MAS «цифровые сотрудники»](../docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md): иерархия, checkpointer, лимиты, видимый ReAct-trace
 - [x] ADR-0016 — [ACL на уровне узлов графа и чанков](../docs/adr/0016-acl-na-uzlah-grafa.md): материализованные метки, контекст из JWT, тест «User B»
-- [ ] ADR-0017 — Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana
+- [x] ADR-0017 — [Observability](../docs/adr/0017-observability.md): единый OTel-слой, Golden Signals + метрики графа, SLO первой редакции
 - [x] Добавить **[Data Flow](../diagrams/data-flow.md)** диаграмму (обязательна по ТЗ)
 - [ ] Обновить C4 (Control Plane / Data Plane, Neo4j в Data Plane)
 - [ ] `docker-compose` всего стека: Neo4j + Qdrant + vLLM + backend + Langfuse/Jaeger + Grafana

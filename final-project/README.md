@@ -35,7 +35,7 @@
 | **Sequence** | `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response` | [x] [`diagrams/sequence-er.md`](diagrams/sequence-er.md) |
 | **ER** | векторы, чанки, история сессий, логи, права доступа (RBAC) | [x] — +схема графа |
 | **Data Flow** | поток данных ingestion → граф → retrieval → ответ | [x] [`diagrams/data-flow.md`](diagrams/data-flow.md) |
-| **ADR-пакет** | ключевые решения с trade-off анализом | [x] 16 ADR → [`docs/adr/`](docs/adr/), нужны +2 |
+| **ADR-пакет** | ключевые решения с trade-off анализом | [x] **18 ADR** → [`docs/adr/`](docs/adr/) — пакет закрыт |
 
 ## Блок 2. Infrastructure & Stack (2026)
 
@@ -48,9 +48,9 @@
 | **Vector DB** | self-hosted: Qdrant / Milvus / Weaviate | Qdrant | [0004](docs/adr/0004-vector-db.md) |
 | **Graph DB** | Neo4j (образ в материалах ЛК) | Neo4j Community 5.x + гибрид с Qdrant | [0012](docs/adr/0012-graph-db.md), [0013](docs/adr/0013-graphrag-strategiya.md) |
 | **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph | [0005](docs/adr/0005-orchestration.md) |
-| **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | **не реализовано** | +ADR |
+| **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | OTel → Jaeger + Langfuse, VictoriaMetrics + Grafana | [0017](docs/adr/0017-observability.md) |
 
-**Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). [ACL на узлах графа](docs/adr/0016-acl-na-uzlah-grafa.md) · [мультимодальный ingestion](docs/adr/0014-multimodalnyy-ingestion.md) · [топология MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md). **Планируется:** Observability · Security testing / red teaming (по [методике урока 33](sessions/33-konsultaciya.md)).
+**Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). [ACL на узлах графа](docs/adr/0016-acl-na-uzlah-grafa.md) · [мультимодальный ingestion](docs/adr/0014-multimodalnyy-ingestion.md) · [топология MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) · [Observability](docs/adr/0017-observability.md) · [security testing](docs/adr/0018-security-testing.md) — **ADR-пакет закрыт** · Security testing / red teaming (по [методике урока 33](sessions/33-konsultaciya.md)).
 
 ## Блок 3. Implementation (MVP)
 
@@ -101,16 +101,16 @@
 - [x] C4 L1 / L2 / L3 + Deployment → [`diagrams/c4.md`](diagrams/c4.md) _(обновить под граф, MAS, Control/Data Plane)_
 - [x] Sequence + ER → [`diagrams/sequence-er.md`](diagrams/sequence-er.md) _(обновить: схема графа)_
 - [x] **Data Flow диаграмма** (ingestion, query, границы доверия, классификация данных) → [`diagrams/data-flow.md`](diagrams/data-flow.md)
-- [x] ADR-пакет (16 решений: [Graph DB](docs/adr/0012-graph-db.md), [GraphRAG](docs/adr/0013-graphrag-strategiya.md), [ingestion](docs/adr/0014-multimodalnyy-ingestion.md), [MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), [ACL](docs/adr/0016-acl-na-uzlah-grafa.md) и др.) → [`docs/adr/`](docs/adr/) _(+2 планируемых)_
+- [x] ADR-пакет (**18 решений**, включая [Graph DB](docs/adr/0012-graph-db.md), [GraphRAG](docs/adr/0013-graphrag-strategiya.md), [ingestion](docs/adr/0014-multimodalnyy-ingestion.md), [MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), [ACL](docs/adr/0016-acl-na-uzlah-grafa.md), [Observability](docs/adr/0017-observability.md), [security testing](docs/adr/0018-security-testing.md)) → [`docs/adr/`](docs/adr/)
 - [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`economics/tco.md`](economics/tco.md)
 - [x] MVP: домен, ingestion ЛПА, hybrid RAG (этапы 1–2) → [`mvp/`](mvp/)
 - [ ] **GraphRAG-ядро** (Neo4j: онтология, построение графа, graph-augmented retrieval) — _спроектировано в [ADR-0013](docs/adr/0013-graphrag-strategiya.md), не реализовано_
 - [ ] **Мультимодальный ingestion** (сканы, чертежи, сложные PDF) — _спроектирован в [ADR-0014](docs/adr/0014-multimodalnyy-ingestion.md), не реализован_
 - [ ] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph) — _спроектирован в [ADR-0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), не реализован_
 - [ ] **ACL на уровне узлов графа + тест «User B»** — _спроектировано в [ADR-0016](docs/adr/0016-acl-na-uzlah-grafa.md), не реализовано_
-- [ ] Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana, примеры трейсов и дашбордов
+- [ ] Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana, примеры трейсов и дашбордов — _спроектировано в [ADR-0017](docs/adr/0017-observability.md); дашборд Суфлёра уже в коде_
 - [ ] Monorepo-раскладка `/infra`, `/backend`, `/docs` + `docker-compose` всего стека
-- [ ] Streaming (SSE) и LLM-as-a-Judge тесты промптов
+- [ ] Streaming (SSE) и LLM-as-a-Judge тесты промптов — _методика в [ADR-0018](docs/adr/0018-security-testing.md)_
 - [ ] Нагрузочный отчёт (RPS / latency)
 - [ ] Видео-демо 5–7 мин
 - [ ] Презентация для защиты
