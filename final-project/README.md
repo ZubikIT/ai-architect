@@ -77,7 +77,7 @@
 - [x] **Stack** — LangGraph / state machine, а не линейные скрипты — ✅ супервизор ⇄ роли-агенты с циклом, ветвлением, лимитами и checkpointer: [`backend/sufler/mas.py`](backend/sufler/mas.py); структура графа выполнения проверяется тестом `test_execution_graph_has_branch_and_cycle`
 
 **Желательно:**
-- [ ] потоковый ответ (Streaming)
+- [x] потоковый ответ (Streaming) — `POST /ask/stream`, SSE: `meta` → `sources` → `token` → `note` → `done`
 - [x] unit-тесты на промпты — golden set из 14 кейсов с гейтами приёмки ([`docs/eval-report.md`](docs/eval-report.md)); метрики считаются без LLM, **LLM-as-a-Judge** подключается отдельной моделью и без GPU не прогонялся
 
 ## Формат сдачи
@@ -112,7 +112,7 @@
 - [x] **Observability**: OTel → Jaeger (`trace_id` = `request_id`), доменные метрики и дашборд Grafana как код → [`telemetry.py`](backend/sufler/telemetry.py), [`infra/grafana/`](infra/grafana/) — трейсы разложены по шагам, прогон вскрыл два молча сломанных конфига _(экспорт в Langfuse и метрики качества — не подключены)_
 - [x] Monorepo-раскладка `/infra`, `/backend`, `/docs` + [`docker-compose`](infra/docker-compose.yml) всего стека — профиль `core` поднят и проверен (Neo4j + Qdrant + PostgreSQL) _(пины образов по digest и профиль red teaming — TODO)_
 - [x] **Golden set и гейты приёмки** → [`docs/eval-report.md`](docs/eval-report.md), [`backend/eval/golden.yaml`](backend/eval/golden.yaml) — recall 1,0, нарушений ACL 0, точность маршрутизации 13/13; LLM-as-a-Judge подключается через `SUFLER_JUDGE_MODEL` (без GPU не замерено)
-- [ ] Streaming (SSE) — _не реализован_
+- [x] **Streaming (SSE)** → `POST /ask/stream`, [`test_streaming.py`](backend/tests/test_streaming.py) — источники уходят раньше текста, пометка об отмене отдельным событием, маска ПДн на потоке
 - [x] **Нагрузочный отчёт** (RPS / latency) → [`docs/load-report.md`](docs/load-report.md), [методика](docs/load/methodology.md), [сырые замеры](docs/load/raw.json) — узкое место реранк (76–90 %), граф ~1 %, накладные расходы MAS 0,8 %; ёмкость реплики 4 клиента по SLO ADR-0017
 - [ ] Видео-демо 5–7 мин
 - [ ] Презентация для защиты

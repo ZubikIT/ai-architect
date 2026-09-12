@@ -110,6 +110,25 @@ def test_refusal_is_traced_as_such(engine, spans):
     assert by_name(spans, "retrieve.dense").attributes["top_score"] < 0.45
 
 
+def test_streaming_produces_one_closed_trace(engine, spans):
+    """Потоковый путь не рассыпает трейс и не оставляет спан незакрытым.
+
+    Контекстные переменные не переживают `yield`: сервер шагает генератор в
+    разных контекстах. Наивная реализация через `with` падала с «Token was
+    created in a different Context», а при её «починке» через подавление
+    исключения спаны разъезжались бы по разным трейсам молча.
+    """
+    events = list(engine.answer_stream(VACATION_QUESTION, roles=("all",)))
+    request_id = next(d["request_id"] for e, d in events if e == "meta")
+
+    finished = spans.get_finished_spans()
+    assert len({s.context.trace_id for s in finished}) == 1, "трейс распался на несколько"
+    root = by_name(spans, "ask.stream")
+    assert format(root.context.trace_id, "032x") == request_id
+    assert root.end_time is not None, "корневой спан остался незакрытым"
+    assert {"guardrail.input", "retrieve", "retrieve.hybrid"} <= set(names(spans))
+
+
 # --------------------------------------------------------------------------- #
 #  Трейс как поверхность утечки
 # --------------------------------------------------------------------------- #

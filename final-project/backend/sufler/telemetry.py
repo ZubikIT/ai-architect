@@ -181,6 +181,46 @@ def request_span(name: str, request_id: str, **attrs):
         _current_request_id.reset(token)
 
 
+# --------------------------------------------------------------------------- #
+#  Спаны для генератора (потоковый ответ)
+# --------------------------------------------------------------------------- #
+# Контекстные переменные нельзя проносить через `yield`: ASGI-сервер шагает
+# синхронный генератор в разных контекстах, и токен, созданный на одном шаге,
+# на другом уже не сбрасывается — `ValueError: Token was created in a different
+# Context`. Это относится и к нашему `request_id`, и к внутреннему контексту
+# OpenTelemetry.
+#
+# Поэтому в потоковом пути спаны не делаются «текущими» на время всего ответа:
+# родитель передаётся явно, а активируется спан только на время одного шага,
+# внутри которого `yield` нет.
+
+
+def start_request_span(name: str, request_id: str, **attrs):
+    """Корневой спан генератора. Закрывать обязан вызывающий — в `finally`."""
+    token = _current_request_id.set(request_id)
+    try:
+        span = tracer().start_span(name)
+    finally:
+        _current_request_id.reset(token)     # нужен был только на создание trace_id
+    span.set_attribute("request_id", request_id)
+    _apply(span, attrs)
+    return span
+
+
+def child_span(parent, name: str, **attrs):
+    """Дочерний спан с ЯВНЫМ родителем — без активации, безопасно через `yield`."""
+    sp = tracer().start_span(name, context=trace.set_span_in_context(parent))
+    _apply(sp, attrs)
+    return sp
+
+
+@contextlib.contextmanager
+def active(span_obj):
+    """Сделать спан текущим на время одного шага генератора (без `yield` внутри)."""
+    with trace.use_span(span_obj, end_on_exit=False):
+        yield span_obj
+
+
 @contextlib.contextmanager
 def span(name: str, **attrs):
     with tracer().start_as_current_span(name) as sp:

@@ -1,10 +1,12 @@
 """HTTP API: /ask (нативный) · /agents/ask (мультиагентный, ADR-0015) ·
 /v1/chat/completions (OpenAI-совместимый — для Open WebUI, ADR-0007)."""
+import json
 import time
 import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from prometheus_client import Counter, Histogram, make_asgi_app
 
@@ -154,6 +156,38 @@ def ask(req: AskReq, request: Request):
         return get_engine().answer(req.question, roles, subject)
     except ValueError as e:  # guardrail-блок
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/ask/stream")
+def ask_stream(req: AskReq, request: Request):
+    """Потоковый ответ (SSE): `meta` → `sources` → `token`* → `note`* → `done`.
+
+    Источники уходят **раньше текста** — для корпоративного ассистента цитата
+    важнее скорости появления первого слова: пользователь сразу видит, на чём
+    будет основан ответ, и может остановиться, если основание не то.
+    """
+    roles, subject = subject_of(request, req.roles)
+    engine = get_engine()
+
+    # Guardrail проверяется до открытия потока: код ответа выбирается один раз и
+    # до начала тела. Отклонить запрос статусом 400 после первого байта нельзя —
+    # придётся отдавать 200 с ошибкой внутри, а это хуже для клиента.
+    try:
+        from .guardrails import check_input
+        check_input(req.question)
+    except ValueError as e:
+        telemetry.GUARDRAIL_BLOCKS.labels("input").inc()
+        raise HTTPException(status_code=400, detail=str(e))
+
+    def events():
+        for event, data in engine.answer_stream(req.question, roles, subject):
+            yield f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        events(), media_type="text/event-stream",
+        # Буферизация прокси убивает смысл потока: ответ придёт целиком в конце.
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 @app.get("/agents")

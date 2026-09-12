@@ -9,7 +9,7 @@ from .access import RequestContext
 from .config import settings
 from .graph import CANCELLED_BY, CANCELS
 from .graphrag import GraphAugmentedRetriever
-from .guardrails import check_input, mask_pii
+from .guardrails import StreamingPiiFilter, check_input, mask_pii
 from .ingest import chunk_documents, load_documents
 from .retriever import HybridRetriever
 from . import telemetry
@@ -83,6 +83,109 @@ class Sufler:
             from .llm import LLM
             self.llm = LLM()
 
+    def _prepare(self, question: str, ctx, root):
+        """Общая часть обоих путей: guardrail → retrieval → сборка контекста.
+
+        Вынесено, чтобы потоковый ответ шёл по той же дороге, что и обычный.
+        Разойдись они — разошлись бы и проверка прав, и пометки об отменах, то
+        есть ровно то, что доказывается тестами для одного из путей.
+        """
+        with telemetry.span("guardrail.input"):
+            try:
+                check_input(question)
+            except ValueError:
+                telemetry.GUARDRAIL_BLOCKS.labels("input").inc()
+                root.set_attribute("outcome", "blocked")
+                raise
+
+        with telemetry.span("retrieve") as sp:
+            found = self.retriever.search(question, ctx)
+            sp.set_attribute("chunks", len(found))
+
+        if not found:
+            # Отказ — такое же событие для аудита, как и выдача (ADR-0016, инвариант 6);
+            # причину (права или релевантность) считает ретривер, он её и знает.
+            #
+            # Формулировка намеренно одна на оба случая. Прежняя — «нет пунктов
+            # ДЛЯ ВАШЕГО УРОВНЯ ДОСТУПА» — сообщала, что документ существует,
+            # просто закрыт. Это та самая утечка через факт существования,
+            # против которой построен весь ACL на узлах графа (ADR-0016).
+            root.set_attribute("outcome", "no_answer")
+            return None
+        return (found, *build_context(found))
+
+    def answer_stream(self, question: str, roles=("all",), subject: str = "anonymous"):
+        """Тот же ответ, но событиями по мере готовности (SSE).
+
+        Порядок событий выбран под UX, а не под удобство сервера: **источники
+        уходят раньше текста**. Пользователь видит, на чём будет основан ответ,
+        пока модель ещё генерирует — а для корпоративного ассистента цитата
+        важнее скорости появления первого слова.
+
+        Спаны здесь заводятся вручную, а не контекстным менеджером: контекстные
+        переменные не переживают `yield` (см. `telemetry.start_request_span`).
+        """
+        ctx = RequestContext.of(roles, subject)
+        root = telemetry.start_request_span(
+            "ask.stream", ctx.request_id, path="rag-stream", subject=ctx.subject,
+            roles=",".join(ctx.roles), question=telemetry.content(question))
+        try:
+            yield "meta", {"request_id": ctx.request_id}
+
+            with telemetry.active(root):          # внутри `_prepare` нет `yield`
+                prepared = self._prepare(question, ctx, root)
+            if prepared is None:
+                yield "token", {"text": NO_ANSWER}
+                yield "done", {"request_id": ctx.request_id, "sources": 0, "graph_notes": []}
+                return
+
+            found, blocks, sources, contexts, notes = prepared
+            yield "sources", sources
+
+            # Маска ПДн держит окно: шаблон почти всегда разорван границей токена,
+            # поэтому маскируется накопленный текст, а наружу идёт устойчивый префикс.
+            pii = StreamingPiiFilter()
+            context = "\n\n".join(blocks)
+            if self.llm:
+                gen = telemetry.child_span(root, "llm.generate", model=settings.llm_model,
+                                           context_chars=len(context), streaming=True)
+                try:
+                    for delta in self.llm.stream(
+                            SYSTEM, f"Контекст:\n{context}\n\nВопрос: {question}"):
+                        out = pii.push(delta)
+                        if out:
+                            yield "token", {"text": out}
+                finally:
+                    gen.end()
+            else:
+                # Офлайн-демо: текст режется на куски, чтобы поток был виден без LLM.
+                demo = "(демо без LLM) Наиболее релевантный пункт:\n\n" + found[0].chunk.text
+                for i in range(0, len(demo), 48):
+                    out = pii.push(demo[i:i + 48])
+                    if out:
+                        yield "token", {"text": out}
+
+            tail = pii.flush()
+            if tail:
+                yield "token", {"text": tail}
+            if pii.text != pii.raw:
+                telemetry.GUARDRAIL_BLOCKS.labels("output").inc()
+
+            unique_notes = list(dict.fromkeys(notes))
+            for note in unique_notes:
+                # Предупреждение об отмене — отдельным событием, а не хвостом
+                # текста: интерфейс обязан показать его заметно, а не абзацем ниже.
+                yield "note", {"text": note}
+
+            self._record(root, "rag-stream", sources, any(i.from_graph for i in found),
+                         bool(unique_notes))
+            yield "done", {"request_id": ctx.request_id, "sources": len(sources),
+                           "graph_notes": unique_notes}
+        finally:
+            # Клиент может оборваться на любом шаге — спан обязан закрыться всё равно,
+            # иначе трейс подвиснет незавершённым.
+            root.end()
+
     def answer(self, question: str, roles=("all",), subject: str = "anonymous") -> dict:
         ctx = RequestContext.of(roles, subject)   # создаётся один раз на запрос (ADR-0016)
         # Корневой спан: с этого места trace_id == request_id (ADR-0017), и тот же
@@ -90,31 +193,12 @@ class Sufler:
         with telemetry.request_span("ask", ctx.request_id, path="rag",
                                     subject=ctx.subject, roles=",".join(ctx.roles),
                                     question=telemetry.content(question)) as root:
-            with telemetry.span("guardrail.input"):
-                try:
-                    check_input(question)
-                except ValueError:
-                    telemetry.GUARDRAIL_BLOCKS.labels("input").inc()
-                    root.set_attribute("outcome", "blocked")
-                    raise
-
-            with telemetry.span("retrieve") as sp:
-                found = self.retriever.search(question, ctx)
-                sp.set_attribute("chunks", len(found))
-
-            if not found:
-                # Отказ — такое же событие для аудита, как и выдача (ADR-0016, инвариант 6);
-                # причину (права или релевантность) считает ретривер, он её и знает.
-                #
-                # Формулировка намеренно одна на оба случая. Прежняя — «нет пунктов
-                # ДЛЯ ВАШЕГО УРОВНЯ ДОСТУПА» — сообщала, что документ существует,
-                # просто закрыт. Это та самая утечка через факт существования,
-                # против которой построен весь ACL на узлах графа (ADR-0016).
-                root.set_attribute("outcome", "no_answer")
+            prepared = self._prepare(question, ctx, root)
+            if prepared is None:
                 return {"answer": NO_ANSWER, "sources": [], "contexts": [],
                         "graph_notes": [], "request_id": ctx.request_id}
 
-            blocks, sources, contexts, notes = build_context(found)
+            found, blocks, sources, contexts, notes = prepared
             context = "\n\n".join(blocks)
             if self.llm:
                 with telemetry.span("llm.generate", model=settings.llm_model,

@@ -35,7 +35,7 @@ $ SUFLER_USE_LLM=0 python -m sufler.cli "Сколько дней основно�
 | [`mas.py`](sufler/mas.py) | LangGraph: супервизор ⇄ роли-агенты, лимиты, checkpointer, ReAct-trace | [ADR-0015](../docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) |
 | [`telemetry.py`](sufler/telemetry.py) | спаны OTel (`trace_id` = `request_id`), доменные метрики, маска ПДн на экспорте | [ADR-0017](../docs/adr/0017-observability.md) |
 | [`auth.py`](sufler/auth.py) | граница доверия: JWT по JWKS Keycloak, роли из claim'а, а не из тела | [ADR-0016](../docs/adr/0016-acl-na-uzlah-grafa.md) |
-| [`api.py`](sufler/api.py) | `/ask`, `/agents`, `/agents/ask`, `/graph/stats`, OpenAI-совместимый `/v1/chat/completions` | [ADR-0007](../docs/adr/0007-chat-interface.md) |
+| [`api.py`](sufler/api.py) | `/ask`, `/ask/stream` (SSE), `/agents`, `/agents/ask`, `/graph/stats`, OpenAI-совместимый `/v1/chat/completions` | [ADR-0007](../docs/adr/0007-chat-interface.md) |
 
 ### Онтология (4 типа узлов, рекомендация занятия 32)
 
@@ -139,7 +139,7 @@ uvicorn sufler.api:app --port 8080
 ## Тесты
 
 ```bash
-pytest -q      # 55 тестов офлайн; при первом запуске тянет модели эмбеддера и реранкера
+pytest -q      # 70 тестов офлайн; при первом запуске тянет модели эмбеддера и реранкера
 
 # + 5 тестов боевого графа (пропускаются без стека)
 docker compose -f ../infra/docker-compose.yml --profile core up -d neo4j qdrant
@@ -205,6 +205,24 @@ python -m sufler.cli --stats
 # {'backend': 'neo4j', 'nodes': 19, 'documents': 4, 'edges': 4, 'cancels': 1, 'references': 3}
 ```
 
+## Потоковый ответ (SSE)
+
+`POST /ask/stream` отдаёт `text/event-stream`: `meta` → `sources` → `token`* → `note`* → `done`.
+
+**Источники уходят раньше текста** — для корпоративного ассистента цитата важнее скорости появления первого слова: пользователь сразу видит, на чём будет основан ответ, и может остановиться, если основание не то. Пометка об отмене приходит отдельным событием `note`, а не хвостом абзаца, — интерфейс обязан показать её заметно.
+
+```bash
+curl -sN -X POST :8080/ask/stream -H 'content-type: application/json' \
+  -d '{"question":"Сколько дней основной ежегодный отпуск?","roles":["all"]}'
+```
+
+Две вещи, которые в потоке сложнее, чем кажутся:
+
+- **Маска ПДн.** Маскировать каждый токен отдельно нельзя: шаблон почти всегда разорван границей (`ivan@` + `example.com`). Поэтому маска накладывается на накопленный текст, а наружу идёт устойчивый префикс — всё, кроме последних 64 символов. Шаблон длиннее окна проскочит; это названо прямо в [`guardrails.py`](sufler/guardrails.py), а не спрятано.
+- **Спаны через `yield`.** Контекстные переменные не переживают `yield` — ASGI-сервер шагает генератор в разных контекстах, и `with`-обёртка падает с «Token was created in a different Context». Поэтому в потоковом пути родитель спана передаётся явно, а активируется спан только на шагах без `yield` ([`telemetry.py`](sufler/telemetry.py)). Регрессия закрыта тестом: трейс обязан остаться одним и закрытым.
+
+Потоковый путь идёт через ту же функцию подготовки, что и обычный: разойдись они — разошлись бы проверка прав и пометки об отменах. Инварианты доступа проверены на нём отдельно ([`test_streaming.py`](tests/test_streaming.py)).
+
 ## Качество: golden set и гейты
 
 ```bash
@@ -222,7 +240,7 @@ python -m tools.eval          # код 1, если гейты приёмки н�
 - **Мультимодальный ingestion не реализован**: работает первая ступень каскада (текстовый слой), layout-парсер и VL-разбор сканов/чертежей — по [ADR-0014](../docs/adr/0014-multimodalnyy-ingestion.md). Поля `extracted_by` и `confidence` уже есть в контракте чанка.
 - **Мультиагентный слой не замерен**: реализован ([`mas.py`](sufler/mas.py)), но точность маршрутизации, прирост против монолита и стоимость запроса не измерены на golden set — критерии перехода ADR-0015 в `accepted` не выполнены.
 - **Checkpointer PostgreSQL опционален**: без пакета `langgraph-checkpoint-postgres` состояние живёт в памяти процесса, и при перезапуске воспроизводимость теряется.
-- **Streaming (SSE) не сделан.** Трейсы уходят только в Jaeger: экспорт в Langfuse ([ADR-0017](../docs/adr/0017-observability.md), вариант 4) не подключён, поэтому LLM-семантики — faithfulness, стоимость, дрейф — в наблюдаемости пока нет.
+- **Трейсы уходят только в Jaeger:** экспорт в Langfuse ([ADR-0017](../docs/adr/0017-observability.md), вариант 4) не подключён, поэтому LLM-семантики — faithfulness, стоимость, дрейф — в наблюдаемости пока нет.
 - **Метрик качества нет**: RAGAS/LLM-as-a-Judge не подключены, дашборд показывает Golden Signals и доменные метрики GraphRAG/MAS, но не качество ответов.
 - **JWT проверяется, но Keycloak рядом не поднят**: валидация закрыта тестами на сгенерированных ключах, против живого realm'а не прогонялась. Отзыв токена до истечения `exp` не поддерживается (нет интроспекции) — окно равно времени жизни токена.
 - Экстракция связей — правилами; LLM-экстрактор сущностей ([ADR-0013](../docs/adr/0013-graphrag-strategiya.md)) не подключён.
@@ -236,6 +254,7 @@ backend/
 ├── sufler/        access · ingest · links · graph · graphrag · retriever · guardrails · rag
 │                  roles · tools · mas (мультиагентный слой) · auth · telemetry · api · cli
 ├── data/lpa/      демо-корпус: отпуск, изменения к нему (отмена), командировки, доступ к ПДн (ACL)
-├── tests/         GraphRAG, безопасность, граница доверия, MAS, наблюдаемость, Neo4j, смоук
+├── tests/         GraphRAG, безопасность, граница доверия, MAS, наблюдаемость,
+│                  поток, Neo4j, смоук
 ├── requirements.txt · Dockerfile · .env.example
 ```
