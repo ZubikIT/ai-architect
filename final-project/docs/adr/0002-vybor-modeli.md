@@ -2,12 +2,14 @@
 id: ADR-0002
 title: Выбор LLM — Qwen3.5-27B (open-weight, dense)
 date: 2026-06-03
-status: proposed
+status: accepted
 deciders: [Зубик Александр]
 tags: [llm, model, qwen3.5, qwen3.6, t-pro, deepseek, saiga, ru, tool-calling, license]
 ---
 
 # ADR-0002. Выбор LLM — Qwen3.5-27B (open-weight, dense)
+
+> ⚠️ **Расходится с продом.** В работе `Qwen3.6-35B-A3B-AWQ` — MoE с ~3 млрд активных параметров вместо плотной модели: следствие железа ([ADR-0006](0006-kvantovanie-i-sizing-gpu.md), [сверка](../adr-audit.md)).
 
 ## Контекст
 ADR-0001 зафиксировал self-hosted open-weight LLM, ADR-0003 — движок (vLLM). Теперь — **какую модель** запускать. Ограничения и силы давления:

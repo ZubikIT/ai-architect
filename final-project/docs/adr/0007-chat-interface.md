@@ -2,12 +2,14 @@
 id: ADR-0007
 title: Чат-интерфейс — Open WebUI (SSO + Pipelines, мобайл Conduit)
 date: 2026-05-26
-status: accepted
+status: superseded by ADR-0025
 deciders: [Зубик Александр]
 tags: [ui, chat, open-webui, sso, oidc, pipelines, guardrails, conduit, air-gapped]
 ---
 
 # ADR-0007. Чат-интерфейс — Open WebUI
+
+> ⚠️ **Заменён [ADR-0025](0025-svoy-chat-vmesto-dorabotki-chuzhogo.md).** Открытый чат заморожен по измеренному использованию; продукт живёт на собственном чате.
 
 ## Контекст
 Нужен пользовательский фронт к self-hosted LLM (ADR-0001) и движку vLLM (ADR-0003). **Scope: персональное использование** (личный ассистент / агентный чат); совместный поиск по общим базам знаний — Onyx ([ADR-0008](0008-knowledge-base-connectors.md)); **LLM общий** — Qwen3.5 через vLLM для обеих систем. Силы давления:

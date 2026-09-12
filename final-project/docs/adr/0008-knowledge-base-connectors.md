@@ -2,12 +2,14 @@
 id: ADR-0008
 title: Коннекторы к корпоративным БЗ — Onyx (ex-Danswer)
 date: 2026-05-26
-status: accepted
+status: proposed
 deciders: [Зубик Александр]
 tags: [connectors, ingestion, onyx, danswer, confluence, jira, sharepoint, permission-aware, rag]
 ---
 
 # ADR-0008. Коннекторы к корпоративным БЗ — Onyx (ex-Danswer)
+
+> ⚠️ **Не реализовано.** Коннекторы к корпоративным БЗ не разворачивались ([сверка](../adr-audit.md)).
 
 ## Контекст
 База знаний живёт во внешних корпоративных системах: **Confluence, Jira, SharePoint** (потенциально + Slack/GitLab/почта). Нужен слой подключения и ingestion. Силы давления:

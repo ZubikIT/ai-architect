@@ -3,12 +3,14 @@ id: ADR-0011
 title: Интеграция Суфлёра как Open WebUI Pipeline + RBAC через Keycloak-группы
 date: 2026-05-27
 version: 0.1
-status: proposed
+status: superseded by ADR-0019
 deciders: [Зубик Александр]
 tags: [integration, open-webui, pipelines, keycloak, rbac, rag, deployment]
 ---
 
 # ADR-0011. Интеграция Суфлёра как Open WebUI Pipeline + RBAC через Keycloak-группы
+
+> ⚠️ **Заменён [ADR-0019](0019-shlyuz-modeley-kak-centr-platformy.md).** Путь через Pipelines закрыт вместе с заморозкой открытого чата; интеграция идёт за шлюзом моделей, как у остальных сервисов.
 
 ## Контекст
 Курсовой проект — архитектурный слой над **реальным деплоем** Open WebUI (`zubriq.by`, публичная копия решения для ЗАО МТБанк). Деплой уже содержит: Open WebUI + контейнер **Pipelines** (`ghcr.io/open-webui/pipelines`, зарегистрирован как OpenAI-compat backend `http://pipelines:9099`), **Keycloak OIDC** с группами (`OAUTH_GROUPS_CLAIM=groups`, group management), подключённый STT, pipeline `speech_analytics_v1.py`, workspace-as-code через OpenTofu (`ncecere/openwebui`).

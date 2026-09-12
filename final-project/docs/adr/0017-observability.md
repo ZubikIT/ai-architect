@@ -9,6 +9,8 @@ tags: [observability, opentelemetry, jaeger, langfuse, prometheus, victoriametri
 
 # ADR-0017. Observability — единый OpenTelemetry-слой с экспортом в Jaeger и Langfuse, метрики в Prometheus-совместимое хранилище
 
+> ⚠️ **Реализовано частично.** Трассировка LLM и метрики в платформе есть; сквозного OTel-трейсинга через продукты **нет** ([сверка](../adr-audit.md)).
+
 ## Контекст
 
 ТЗ (занятие [32](../../sessions/32-vybor-temy.md)) требует в блоке Infrastructure & Stack: **OpenTelemetry (трейсинг запросов) + Prometheus / Grafana (метрики токенов/сек, latency)**, а формат сдачи прямо предписывает показать в видео-демо **трейсы в Jaeger или Langfuse и логи vLLM**. Наблюдаемость здесь — не «хорошо бы», а сдаточный артефакт.

@@ -1,18 +1,26 @@
 # Architecture Decision Records (ADR)
 
-Лог ключевых архитектурных решений финального проекта — on-premise/air-gapped корпоративной AI-платформы. Ведётся по принципу **Architecture as Code** (Markdown в Git, изменения — через PR/коммит). Решения **не удаляются**: устаревшие переводятся в статус `deprecated` / `superseded`.
+Лог ключевых архитектурных решений. Ведётся по принципу **Architecture as Code** (Markdown в Git, изменения — через коммит). Решения **не удаляются**: устаревшие переводятся в статус `deprecated` / `superseded`.
+
+> **Пакет переведён на реальную платформу.** Выпускной проект описывает не вымышленный контур, а работающую платформу **ZubrIQ** ([описание as-is](../../../zubriq-platform/README.md)). Решения 0019–0026 приняты в проде и зафиксированы задним числом; ранние ADR сверены с реальностью — карта расхождений в [`adr-audit.md`](../adr-audit.md).
+>
+> Предмет проекта — **закрытый контур платформы** (свои модели, нулевой egress). Внешнее плечо существует как отдельный коммерческий режим и отсекается правами ключа ([ADR-0020](0020-dva-rezhima-dostupa.md)).
 
 Формат — по шаблону [`../../../templates/adr.md`](../../../templates/adr.md). Имя файла: `NNNN-краткое-описание.md`. Раздел **Compliance & Ethics** обязателен для AI-решений (урок 08).
 
-## Целевая картина стека
-Две пользовательские плоскости поверх **одного LLM**:
-- **Персональная:** Open WebUI (ADR-0007) → личный ассистент / агентный чат (LangGraph, ADR-0005; RAG на Qdrant, ADR-0004).
-- **Совместная:** Onyx (ADR-0008) → поиск по общим базам знаний (Confluence/Jira/SharePoint), permission-aware.
-- **Общее ядро:** Qwen3.5 (ADR-0002) на vLLM/FP8 (ADR-0003/0006), 2× H100 NVL, on-prem/air-gapped (ADR-0001).
-- **Знания:** гибрид **Qdrant** (dense+BM25, ADR-0004) + **Neo4j** (граф связей ЛПА, ADR-0012); retrieval — vector-first с обходом графа на 1–2 хопа и ACL-предикатом (ADR-0013).
-- **Агенты:** иерархия supervisor + роли-агенты «цифровые сотрудники» на LangGraph, состояние в PostgreSQL-checkpointer (ADR-0015); ingestion — каскад «текст → layout → VL» (ADR-0014).
-- **Доступ:** роли из проверенного JWT Keycloak → материализованные `acl_roles` на чанках и узлах, pre-filtering в обеих БД (ADR-0016).
-- **Наблюдаемость и проверка:** OTel → Jaeger + Langfuse, метрики в Grafana (ADR-0017); red teaming с ASR-гейтом в CI (ADR-0018).
+## Картина стека — как есть
+
+- **Вход:** обратный прокси, wildcard-сертификат (ADR-0026) → продукты и OpenAI-совместимый API.
+- **Центр:** шлюз моделей — ключи, бюджеты, учёт потребления, каталог (ADR-0019). Через него проходит **каждый** вызов модели.
+- **Граница контура:** права ключа, проверка до вызова (ADR-0020). Закрытый режим — свой инференс; внешний — вне периметра проекта.
+- **Инференс:** vLLM нативно на GPU-боксе (ADR-0003), MoE-модель в AWQ на 4× V100 (ADR-0002/0006 — с поправкой на реальное железо).
+- **Знания:** Qdrant (ADR-0004); граф связей и GraphRAG (ADR-0012/0013) **спроектированы, в платформу не встроены** — код в [`../../backend/`](../../backend/).
+- **Агенты:** иерархия supervisor + роли-агенты (ADR-0015) — там же, встраивание предстоит.
+- **Доступ:** Keycloak с федерацией каталога, группы в токене (ADR-0021) → материализованные метки на чанках и узлах (ADR-0016).
+- **Состояние:** ключи и потребление в HA-кластере PostgreSQL (ADR-0022); биллинг читает его напрямую (ADR-0023).
+- **Доставка:** кластер Talos с GitOps после инцидента с простоем шлюза (ADR-0024).
+- **Продукты:** собственный чат вместо доработки открытого (ADR-0025).
+- **Наблюдаемость:** трассировка LLM и метрики есть, сквозного трейсинга нет (ADR-0017).
 
 ## Статусы
 `proposed` → `accepted` → (`deprecated` | `superseded by ADR-MMMM`) · либо `rejected` (с сохранением причины).
@@ -22,16 +30,16 @@
 | ID | Решение | Статус | Дата |
 |---|---|---|---|
 | [ADR-0001](0001-on-premise-self-hosted-llm.md) | Self-hosted open-weight LLM вместо облачного API (on-premise / air-gapped) | accepted | 2026-05-26 |
-| [ADR-0002](0002-vybor-modeli.md) | Выбор LLM — Qwen3.5-27B (open-weight, dense) | proposed | 2026-05-26 |
+| [ADR-0002](0002-vybor-modeli.md) | Выбор LLM — Qwen3.5-27B (open-weight, dense) | accepted | 2026-05-26 |
 | [ADR-0003](0003-llm-serving-engine.md) | LLM Serving Engine — vLLM (vs SGLang, TGI) | proposed | 2026-05-26 |
 | [ADR-0004](0004-vector-db.md) | Vector Database — Qdrant (vs Milvus, Weaviate) | proposed | 2026-05-26 |
 | [ADR-0005](0005-orchestration.md) | Orchestration — LangGraph (vs LlamaIndex Workflows) | proposed | 2026-05-26 |
-| [ADR-0006](0006-kvantovanie-i-sizing-gpu.md) | Квантование и sizing GPU — FP8 на 2× H100 NVL | proposed | 2026-05-26 |
-| [ADR-0007](0007-chat-interface.md) | Чат-интерфейс — Open WebUI (SSO + Pipelines, мобайл Conduit) | accepted | 2026-05-26 |
-| [ADR-0008](0008-knowledge-base-connectors.md) | Коннекторы к корпоративным БЗ — Onyx (Confluence/Jira/SharePoint) | accepted | 2026-05-26 |
+| [ADR-0006](0006-kvantovanie-i-sizing-gpu.md) | Квантование и sizing GPU — FP8 на 2× H100 NVL | accepted | 2026-05-26 |
+| [ADR-0007](0007-chat-interface.md) | Чат-интерфейс — Open WebUI (SSO + Pipelines, мобайл Conduit) | superseded by ADR-0025 | 2026-05-26 |
+| [ADR-0008](0008-knowledge-base-connectors.md) | Коннекторы к корпоративным БЗ — Onyx (Confluence/Jira/SharePoint) | proposed | 2026-05-26 |
 | [ADR-0009](0009-mcp-integration-layer.md) | MCP как стандартный слой интеграции (Open WebUI + Onyx) | proposed | 2026-05-26 |
 | [ADR-0010](0010-voice-stack.md) | Голосовой стек — self-hosted STT/TTS (faster-whisper/GigaAM + Silero) | proposed | 2026-05-27 |
-| [ADR-0011](0011-sufler-pipeline-integration.md) | Интеграция Суфлёра как Open WebUI Pipeline + RBAC через Keycloak | proposed | 2026-05-27 |
+| [ADR-0011](0011-sufler-pipeline-integration.md) | Интеграция Суфлёра как Open WebUI Pipeline + RBAC через Keycloak | superseded by ADR-0019 | 2026-05-27 |
 | [ADR-0012](0012-graph-db.md) | Graph Database — Neo4j Community (vs ArangoDB, NebulaGraph, Memgraph) | proposed | 2026-09-11 |
 | [ADR-0013](0013-graphrag-strategiya.md) | Стратегия GraphRAG — гибрид «вектор → обход графа» + онтология из 4 узлов | proposed | 2026-09-11 |
 | [ADR-0014](0014-multimodalnyy-ingestion.md) | Мультимодальный ingestion — каскад «текстовый слой → layout → VL» с понижением доверия | proposed | 2026-09-11 |
@@ -39,6 +47,14 @@
 | [ADR-0016](0016-acl-na-uzlah-grafa.md) | ACL на уровне узлов графа и чанков — материализованные метки + предикат в каждом запросе | proposed | 2026-09-11 |
 | [ADR-0017](0017-observability.md) | Observability — единый OTel-слой → Jaeger + Langfuse, метрики в Prometheus-совместимое хранилище | proposed | 2026-09-11 |
 | [ADR-0018](0018-security-testing.md) | Security testing и red teaming — вендор-нейтральный стек с ASR-гейтом в CI | proposed | 2026-09-11 |
+| [ADR-0019](0019-shlyuz-modeley-kak-centr-platformy.md) | Шлюз моделей как центр платформы — ключи, бюджеты, учёт, маршрутизация | accepted | 2026-09-12 |
+| [ADR-0020](0020-dva-rezhima-dostupa.md) | Два режима доступа и граница контура — разрешение на уровне ключа | accepted | 2026-09-12 |
+| [ADR-0021](0021-identifikaciya-keycloak-federaciya.md) | Идентификация — Keycloak с федерацией каталога, права группами в токене | accepted | 2026-09-12 |
+| [ADR-0022](0022-ha-postgresql-dlya-klyuchey-i-spenda.md) | Ключи и потребление — в общий HA-кластер PostgreSQL | accepted | 2026-09-12 |
+| [ADR-0023](0023-billing-chitaet-shemu-shlyuza.md) | Биллинг читает базу шлюза напрямую — осознанный размен | accepted | 2026-09-12 |
+| [ADR-0024](0024-klaster-i-gitops.md) | Переезд в кластер Talos с GitOps — выкат без простоя | accepted | 2026-09-12 |
+| [ADR-0025](0025-svoy-chat-vmesto-dorabotki-chuzhogo.md) | Свой чат вместо доработки открытого | accepted | 2026-09-12 |
+| [ADR-0026](0026-perimetr-i-sertifikaty.md) | Периметр — обратный прокси и wildcard через DNS-01 | accepted | 2026-09-12 |
 
 ## Планируемые ADR (из брифа проекта)
 - [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.5-27B (proposed)

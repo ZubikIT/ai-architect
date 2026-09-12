@@ -2,12 +2,14 @@
 id: ADR-0006
 title: Квантование и sizing GPU — FP8 на 2× H100
 date: 2026-05-26
-status: proposed
+status: accepted
 deciders: [Зубик Александр]
 tags: [quantization, fp8, awq, gpu, sizing, h100, vllm, kv-cache]
 ---
 
 # ADR-0006. Квантование и sizing GPU — FP8 на 2× H100
+
+> ⚠️ **Расходится с продом.** Расчёт на 2× H100 NVL остаётся **сценарием масштабирования**; фактический инференс — 4× Tesla V100 SXM2 16 ГБ с AWQ-квантованием и взаимным исключением моделей по видеопамяти ([сверка](../adr-audit.md)).
 
 ## Контекст
 ADR-0002 выбрал baseline `Qwen3.5-27B` (dense), ADR-0003 — движок vLLM. Нужно зафиксировать **precision/квантование**, распределение по GPU (tensor parallelism) и бюджет VRAM (веса + KV-cache).
