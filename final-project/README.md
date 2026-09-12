@@ -48,7 +48,7 @@
 | **Vector DB** | self-hosted: Qdrant / Milvus / Weaviate | Qdrant | [0004](docs/adr/0004-vector-db.md) |
 | **Graph DB** | Neo4j (образ в материалах ЛК) | Neo4j Community 5.x + гибрид с Qdrant | [0012](docs/adr/0012-graph-db.md), [0013](docs/adr/0013-graphrag-strategiya.md) |
 | **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph — реализовано ([`mas.py`](backend/sufler/mas.py)) | [0005](docs/adr/0005-orchestration.md), [0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) |
-| **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | OTel → Jaeger + Langfuse, VictoriaMetrics + Grafana | [0017](docs/adr/0017-observability.md) |
+| **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | OTel → Jaeger (реализовано), VictoriaMetrics + Grafana (дашборд как код); Langfuse — спроектирован | [0017](docs/adr/0017-observability.md) |
 
 **Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). [ACL на узлах графа](docs/adr/0016-acl-na-uzlah-grafa.md) · [мультимодальный ingestion](docs/adr/0014-multimodalnyy-ingestion.md) · [топология MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) · [Observability](docs/adr/0017-observability.md) · [security testing](docs/adr/0018-security-testing.md) — **ADR-пакет закрыт** (18 решений).
 
@@ -109,7 +109,7 @@
 - [x] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph) → [`mas.py`](backend/sufler/mas.py), [`roles.py`](backend/sufler/roles.py), [`tools.py`](backend/sufler/tools.py) — 4 роли, детерминированная маршрутизация, least privilege на инструменте, лимиты и ReAct-trace _(замеры на golden set не сделаны → [ADR-0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) остаётся `proposed`)_
 - [x] **ACL на уровне узлов графа + тест «User B»** → [`access.py`](backend/sufler/access.py), [`test_graphrag.py`](backend/tests/test_graphrag.py)
 - [x] **Граница доверия: роли из проверенного JWT, а не из тела запроса** → [`auth.py`](backend/sufler/auth.py), [`test_auth.py`](backend/tests/test_auth.py) — подпись по JWKS, фиксированный список алгоритмов, негативные случаи (подмена `RS256→HS256`, `alg: none`, чужой `aud`/`iss`) _(против живого Keycloak не прогонялось)_
-- [ ] Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana, примеры трейсов и дашбордов — _спроектировано в [ADR-0017](docs/adr/0017-observability.md); дашборд Суфлёра уже в коде_
+- [x] **Observability**: OTel → Jaeger (`trace_id` = `request_id`), доменные метрики и дашборд Grafana как код → [`telemetry.py`](backend/sufler/telemetry.py), [`infra/grafana/`](infra/grafana/) — трейсы разложены по шагам, прогон вскрыл два молча сломанных конфига _(экспорт в Langfuse и метрики качества — не подключены)_
 - [x] Monorepo-раскладка `/infra`, `/backend`, `/docs` + [`docker-compose`](infra/docker-compose.yml) всего стека — профиль `core` поднят и проверен (Neo4j + Qdrant + PostgreSQL) _(пины образов по digest и профиль red teaming — TODO)_
 - [ ] Streaming (SSE) и LLM-as-a-Judge тесты промптов — _методика в [ADR-0018](docs/adr/0018-security-testing.md)_
 - [ ] Нагрузочный отчёт (RPS / latency)

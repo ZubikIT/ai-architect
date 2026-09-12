@@ -1,0 +1,15 @@
+# Источник метрик как код (ADR-0017): VictoriaMetrics говорит на языке Prometheus,
+# поэтому тип датасорса prometheus — расхождение с буквой ТЗ («Prometheus») здесь
+# и заканчивается, PromQL и scrape те же.
+apiVersion: 1
+
+datasources:
+  - name: VictoriaMetrics
+    uid: victoriametrics
+    type: prometheus
+    access: proxy
+    url: http://victoriametrics:8428
+    isDefault: true
+    jsonData:
+      timeInterval: 15s
+      httpMethod: POST

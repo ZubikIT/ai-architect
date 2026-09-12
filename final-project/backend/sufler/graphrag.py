@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from . import telemetry
 from .graph import CANCELLED_BY, CANCELS
 
 
@@ -37,6 +38,9 @@ class GraphAugmentedRetriever:
         self.graph = graph_store
         self.settings = settings
         self.by_id = {c.id: c for c in hybrid.chunks}
+        # Метка бэкенда считается один раз: спрашивать `stats()` на каждом запросе
+        # значило бы добавлять запрос к Neo4j ради строчки в метрике.
+        self.backend = "neo4j" if type(graph_store).__name__.startswith("Neo4j") else "in-memory"
 
     def search(self, query: str, ctx, top_ctx: int = None):
         top_ctx = top_ctx or self.settings.top_k_context
@@ -45,17 +49,25 @@ class GraphAugmentedRetriever:
         # Векторные кандидаты занимают top_ctx мест, графовые получают отдельный
         # резерв: иначе связанный пункт никогда не попадёт в контекст, и граф
         # окажется декорацией (ADR-0013).
-        seeds = self.hybrid.search(query, roles, top_ctx=top_ctx)
+        with telemetry.span("retrieve.hybrid", top_ctx=top_ctx) as sp:
+            seeds = self.hybrid.search(query, roles, top_ctx=top_ctx)
+            sp.set_attribute("seeds", len(seeds))
         if not seeds:
             return []
         result = [Retrieved(chunk=c) for c in seeds]
         if not self.settings.graph_enabled:
             return result[:top_ctx]
 
-        expansions = self.graph.expand(
-            [c.id for c in seeds], roles,
-            hops=self.settings.graph_hops, limit=self.settings.graph_limit,
-        )
+        with telemetry.span("graph.expand", backend=self.backend,
+                            hops=self.settings.graph_hops,
+                            limit=self.settings.graph_limit) as sp, \
+                telemetry.GRAPH_EXPAND.labels(self.backend).time():
+            expansions = self.graph.expand(
+                [c.id for c in seeds], roles,
+                hops=self.settings.graph_hops, limit=self.settings.graph_limit,
+            )
+            sp.set_attribute("expansions", len(expansions))
+            telemetry.GRAPH_HOPS.observe(len(expansions))
 
         # Отмены попадают в контекст безусловно: пункт-модификатор может быть
         # текстуально непохож на вопрос, но именно он делает ответ верным.
@@ -80,7 +92,9 @@ class GraphAugmentedRetriever:
 
         # Аннотация статуса: пункт мог прийти вектором, но быть отменённым —
         # пометка обязана появиться независимо от способа попадания в контекст.
-        ann = self.graph.annotations([r.chunk.id for r in result], roles)
+        with telemetry.span("graph.annotate", backend=self.backend) as sp:
+            ann = self.graph.annotations([r.chunk.id for r in result], roles)
+            sp.set_attribute("annotated", len(ann))
         for r in result:
             marks = ann.get(r.chunk.id, [])
             if not marks:

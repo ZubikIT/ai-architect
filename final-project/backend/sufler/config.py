@@ -30,6 +30,14 @@ class Settings:
     graph_limit: int = int(os.getenv("SUFLER_GRAPH_LIMIT", "10"))
     graph_slots: int = int(os.getenv("SUFLER_GRAPH_SLOTS", "3"))  # резерв мест под связанные пункты
 
+    # Наблюдаемость (ADR-0017). Без OTEL_EXPORTER_OTLP_ENDPOINT спаны создаются,
+    # но никуда не уходят — офлайн-демо и тесты не требуют коллектора.
+    otel_endpoint: str = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "")
+    otel_service_name: str = os.getenv("OTEL_SERVICE_NAME", "platform-backend")
+    # Содержимое запроса и ответа в трейсах — выключено: трейс доступен шире,
+    # чем сами документы. Включённое — проходит через PII-маску.
+    otel_capture_content: bool = os.getenv("SUFLER_OTEL_CONTENT", "0") == "1"
+
     # Граница доверия (ADR-0016): роли берутся из проверенного по JWKS токена
     # Keycloak. Без OIDC_JWKS_URL сервис остаётся в dev-режиме (роли из тела
     # запроса) — допустимо только в доверенном контуре и видно в /healthz.

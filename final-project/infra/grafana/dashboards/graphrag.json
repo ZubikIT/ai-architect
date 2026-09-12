@@ -1,0 +1,274 @@
+{
+  "uid": "graphrag-platform",
+  "title": "GraphRAG и цифровые сотрудники",
+  "description": "Golden Signals платформы плюс доменные метрики GraphRAG и MAS (ADR-0017). Верхний ряд отвечает на вопрос «работает ли», второй — «приносит ли граф пользу», третий — «что делают агенты», четвёртый — «что с безопасностью».",
+  "tags": ["graphrag", "mas", "security"],
+  "timezone": "browser",
+  "editable": true,
+  "schemaVersion": 39,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "path",
+        "label": "Путь",
+        "type": "custom",
+        "query": "rag,mas",
+        "current": { "text": "All", "value": "$__all" },
+        "includeAll": true,
+        "multi": true,
+        "options": []
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Golden Signals",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Трафик, запросов/с",
+      "description": "② Traffic. Разрез по эндпоинтам: /ask, /agents/ask, /v1/chat/completions.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 1 },
+      "fieldConfig": { "defaults": { "unit": "reqps" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (endpoint) (rate(sufler_requests_total[5m]))",
+          "legendFormat": "{{endpoint}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Латентность p50 / p95 / p99",
+      "description": "① Latency. SLO первой редакции: p95 ≤ 3 с без агентного цикла, ≤ 8 с с циклом (ADR-0017); уточняется нагрузочным отчётом.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 3 },
+              { "color": "red", "value": 8 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(sufler_request_latency_seconds_bucket[5m])))",
+          "legendFormat": "p50"
+        },
+        {
+          "refId": "B",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(sufler_request_latency_seconds_bucket[5m])))",
+          "legendFormat": "p95"
+        },
+        {
+          "refId": "C",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(sufler_request_latency_seconds_bucket[5m])))",
+          "legendFormat": "p99"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Доля ошибок",
+      "description": "③ Errors. 5xx ко всем ответам за 15 минут.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 1 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.01 },
+              { "color": "red", "value": 0.05 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(sufler_requests_total{status=~\"5..\"}[15m])) / clamp_min(sum(rate(sufler_requests_total[15m])), 0.0001)",
+          "legendFormat": "ошибки"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "GraphRAG — приносит ли граф пользу",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 8 }
+    },
+    {
+      "type": "stat",
+      "title": "Ответов с пометкой об отмене",
+      "description": "Ключевой показатель проекта: доля ответов, где сработало ребро ОТМЕНЯЕТ. Ноль означает, что граф в проде не работает, как бы хорошо он ни выглядел на демо — простой вектор такую пометку не даёт в принципе.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 6, "x": 0, "y": 9 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 0.0001 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(sufler_answers_total{cancellation=\"yes\", path=~\"$path\"}[24h])) / clamp_min(sum(increase(sufler_answers_total{path=~\"$path\"}[24h])), 1)",
+          "legendFormat": "доля"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Ответов с вкладом графа",
+      "description": "Доля ответов, где хотя бы один пункт пришёл обходом графа, а не вектором. Падение до нуля при живом сервисе — сигнал, что граф перестал строиться.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 6, "x": 6, "y": 9 },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(increase(sufler_answers_total{graph_contribution=\"yes\", path=~\"$path\"}[24h])) / clamp_min(sum(increase(sufler_answers_total{path=~\"$path\"}[24h])), 1)",
+          "legendFormat": "доля"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Время обхода графа, p95",
+      "description": "Разрез по бэкенду (neo4j / in-memory): видно цену графа в общем бюджете ответа. На демо-корпусе обход стоит единицы миллисекунд против секунд на эмбеддинге — аргумент против обвинения GraphRAG в латентности.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 9 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le, backend) (rate(sufler_graph_expand_seconds_bucket[5m])))",
+          "legendFormat": "{{backend}}"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Цифровые сотрудники",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Маршрутизация супервизора",
+      "description": "Кому уходят вопросы и каким способом принято решение (rules / llm / default). Рост доли llm и default означает, что правила перестали покрывать поток.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 17 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (agent, mode) (rate(sufler_routing_total[15m]))",
+          "legendFormat": "{{agent}} ({{mode}})"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Шагов агентов на запрос, p95",
+      "description": "Стоимость топологии в шагах. Приближение к потолку SUFLER_MAS_MAX_STEPS — повод либо поднять лимит, либо чинить маршрутизацию.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 17 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(sufler_agent_steps_bucket[15m])))",
+          "legendFormat": "p95 шагов"
+        },
+        {
+          "refId": "B",
+          "expr": "sum by (agent) (rate(sufler_agent_tool_calls_total[15m]))",
+          "legendFormat": "вызовы инструментов: {{agent}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Срабатывания лимитов MAS",
+      "description": "LLM06 Unbounded Consumption: каждое срабатывание — ответ, отданный неполным. Единичные допустимы, устойчивый рост означает, что бюджет не соответствует потоку.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 17 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(sufler_agent_limit_hits_total[15m]))",
+          "legendFormat": "деградаций/с"
+        }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Безопасность",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Отказы по правам доступа",
+      "description": "Запросы, для которых субъекту не нашлось ни одного доступного пункта. Отказ — такое же событие аудита, как выдача (ADR-0016): всплеск означает либо рассинхронизацию прав с Keycloak, либо перебор доступа.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 25 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (path) (rate(sufler_acl_denials_total[15m]))",
+          "legendFormat": "{{path}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Срабатывания guardrails",
+      "description": "input — подозрение на prompt injection, output — маска ПДн в ответе. Рост input-срабатываний коррелирует с ночными прогонами red teaming (ADR-0018).",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 25 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (stage) (rate(sufler_guardrail_blocks_total[15m]))",
+          "legendFormat": "{{stage}}"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Отклонённые токены",
+      "description": "Всплеск 401 — это либо сломанная интеграция с Keycloak, либо подбор токена. Разрез по причине отказа отличает одно от другого.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 25 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (reason) (rate(sufler_auth_failures_total[15m]))",
+          "legendFormat": "{{reason}}"
+        }
+      ]
+    }
+  ]
+}

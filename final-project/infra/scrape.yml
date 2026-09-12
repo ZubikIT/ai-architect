@@ -12,12 +12,17 @@ scrape_configs:
     static_configs:
       - targets: ["otel-collector:8889"]
 
+  # ВНИМАНИЕ: подстановка здесь — %{ENV_VAR}, а НЕ ${VAR:-default}. Синтаксис
+  # compose VictoriaMetrics не разворачивает: оба job'а ниже молча пропускались
+  # («invalid port after host»), и метрик vLLM и GPU просто не существовало.
+  # Значения по умолчанию задаёт compose, подставляя их в окружение контейнера.
+
   # vLLM на GPU-ноде — серии vllm:* (токены, latency, очередь)
   - job_name: vllm-engine
     static_configs:
-      - targets: ["${VLLM_METRICS_TARGET:-host.docker.internal:8000}"]
+      - targets: ["%{VLLM_METRICS_TARGET}"]
 
   # GPU — nvidia_gpu_exporter (серии nvidia_smi_*), не DCGM
   - job_name: gpu
     static_configs:
-      - targets: ["${GPU_EXPORTER_TARGET:-host.docker.internal:9835}"]
+      - targets: ["%{GPU_EXPORTER_TARGET}"]

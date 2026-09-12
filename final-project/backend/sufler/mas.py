@@ -31,6 +31,7 @@ from typing import TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
+from . import telemetry
 from .access import RequestContext
 from .config import settings
 from .guardrails import check_input, mask_pii
@@ -160,6 +161,7 @@ class Platform:
                 # Деградация — это решение, а не авария: снимаем очередь и идём
                 # сводить то, что уже найдено, назвав причину пользователю.
                 waiting = [ROLE_BY_ID[r].title for r in pending]
+                telemetry.AGENT_LIMIT_HITS.inc()
                 upd["pending"] = []
                 upd["degraded"] = f"{reason}; не опрошены: {', '.join(waiting)}"
                 upd["trace"] = state["trace"] + [{
@@ -183,9 +185,15 @@ class Platform:
 
     def _route(self, state: Dossier) -> dict:
         """Маршрутизация: правила → (при промахе) LLM → роль по умолчанию."""
-        decision = route_by_rules(state["question"], settings.mas_fanout)
-        if not decision["route"]:
-            decision = self._route_by_llm(state["question"], decision)
+        with telemetry.span("supervisor.route") as sp:
+            decision = route_by_rules(state["question"], settings.mas_fanout)
+            if not decision["route"]:
+                decision = self._route_by_llm(state["question"], decision)
+            sp.set_attribute("mode", decision["mode"])
+            sp.set_attribute("confidence", decision["confidence"])
+            sp.set_attribute("route", ",".join(decision["route"]))
+        for agent in decision["route"]:
+            telemetry.ROUTING.labels(decision["mode"], agent).inc()
 
         titles = ", ".join(ROLE_BY_ID[r].title for r in decision["route"])
         trace = state["trace"] + [{
@@ -217,25 +225,38 @@ class Platform:
         ctx = RequestContext.of(state["roles"], state["subject"], state["request_id"])
         step = state["steps"] + 1
         trace, calls = list(state["trace"]), state["tool_calls"]
-
         query, found, effective = state["question"], [], ()
-        for attempt in range(1, role.max_tool_calls + 1):
-            if calls >= settings.mas_max_tool_calls:
-                break
-            found, effective = self.tool(query, role, ctx)
-            calls += 1
-            trace.append({
-                "step": step, "agent": role.id, "agent_title": role.title,
-                "thought": (f"Вопрос в моей компетенции; ищу в графе ЛПА правами {list(effective)}"
-                            if attempt == 1 else
-                            "Первая попытка пуста — переформулирую запрос ключевыми словами"),
-                "action": self.tool.signature(query, effective),
-                "observation": (f"найдено пунктов: {len(found)}" if found
-                                else "ничего доступного не найдено"),
-            })
-            if found:
-                break
-            query = _keyword_query(state["question"])
+
+        with telemetry.span(f"agent.{role.id}", agent_title=role.title, step=step) as sp:
+            for attempt in range(1, role.max_tool_calls + 1):
+                if calls >= settings.mas_max_tool_calls:
+                    break
+                with telemetry.span("tool.graph_search", agent=role.id, attempt=attempt) as tsp:
+                    found, effective = self.tool(query, role, ctx)
+                    tsp.set_attribute("effective_roles", ",".join(effective))
+                    tsp.set_attribute("found", len(found))
+                telemetry.AGENT_TOOL_CALLS.labels(role.id).inc()
+                calls += 1
+                trace.append({
+                    "step": step, "agent": role.id, "agent_title": role.title,
+                    "thought": (f"Вопрос в моей компетенции; ищу в графе ЛПА правами {list(effective)}"
+                                if attempt == 1 else
+                                "Первая попытка пуста — переформулирую запрос ключевыми словами"),
+                    "action": self.tool.signature(query, effective),
+                    "observation": (f"найдено пунктов: {len(found)}" if found
+                                    else "ничего доступного не найдено"),
+                })
+                if found:
+                    break
+                query = _keyword_query(state["question"])
+
+            # ReAct-шаг ложится в трейс теми же тремя полями, что и в UI, — событием
+            # спана, а не атрибутом: шагов у сотрудника может быть несколько.
+            for entry in trace[len(state["trace"]):]:
+                sp.add_event("react", {"thought": entry["thought"], "action": entry["action"],
+                                       "observation": entry["observation"]})
+            sp.set_attribute("effective_roles", ",".join(effective))
+            sp.set_attribute("found", len(found))
 
         blocks, sources, contexts, notes = build_context(found)
         draft = self._draft(role, state["question"], blocks) if found else ""
@@ -257,12 +278,21 @@ class Platform:
         """Вывод одного сотрудника. Промпт роли + общие правила ответа."""
         context = "\n\n".join(blocks)
         if self.llm:
-            return self.llm.chat(role.mission + " " + ANSWER_RULES,
-                                 f"Контекст:\n{context}\n\nВопрос: {question}")
+            with telemetry.span("llm.generate", agent=role.id, model=settings.llm_model,
+                                context_chars=len(context)):
+                return self.llm.chat(role.mission + " " + ANSWER_RULES,
+                                     f"Контекст:\n{context}\n\nВопрос: {question}")
         return f"(демо без LLM) {role.title}, наиболее релевантный пункт:\n\n{blocks[0]}"
 
     def _synthesize(self, state: Dossier) -> dict:
         """Супервизор сводит досье в один ответ и снимает дубли источников."""
+        with telemetry.span("supervisor.synthesize", findings=len(state["findings"])) as sp:
+            result = self._merge_dossier(state)
+            sp.set_attribute("sources", len(result["sources"]))
+            sp.set_attribute("cancellation_flagged", bool(result["graph_notes"]))
+            return result
+
+    def _merge_dossier(self, state: Dossier) -> dict:
         blocks, sources, contexts, notes, owner = [], [], [], [], {}
         seen = set()
         for f in state["findings"]:
@@ -306,7 +336,9 @@ class Platform:
     def _merge(self, question: str, drafts: list) -> str:
         sections = "\n\n".join(f"{d['title']}: {d['draft']}" for d in drafts)
         if self.llm:
-            return self.llm.chat(SUPERVISOR_SYSTEM, f"Вопрос: {question}\n\nВыводы:\n{sections}")
+            with telemetry.span("llm.merge", model=settings.llm_model, drafts=len(drafts)):
+                return self.llm.chat(SUPERVISOR_SYSTEM,
+                                     f"Вопрос: {question}\n\nВыводы:\n{sections}")
         return sections
 
     # ------------------------------------------------------------------ API
@@ -314,7 +346,11 @@ class Platform:
         # Guardrail — до запуска графа: отклонённый запрос не должен создавать
         # checkpoint. Иначе отравленный ввод осел бы в долговечном состоянии и
         # вернулся при возобновлении потока (ASI06 — отравление памяти).
-        check_input(question)
+        try:
+            check_input(question)
+        except ValueError:
+            telemetry.GUARDRAIL_BLOCKS.labels("input").inc()
+            raise
         ctx = RequestContext.of(roles, subject)
 
         init: Dossier = {
@@ -324,8 +360,25 @@ class Platform:
             "degraded": "", "answer": "", "sources": [], "contexts": [], "graph_notes": [],
         }
         # thread_id = request_id: состояние обращения адресуется тем же ключом,
-        # что и записи аудита.
-        final = self.app.invoke(init, config={"configurable": {"thread_id": ctx.request_id}})
+        # что и записи аудита, и тем же — трейс в Jaeger (ADR-0017).
+        with telemetry.request_span("agents.ask", ctx.request_id, path="mas",
+                                    subject=ctx.subject, roles=",".join(ctx.roles),
+                                    question=telemetry.content(question)) as root:
+            final = self.app.invoke(init, config={"configurable": {"thread_id": ctx.request_id}})
+
+            telemetry.AGENT_STEPS.observe(final["steps"])
+            root.set_attribute("route", ",".join(final["routing"].get("route", [])))
+            root.set_attribute("steps", final["steps"])
+            root.set_attribute("tool_calls", final["tool_calls"])
+            root.set_attribute("tokens_estimate", final["tokens"])
+            root.set_attribute("degraded", final["degraded"] or "")
+            if final["sources"]:
+                from_graph = any(s["relation"] != "ВЕКТОР" for s in final["sources"])
+                Sufler._record(root, "mas", final["sources"], from_graph,
+                               bool(final["graph_notes"]))
+            else:
+                telemetry.ACL_DENIALS.labels("mas").inc()
+                root.set_attribute("outcome", "no_access")
 
         return {
             "answer": final["answer"],

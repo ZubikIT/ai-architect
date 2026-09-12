@@ -20,9 +20,36 @@ processors:
         action: delete
       - key: http.request.header.authorization
         action: delete
-  # полные трейсы для ошибок и медленных запросов, сэмплирование для остальных
-  probabilistic_sampler:
-    sampling_percentage: 20
+  # ADR-0017 требует «полные трейсы для ошибок и медленных запросов, сэмплирование
+  # для остальных» — это tail-based решение: судить о трейсе можно только когда он
+  # закончился. Плоский probabilistic_sampler, стоявший здесь раньше, резал 80 %
+  # трейсов на входе, и request_id из ответа в четырёх случаях из пяти не
+  # находился в Jaeger — на демо это выглядит как «трейсинга нет».
+  tail_sampling:
+    decision_wait: 5s
+    num_traces: 50000
+    expected_new_traces_per_sec: 10
+    policies:
+      - name: errors
+        type: status_code
+        status_code:
+          status_codes: [ERROR]
+      - name: slow
+        type: latency
+        latency:
+          threshold_ms: 2000
+      # Отказ по правам и блок guardrail — материал для разбора инцидента
+      # (ADR-0016: отказ такое же событие аудита, как выдача). Не сэмплируем.
+      - name: security-relevant
+        type: string_attribute
+        string_attribute:
+          key: outcome
+          values: [no_access, blocked]
+      # Остальное: в dev/demo — всё, в контуре процент снижается.
+      - name: rest
+        type: probabilistic
+        probabilistic:
+          sampling_percentage: ${env:OTEL_SAMPLING_PERCENT}
 
 exporters:
   otlp/jaeger:
@@ -36,7 +63,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [attributes/scrub, probabilistic_sampler, batch]
+      processors: [attributes/scrub, tail_sampling, batch]
       exporters: [otlp/jaeger]
     metrics:
       receivers: [otlp]

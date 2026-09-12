@@ -11,11 +11,14 @@ ENV PIP_NO_CACHE_DIR=1 \
     SUFLER_RERANK_MODEL=cross-encoder/ms-marco-MiniLM-L-6-v2 \
     SUFLER_DATA_DIR=/app/data/lpa
 
-COPY requirements.txt .
 # CPU-only torch: сервису не нужен GPU (эмбеддер/реранкер на CPU, LLM внешний).
 # Иначе pip тянет CUDA-сборку torch + nvidia-* (~6-7 ГБ). С CPU-торчем образ ~2-2.5 ГБ.
-RUN pip install torch --index-url https://download.pytorch.org/whl/cpu \
- && pip install -r requirements.txt
+# Отдельным слоем от requirements.txt: правка зависимости приложения не должна
+# заново тянуть ~200 МБ torch — это минуты сборки на каждой итерации.
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 # Пред-загрузка моделей в образ (чтобы в проде не ходить в интернет).
 RUN python -c "from sentence_transformers import SentenceTransformer, CrossEncoder; import os; SentenceTransformer(os.environ['SUFLER_EMBED_MODEL']); CrossEncoder(os.environ['SUFLER_RERANK_MODEL'])"

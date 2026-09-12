@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from prometheus_client import Counter, Histogram, make_asgi_app
 
+from . import telemetry
 from .config import settings
 from .rag import Sufler
 
@@ -17,6 +18,7 @@ _platform = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    telemetry.setup()          # экспорт спанов включается только при OTEL_EXPORTER_OTLP_ENDPOINT
     yield
     # Соединение с графом закрывается на остановке сервиса: иначе драйвер Neo4j
     # доживает до сборщика мусора, а пул сокетов — до перезапуска пода.
@@ -42,7 +44,10 @@ SUFLER_LATENCY = Histogram(
 
 @app.middleware("http")
 async def _metrics_middleware(request: Request, call_next):
-    if request.url.path == "/metrics":  # не считаем сам скрейп
+    # Скрейп не должен выглядеть трафиком: приложение смонтировано на "/metrics",
+    # но отдаётся по "/metrics/" (mount редиректит 307), и точное сравнение пути
+    # пропускало скрейп в счётчик — на малом трафике он там доминировал.
+    if request.url.path.startswith("/metrics"):
         return await call_next(request)
     start = time.perf_counter()
     status = 500
@@ -110,8 +115,12 @@ def subject_of(request: Request, body_roles=("all",)):
         return tuple(body_roles), "anonymous"      # dev-режим доверенного контура
     from .auth import AuthError
     try:
+        # Проверка токена сознательно вне трейса обращения: трейс адресуется
+        # request_id (ADR-0017), а у отклонённого запроса его ещё нет и не будет.
+        # Отказы видны метрикой — она же кормит алерт на всплеск 401.
         ctx = verifier.context(request.headers.get("authorization", ""))
     except AuthError as e:
+        telemetry.AUTH_FAILURES.labels(str(e)[:40]).inc()
         # Наружу — факт отказа, без подробностей о том, какая проверка не прошла.
         raise HTTPException(status_code=401, detail=str(e),
                             headers={"WWW-Authenticate": "Bearer"})

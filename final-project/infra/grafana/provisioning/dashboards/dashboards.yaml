@@ -1,0 +1,14 @@
+# Дашборды подкладываются файлами, а не кликами: пересоздание стенда не должно
+# означать повторную ручную сборку панелей (урок 18, «всё в IaC»).
+apiVersion: 1
+
+providers:
+  - name: platform
+    folder: Платформа цифровых сотрудников
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

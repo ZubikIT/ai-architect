@@ -98,6 +98,10 @@ services:
     image: otel/opentelemetry-collector-contrib:latest
     profiles: [obs]
     command: ["--config=/etc/otel/config.yaml"]
+    environment:
+      # dev/demo: трейсы не сэмплируются, чтобы request_id из ответа всегда
+      # находился в Jaeger. В контуре значение снижается (ADR-0017).
+      OTEL_SAMPLING_PERCENT: ${OTEL_SAMPLING_PERCENT:-100}
     volumes:
       - ./otel-collector.yaml:/etc/otel/config.yaml:ro
     ports:
@@ -118,6 +122,10 @@ services:
     command:
       - "--promscrape.config=/etc/vm/scrape.yml"
       - "--retentionPeriod=3"
+    environment:
+      # scrape.yml разворачивает их как %{...} — см. комментарий в файле
+      VLLM_METRICS_TARGET: ${VLLM_METRICS_TARGET:-host.docker.internal:8000}
+      GPU_EXPORTER_TARGET: ${GPU_EXPORTER_TARGET:-host.docker.internal:9835}
     volumes:
       - ./scrape.yml:/etc/vm/scrape.yml:ro
       - vm-data:/victoria-metrics-data
@@ -133,6 +141,10 @@ services:
       GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
     volumes:
       - grafana-data:/var/lib/grafana
+      # Датасорс и дашборды — кодом, а не кликами: пересоздание стенда не должно
+      # означать повторную ручную сборку панелей (урок 18).
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     ports:
       - "${GRAFANA_PORT:-3000}:3000"
     depends_on:
