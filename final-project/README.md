@@ -115,7 +115,7 @@
 - [x] **Streaming (SSE)** → `POST /ask/stream`, [`test_streaming.py`](backend/tests/test_streaming.py) — источники уходят раньше текста, пометка об отмене отдельным событием, маска ПДн на потоке
 - [x] **Нагрузочный отчёт** (RPS / latency) → [`docs/load-report.md`](docs/load-report.md), [методика](docs/load/methodology.md), [сырые замеры](docs/load/raw.json) — узкое место реранк (76–90 %), граф ~1 %, накладные расходы MAS 0,8 %; ёмкость реплики 4 клиента по SLO ADR-0017
 - [ ] Видео-демо 5–7 мин
-- [x] **Презентация для защиты** → [`docs/presentation.md`](docs/presentation.md) — 24 слайда по шаблону OTUS с диаграммами, замерами, честным списком «чего нет» и дорожной картой; в каждом слайде заметки докладчику _(вёрстка в PDF/PPTX — за автором, тулчейна на машине нет)_
+- [x] **Презентация для защиты** → [`docs/presentation.md`](docs/presentation.md) — 24 слайда по шаблону OTUS с диаграммами, замерами, честным списком «чего нет» и дорожной картой; в каждом слайде заметки докладчику → [`presentation.pdf`](docs/presentation.pdf), 26 слайдов 16:9; пересобрать: `./scripts/md-to-slides.sh final-project/docs/presentation.md`
 - [ ] Голос (STT/TTS) — [ADR-0010](docs/adr/0010-voice-stack.md), опциональное расширение вне требований ТЗ
 
 ## Структура (monorepo по формату сдачи)

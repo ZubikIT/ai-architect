@@ -1,0 +1,109 @@
+/* Слайды 16:9 для печати в PDF. Оформление по гайду шаблона OTUS:
+   Roboto, «одна мысль — один слайд», фирменный фиолетовый акцент.
+   Вся раскладка статическая, без JS: печать тогда детерминирована. */
+
+@page { size: 1600px 900px; margin: 0; }
+
+:root {
+  --ink: #1a1a2e;
+  --accent: #6f42c1;
+  --muted: #5a5a6e;
+  --line: #e3e3ee;
+  --bg-soft: #faf8ff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  font-family: "Roboto", "Noto Sans", system-ui, sans-serif;
+  color: var(--ink); background: #fff;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+body { counter-reset: slide; }
+
+.slide {
+  width: 1600px; height: 900px;
+  padding: 64px 88px;
+  page-break-after: always; break-after: page;
+  overflow: hidden;
+  display: flex; flex-direction: column; justify-content: flex-start;
+  position: relative;
+}
+.slide:last-child { page-break-after: auto; }
+
+/* Титульный слайд — единственный с заголовком первого уровня */
+.slide h1 {
+  font-size: 58px; line-height: 1.12; font-weight: 700;
+  color: var(--accent); margin: 170px 0 28px;
+}
+
+.slide h2 {
+  font-size: 42px; line-height: 1.15; font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 28px; padding-bottom: 14px;
+  border-bottom: 4px solid var(--line);
+}
+
+.slide h3 { font-size: 26px; color: var(--muted); margin: 18px 0 8px; }
+
+.slide p, .slide li { font-size: 26px; line-height: 1.35; margin: 0 0 14px; }
+.slide ul, .slide ol { margin: 0 0 14px; padding-left: 34px; }
+.slide li { margin-bottom: 10px; }
+
+.slide strong { color: var(--accent); font-weight: 700; }
+
+/* Таблица — основной носитель содержания в этой деке */
+.slide table {
+  width: 100%; border-collapse: collapse;
+  font-size: 22px; line-height: 1.25; margin: 6px 0 14px;
+}
+.slide th {
+  background: #f4f2fb; border-bottom: 3px solid var(--accent);
+  padding: 10px 14px; text-align: left; font-size: 21px;
+}
+.slide td { border-bottom: 1px solid var(--line); padding: 9px 14px; vertical-align: top; }
+
+/* Цитата — акцентная мысль слайда */
+.slide blockquote {
+  margin: 16px 0; padding: 16px 24px;
+  background: var(--bg-soft); border-left: 6px solid var(--accent);
+  font-size: 26px; line-height: 1.3;
+}
+.slide blockquote p:last-child { margin-bottom: 0; }
+
+.slide pre {
+  margin: 8px 0 14px; padding: 18px 22px;
+  background: #f7f7fa; border: 1px solid var(--line); border-radius: 8px;
+  font-size: 19px; line-height: 1.35; overflow: hidden;
+}
+.slide code {
+  font-family: "Roboto Mono", "DejaVu Sans Mono", ui-monospace, monospace;
+  font-size: .92em;
+}
+.slide p code, .slide li code, .slide td code {
+  background: #f2f0fa; padding: 1px 6px; border-radius: 4px;
+}
+
+/* Диаграммы: вписываем целиком, не растягивая */
+.slide figure { margin: 0; text-align: center; flex: 1; min-height: 0; }
+.slide figure img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+/* Номер слайда */
+.slide::after {
+  counter-increment: slide; content: counter(slide);
+  position: absolute; right: 44px; bottom: 28px;
+  font-size: 18px; color: var(--muted);
+}
+
+/* Титульный слайд — первый: центрируем по вертикали и даём заголовку воздух */
+.slide:first-child { justify-content: center; }
+.slide:first-child h2 {
+  font-size: 54px;
+  border-bottom: none;
+  margin-bottom: 20px;
+  padding-bottom: 0;
+}
+.slide:first-child p { font-size: 28px; }
+.slide:first-child p:first-of-type { color: var(--muted); margin-bottom: 28px; }
