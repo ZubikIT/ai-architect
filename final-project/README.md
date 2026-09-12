@@ -1,26 +1,24 @@
 # Финальный проект
 
 > **Тема работы: «Мультиагентная платформа цифровых корпоративных сотрудников»**
-> Источник ТЗ: занятие [32 «Выбор темы и организация проектной работы»](sessions/32-vybor-temy.md) (Андрей Носов, 28.08.2026). Предварительный бриф (Елена, чат курса) заменён уточнённым ТЗ из ЛК.
+> Источник ТЗ: занятие [32 «Выбор темы и организация проектной работы»](sessions/32-vybor-temy.md) (Андрей Носов, 28.08.2026).
+> Название варианта в ЛК: *«Построение защищённой платформы мультимодального анализа корпоративных знаний с использованием графовых подходов»*.
 
-## Задача
+## Главное отличие этой работы
 
-Спроектировать и реализовать **MVP производственного конвейера (End-to-End Pipeline)** для извлечения знаний из **неструктурированных данных** (сканы, чертежи, сложные PDF) в закрытом контуре.
+**Проект описывает не вымышленный контур, а работающую платформу.** Предмет — **закрытый контур ZubrIQ**: платформа доступа к языковым моделям в юрисдикции РБ, которая обслуживает реальных клиентов, считает потребление и выставляет счета в BYN. Полное описание as-is — [`../zubriq-platform/`](../zubriq-platform/README.md).
 
-Роль — **Platform Engineer & AI Architect**. Система работает **полностью автономно (On-premise / Air-gapped)**, без внешних API (OpenAI / Anthropic). Две проблемы, которые обязана решить архитектура:
+Отсюда три особенности пакета:
 
-1. **Галлюцинации и потеря контекста** → **GraphRAG** (нейро-символический подход);
-2. **Разграничение доступа** → **Security-by-Design** на уровне **чанков / узлов графа**.
+1. **ADR фиксируют решения, принятые в проде**, а не гипотезы. У каждого названа цена, а не только выгода.
+2. **Расхождения не замазываются.** Где ранние проектные решения не выжили при встрече с реальностью — это записано; карта в [`docs/adr-audit.md`](docs/adr-audit.md).
+3. **Состояние компонентов подписано честно:** что работает в платформе, что собрано в [`backend/`](backend/) и ждёт встраивания, чего нет вовсе.
 
-Официальное название варианта в ЛК: *«Построение защищённой платформы мультимодального анализа корпоративных знаний с использованием графовых подходов»*. Моя реализация добавляет поверх графового ядра мультиагентный слой — **цифровые сотрудники** (роли-агенты с собственными правами и инструментами).
+### Про облачные модели и критерий приёмки
 
-## Структура оценки
+Критерий ТЗ: «не принято, если используются облачные API». Платформа **гибридная** — рядом с закрытым контуром есть коммерческий внешний режим через одного агрегатора.
 
-| Блок | Содержание | Вес |
-|---|---|---|
-| **1. Architecture & Design** | Полный пакет проектной документации + диаграммы (ADR с trade-off) | **40 %** |
-| **2. Infrastructure & Stack** | Обоснованный выбор стека (актуальность 2026) | не указан |
-| **3. Implementation (MVP)** | Реализация по одной из тем (Cognitive / Advanced RAG / Security) | не указан |
+**Предметом проекта объявляется закрытый контур:** свои модели на своём инференсе, нулевой egress. Внешнее плечо отсекается **правами ключа** — проверка стоит в шлюзе до обращения к вендору ([ADR-0020](docs/adr/0020-dva-rezhima-dostupa.md)). Это не переименование ради сдачи: граница физическая, проходит по конкретному полю конкретного компонента и проверяется одним взглядом на ключ.
 
 ---
 
@@ -28,117 +26,111 @@
 
 | Диаграмма | Обязательное содержание | Статус |
 |---|---|---|
-| **C4 L1 — Context** | интеграция в ландшафт: ERP, CRM, User Channels | [x] [`docs/diagrams/c4.md`](docs/diagrams/c4.md) |
-| **C4 L2 — Container** | API Gateway, Vector DB, LLM Serving Engine, Orchestrator, Frontend | [x] +Neo4j, Control/Data Plane, Observability |
-| **C4 L3 — Component** | внутреннее устройство агента: Memory, Planner, Tools interface | [x] под MAS: RequestContext, supervisor, роли, Repository |
-| **Deployment** | GPU-ресурсы, балансировка, сегментация сети (DMZ / Internal), секреты (Vault) | [x] Internal разделён на Control/Data Plane |
-| **Sequence** | `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response` | [x] [`docs/diagrams/sequence-er.md`](docs/diagrams/sequence-er.md) |
-| **ER** | векторы, чанки, история сессий, логи, права доступа (RBAC) | [x] _(дополнить схемой графа и полями провенанса)_ |
-| **Data Flow** | поток данных ingestion → граф → retrieval → ответ | [x] [`docs/diagrams/data-flow.md`](docs/diagrams/data-flow.md) |
-| **ADR-пакет** | ключевые решения с trade-off анализом | [x] **18 ADR** → [`docs/adr/`](docs/adr/) — пакет закрыт |
+| **C4 L1 — Context** | интеграция в ландшафт: ERP, CRM, каналы пользователя | [x] [`c4.md`](docs/diagrams/c4.md) — перечёркнутая стрелка наружу как главное ограничение |
+| **C4 L2 — Container** | API Gateway, Vector DB, LLM Serving, Orchestrator, Frontend | [x] реальные компоненты, Control/Data Plane, пунктиром то, что не встроено |
+| **C4 L3 — Component** | внутреннее устройство агента: Memory, Planner, Tools | [x] супервизор, роли, инструментальный слой, досье и checkpointer |
+| **Deployment** | GPU-ресурсы, балансировка, сегментация, секреты | [x] кластер, GPU-бокс, смешанная топология как есть |
+| **Sequence** | `User → Guardrails → Rerank → Agent Loop → Tools → Response` | [x] [`sequence-er.md`](docs/diagrams/sequence-er.md) — плюс два шага безопасности до всего остального |
+| **ER** | векторы, чанки, сессии, логи, права | [x] с графом, провенансом и биллингом |
+| **Data Flow** | ingestion → граф → retrieval → ответ | [x] [`data-flow.md`](docs/diagrams/data-flow.md) — плюс классификация данных |
+| **ADR-пакет** | ключевые решения с trade-off | [x] **26 ADR** → [`docs/adr/`](docs/adr/), из них 8 приняты в проде |
 
-## Блок 2. Infrastructure & Stack (2026)
+## Блок 2. Infrastructure & Stack
 
-Выбор каждого компонента обосновывается в **ADR (trade-off analysis)**.
-
-| Слой | Требование ТЗ | Решение | ADR |
+| Слой | Требование ТЗ | Как в работающей платформе | ADR |
 |---|---|---|---|
-| **LLM Serving** | vLLM / SGLang / TGI; квантование (AWQ/GGUF для Consumer GPU), KV-cache optimization | vLLM, FP8 на 2× H100 NVL | [0003](docs/adr/0003-llm-serving-engine.md), [0006](docs/adr/0006-kvantovanie-i-sizing-gpu.md) |
-| **Models** | Open Source с RU: Qwen 2.5/3, DeepSeek-V3, T-lite/Saiga | Qwen3.5-27B (текст) + Qwen3-VL с адаптером Zubr (разбор страниц-исключений) | [0002](docs/adr/0002-vybor-modeli.md), [0014](docs/adr/0014-multimodalnyy-ingestion.md) |
-| **Vector DB** | self-hosted: Qdrant / Milvus / Weaviate | Qdrant | [0004](docs/adr/0004-vector-db.md) |
-| **Graph DB** | Neo4j (образ в материалах ЛК) | Neo4j Community 5.x + гибрид с Qdrant | [0012](docs/adr/0012-graph-db.md), [0013](docs/adr/0013-graphrag-strategiya.md) |
-| **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph — реализовано ([`mas.py`](backend/sufler/mas.py)) | [0005](docs/adr/0005-orchestration.md), [0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) |
-| **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | OTel → Jaeger (реализовано), VictoriaMetrics + Grafana (дашборд как код); Langfuse — спроектирован | [0017](docs/adr/0017-observability.md) |
+| **Шлюз моделей** | — | **центр платформы**: ключи, бюджеты, учёт, каталог, граница контура | [0019](docs/adr/0019-shlyuz-modeley-kak-centr-platformy.md), [0020](docs/adr/0020-dva-rezhima-dostupa.md) |
+| **LLM Serving** | vLLM / SGLang / TGI, квантование | vLLM **нативно из systemd**, без контейнера — контроль над VRAM | [0003](docs/adr/0003-llm-serving-engine.md) |
+| **Models** | Open Source с RU | MoE 35B при ~3B активных, AWQ, tensor-parallel на 4 картах | [0002](docs/adr/0002-vybor-modeli.md), [0006](docs/adr/0006-kvantovanie-i-sizing-gpu.md) |
+| **Vector DB** | self-hosted | Qdrant в контуре | [0004](docs/adr/0004-vector-db.md) |
+| **Graph DB** | Neo4j | **спроектирован и собран, в платформу не встроен** | [0012](docs/adr/0012-graph-db.md), [0013](docs/adr/0013-graphrag-strategiya.md) |
+| **Orchestration** | LangGraph, линейные цепочки запрещены | LangGraph — реализовано в [`backend/`](backend/), встраивание предстоит | [0005](docs/adr/0005-orchestration.md), [0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) |
+| **Identity** | — | Keycloak с федерацией каталога, группы в токене | [0021](docs/adr/0021-identifikaciya-keycloak-federaciya.md) |
+| **Состояние** | — | PostgreSQL HA: ключи, потребление, checkpointer | [0022](docs/adr/0022-ha-postgresql-dlya-klyuchey-i-spenda.md) |
+| **Доставка** | — | кластер Talos + GitOps после инцидента с простоем шлюза | [0024](docs/adr/0024-klaster-i-gitops.md) |
+| **Observability** | OTel, Prometheus / Grafana | трассировка LLM и метрики **есть**, сквозного трейсинга **нет** | [0017](docs/adr/0017-observability.md) |
 
-**Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). [ACL на узлах графа](docs/adr/0016-acl-na-uzlah-grafa.md) · [мультимодальный ingestion](docs/adr/0014-multimodalnyy-ingestion.md) · [топология MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) · [Observability](docs/adr/0017-observability.md) · [security testing](docs/adr/0018-security-testing.md) — **ADR-пакет закрыт** (18 решений).
+## Блок 3. Implementation
 
-## Блок 3. Implementation (MVP)
+- [x] **C. Security** — граница контура правами ключа, роли из подписи, guardrails, ACL на уровне чанков и узлов
+- [x] **B. Advanced RAG** — GraphRAG в [`backend/`](backend/): граф связей, обход с ACL, контрольный замер без графа
+- [x] **A. Cognitive Architecture** — супервизор и роли-агенты на LangGraph, там же
+- [ ] **Мультимодальный ingestion** — VL-модель в каталоге платформы есть, конвейера разбора нет
 
-- [x] **B. Advanced RAG** — **GraphRAG** (обязателен) + мультимодальный ingestion сканов/чертежей
-- [x] **A. Cognitive Architecture** — Multi-Agent Collaboration: supervisor + роли-агенты (цифровые сотрудники) на LangGraph — реализовано, [`backend/sufler/mas.py`](backend/sufler/mas.py)
-- [x] **C. Security** — Input/Output Guardrails (PII, prompt injection) + ACL на уровне узлов графа
-
-Дизайн ядра и доменная часть (корпус ЛПА, ingestion, hybrid search) — [`docs/mvp.md`](docs/mvp.md); «Суфлёр» становится одним из цифровых сотрудников платформы.
-
-**Рекомендации ТЗ:** модель не обучать (брать pre-trained); онтологию начинать с 3–4 типов узлов; при нехватке VRAM — offloading на CPU или аренда GPU (Yandex DataSphere / Cloud.ru) на пару часов для записи демо.
+> **Честно о состоянии.** Пункты B и A существуют как компоненты с тестами, но **в платформу ещё не встроены**: у неё сегодня векторный retrieval без графа и без агентного слоя. Встраивание — первый пункт дорожной карты, и это подключение, а не переписывание: тот же Qdrant, те же группы Keycloak, тот же шлюз как вход.
 
 ---
 
-## Критерии оценки
+## Критерии приёмки
 
 **«Не принято», если:**
-- [ ] используются облачные API (OpenAI / Anthropic) — ✅ исключено ([ADR-0001](docs/adr/0001-on-premise-self-hosted-llm.md))
-- [x] отсутствует диаграмма **Deployment** или **Data Flow** — ✅ обе есть ([Deployment](docs/diagrams/c4.md#deployment), [Data Flow](docs/diagrams/data-flow.md))
-- [x] **нет реализации GraphRAG** (простой векторный поиск не принимается) — ✅ реализовано: [`backend/sufler/graph.py`](backend/sufler/graph.py), [`graphrag.py`](backend/sufler/graphrag.py); эффект доказан тестом с контрольным замером
+- [x] используются облачные API — ✅ предмет проекта — закрытый контур, граница обеспечена [ADR-0020](docs/adr/0020-dva-rezhima-dostupa.md)
+- [x] отсутствует **Deployment** или **Data Flow** — ✅ обе есть
+- [x] **нет реализации GraphRAG** — ✅ [`graph.py`](backend/sufler/graph.py), [`graphrag.py`](backend/sufler/graphrag.py); польза доказана контрольным замером
 
 **Критично:**
-- [x] **Security** — User B не получает ответ по секретному документу — ✅ автотест [`test_graphrag.py`](backend/tests/test_graphrag.py) (проверяется и контекст LLM, не только ответ); роли берутся из подписанного токена, а не из тела запроса — [`test_auth.py`](backend/tests/test_auth.py)
-- [x] **Architecture** — явное разделение **Control Plane** / **Data Plane** ✅ в [C4 L2](docs/diagrams/c4.md#c2--containers), [C3](docs/diagrams/c4.md#c3--components-agent-internals--langgraph), [Deployment](docs/diagrams/c4.md#deployment) и [Data Flow](docs/diagrams/data-flow.md) — осталось подтвердить реализацией
-- [x] **Stack** — LangGraph / state machine, а не линейные скрипты — ✅ супервизор ⇄ роли-агенты с циклом, ветвлением, лимитами и checkpointer: [`backend/sufler/mas.py`](backend/sufler/mas.py); структура графа выполнения проверяется тестом `test_execution_graph_has_branch_and_cycle`
+- [x] **Security** — «User B» не получает закрытый документ: автотест проверяет **контекст LLM**, а не только текст ответа; роли берутся из подписанного токена
+- [x] **Architecture** — Control Plane / Data Plane разделены и в диаграммах, и в коде
+- [x] **Stack** — LangGraph: цикл, ветвление, лимиты, checkpointer; структура графа выполнения проверяется тестом
 
 **Желательно:**
-- [x] потоковый ответ (Streaming) — `POST /ask/stream`, SSE: `meta` → `sources` → `token` → `note` → `done`
-- [x] unit-тесты на промпты — golden set из 14 кейсов с гейтами приёмки ([`docs/eval-report.md`](docs/eval-report.md)); метрики считаются без LLM, **LLM-as-a-Judge** подключается отдельной моделью и без GPU не прогонялся
+- [x] потоковый ответ — SSE
+- [x] unit-тесты на промпты — golden set с гейтами приёмки
+
+## Артефакты
+
+| Что | Где |
+|---|---|
+| **ADR-пакет** — 26 решений | [`docs/adr/`](docs/adr/) |
+| **Сверка ADR с реальностью** | [`docs/adr-audit.md`](docs/adr-audit.md) |
+| Диаграммы: C4, Deployment, Data Flow, Sequence, ER | [`docs/diagrams/`](docs/diagrams/) |
+| Vision & Goals, требования | [`docs/vision-goals.md`](docs/vision-goals.md), [`docs/requirements.md`](docs/requirements.md) |
+| Экономика | [`docs/economics/tco.md`](docs/economics/tco.md) |
+| **Нагрузочный отчёт** | [`docs/load-report.md`](docs/load-report.md) — узкое место реранк 76 %, граф ~1 % |
+| **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0 |
+| **Презентация защиты** | [`docs/presentation.pdf`](docs/presentation.pdf) |
+| Код компонентов | [`backend/`](backend/) — 75 тестов |
+| Развёртывание компонентов | [`infra/`](infra/) — compose, профили `core` и `obs` |
+| **Описание платформы as-is** | [`../zubriq-platform/`](../zubriq-platform/README.md) |
+
+## Чего нет — списком
+
+Ни один пункт не «почти готов»:
+
+- **мультимодальный ingestion** — спроектирован, конвейера нет
+- **граф и агентный слой в платформе** — собраны, не встроены
+- **сквозной трейсинг** через продукты
+- **faithfulness / RAGAS** — нужен судья, отличный от отвечающей модели
+- **алерты с runbook'ами** — ADR-0017 требует runbook, его нет
+- **red teaming по методике занятия 33** — методика описана, не применялась
+- **ретеншн** диалогов, трассировок и логов не определён
+- **отзыв токена до истечения** — интроспекции нет
+
+## Дорожная карта
+
+1. Встроить граф и агентный слой в платформу — они уже совместимы по интерфейсам
+2. Перевернуть умолчание прав ключа: пусто = только свои модели
+3. Тест на схему БД шлюза в CI — иначе счета сломаются молча
+4. Реранк на ONNX в отдельный пул — 76 % латентности в одном компоненте
+5. Ретеншн и режим доступа к трассировке
+6. Мультимодальный ingestion: layout → OCR → VL с провенансом
+7. Red teaming с ASR-гейтом в CI
 
 ## Формат сдачи
 
 ```
-/infra      Helm charts или docker-compose — весь стек (DBs + Apps)
-/backend    код агентов (Python) + API
-/docs       архитектурная документация (ADD) в Markdown/PDF
+/infra      развёртывание компонентов (docker-compose, профили core и obs)
+/backend    код компонентов (Python) + API
+/docs       архитектурная документация: ADR, диаграммы, отчёты, презентация
 ```
 
-- **Видео-демо (Deep Dive) 5–7 мин** — заменено живой демонстрацией по презентации: трейс в Jaeger по `request_id`, граф в Neo4j Browser, дашборд Grafana, потоковый ответ. Стек поднимается `docker compose --profile core --profile obs up -d`.
-- **Нагрузочный отчёт** — ✅ [`docs/load-report.md`](docs/load-report.md): RPS и латентность на своём железе, разложение по шагам из трейсов, проверка SLO (методика — [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md)).
-- **Презентация защиты** — ✅ [`docs/presentation.md`](docs/presentation.md), структура по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf) (разбор — в [конспекте занятия 33](sessions/33-konsultaciya.md)).
-
----
-
-## Сводный чек-лист артефактов
-
-- [x] Vision & Goals → [`docs/vision-goals.md`](docs/vision-goals.md)
-- [x] Functional & Non-functional requirements → [`docs/requirements.md`](docs/requirements.md)
-- [x] C4 L1 / L2 / L3 + Deployment → [`docs/diagrams/c4.md`](docs/diagrams/c4.md) _(обновлены под граф, MAS, Control/Data Plane)_
-- [x] Sequence + ER → [`docs/diagrams/sequence-er.md`](docs/diagrams/sequence-er.md) _(дополнить схемой графа и провенансом)_
-- [x] **Data Flow диаграмма** (ingestion, query, границы доверия, классификация данных) → [`docs/diagrams/data-flow.md`](docs/diagrams/data-flow.md)
-- [x] ADR-пакет (**18 решений**, включая [Graph DB](docs/adr/0012-graph-db.md), [GraphRAG](docs/adr/0013-graphrag-strategiya.md), [ingestion](docs/adr/0014-multimodalnyy-ingestion.md), [MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), [ACL](docs/adr/0016-acl-na-uzlah-grafa.md), [Observability](docs/adr/0017-observability.md), [security testing](docs/adr/0018-security-testing.md)) → [`docs/adr/`](docs/adr)
-- [x] Экономическое обоснование (TCO, GPU-часы, лицензии) → [`docs/economics/tco.md`](docs/economics/tco.md)
-- [x] MVP: домен, ingestion ЛПА, hybrid RAG (этапы 1–2) → [`backend/`](backend/)
-- [x] **GraphRAG-ядро** (онтология, построение графа, graph-augmented retrieval) → [`backend/`](backend/) — **прогнан на живой Neo4j**: паритет с in-memory проверен тестом по всему корпусу для трёх наборов ролей; прогон вскрыл и закрыл 3 расхождения боевого бэкенда
-- [ ] **Мультимодальный ingestion** (сканы, чертежи, сложные PDF) — _спроектирован в [ADR-0014](docs/adr/0014-multimodalnyy-ingestion.md), не реализован_
-- [x] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph) → [`mas.py`](backend/sufler/mas.py), [`roles.py`](backend/sufler/roles.py), [`tools.py`](backend/sufler/tools.py) — 4 роли, детерминированная маршрутизация, least privilege на инструменте, лимиты и ReAct-trace _(замеры на golden set не сделаны → [ADR-0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) остаётся `proposed`)_
-- [x] **ACL на уровне узлов графа + тест «User B»** → [`access.py`](backend/sufler/access.py), [`test_graphrag.py`](backend/tests/test_graphrag.py)
-- [x] **Граница доверия: роли из проверенного JWT, а не из тела запроса** → [`auth.py`](backend/sufler/auth.py), [`test_auth.py`](backend/tests/test_auth.py) — подпись по JWKS, фиксированный список алгоритмов, негативные случаи (подмена `RS256→HS256`, `alg: none`, чужой `aud`/`iss`) _(против живого Keycloak не прогонялось)_
-- [x] **Observability**: OTel → Jaeger (`trace_id` = `request_id`), доменные метрики и дашборд Grafana как код → [`telemetry.py`](backend/sufler/telemetry.py), [`infra/grafana/`](infra/grafana/) — трейсы разложены по шагам, прогон вскрыл два молча сломанных конфига _(экспорт в Langfuse и метрики качества — не подключены)_
-- [x] Monorepo-раскладка `/infra`, `/backend`, `/docs` + [`docker-compose`](infra/docker-compose.yml) всего стека — профиль `core` поднят и проверен (Neo4j + Qdrant + PostgreSQL) _(пины образов по digest и профиль red teaming — TODO)_
-- [x] **Golden set и гейты приёмки** → [`docs/eval-report.md`](docs/eval-report.md), [`backend/eval/golden.yaml`](backend/eval/golden.yaml) — recall 1,0, нарушений ACL 0, точность маршрутизации 13/13; LLM-as-a-Judge подключается через `SUFLER_JUDGE_MODEL` (без GPU не замерено)
-- [x] **Streaming (SSE)** → `POST /ask/stream`, [`test_streaming.py`](backend/tests/test_streaming.py) — источники уходят раньше текста, пометка об отмене отдельным событием, маска ПДн на потоке
-- [x] **Нагрузочный отчёт** (RPS / latency) → [`docs/load-report.md`](docs/load-report.md), [методика](docs/load/methodology.md), [сырые замеры](docs/load/raw.json) — узкое место реранк (76–90 %), граф ~1 %, накладные расходы MAS 0,8 %; ёмкость реплики 4 клиента по SLO ADR-0017
-- [x] ~~Видео-демо 5–7 мин~~ — **заменено презентацией** (решение автора 12.09.2026): демонстрация идёт вживую на защите по [`docs/presentation.pdf`](docs/presentation.pdf), стек для показа поднимается локально
-- [x] **Презентация для защиты** → [`docs/presentation.md`](docs/presentation.md) — 24 слайда по шаблону OTUS с диаграммами, замерами, честным списком «чего нет» и дорожной картой; в каждом слайде заметки докладчику → [`presentation.pdf`](docs/presentation.pdf), 26 слайдов 16:9; пересобрать: `./scripts/md-to-slides.sh final-project/docs/presentation.md`
-- [ ] Голос (STT/TTS) — [ADR-0010](docs/adr/0010-voice-stack.md), опциональное расширение вне требований ТЗ
-
-## Структура (monorepo по формату сдачи)
-
-```
-final-project/
-├── infra/        docker-compose всего стека (DBs + Apps + observability)
-├── backend/      код сервиса и агентов (Python, FastAPI)
-├── docs/         архитектурная документация: ADR, диаграммы, требования, экономика
-└── sessions/     конспекты занятий проектного блока (32–36) и материалы ЛК
-```
-
-- [`infra/`](infra/) — [состав стека и запуск](infra/README.md)
-- [`backend/`](backend/) — RAG-сервис «Суфлёр» (этапы 1–2); станет одним из цифровых сотрудников платформы
-- [`docs/adr/`](docs/adr/) — 18 ADR · [`docs/diagrams/`](docs/diagrams/) — C4, Deployment, Data Flow, Sequence, ER · [`docs/economics/`](docs/economics/) — TCO · [`docs/mvp.md`](docs/mvp.md) — дизайн MVP
+- **Демонстрация** — вживую по презентации: граф в браузере Neo4j, трейс по `request_id`, дашборд, потоковый ответ.
+- **Нагрузочный отчёт** — [`docs/load-report.md`](docs/load-report.md), методика по [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md).
+- **Презентация** — [`docs/presentation.pdf`](docs/presentation.pdf), структура по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf).
 
 ## Открытые вопросы
 
-- [ ] Дедлайн сдачи (в ЛК не проставлен) и дата защиты (занятие 34).
+- [ ] Дедлайн сдачи и дата защиты в ЛК не проставлены.
 - [ ] Веса блоков 2 и 3 в общей оценке.
-- [ ] Обязательны ли датасеты из материалов ТЗ при наличии собственного корпуса ЛПА.
 - [ ] Достаточно ли `docker-compose` вместо Helm в `/infra`.
-- [ ] Глубина GraphRAG: гибрид «граф + вектор» с обходом 1–2 хопа vs community detection/summarization (Microsoft GraphRAG).
-- [ ] Формат и минимальный объём нагрузочного отчёта.
-
-**Закрыто уточнённым ТЗ:** ограничения по GPU (Consumer допустим при квантовании; offloading или аренда GPU для демо) · допустимость облака (для демо — да; облачные LLM-API — запрещены) · какие ERP/CRM на L1 (любые, в объёме контекста).
+- [ ] Глубина GraphRAG: гибрид «граф + вектор» vs community detection.

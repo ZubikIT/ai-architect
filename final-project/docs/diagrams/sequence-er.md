@@ -1,166 +1,167 @@
-# Sequence и ER — корпоративная AI-платформа
+# Sequence и ER
 
-> Дополняют [C4-диаграммы](c4.md). Стек — из ADR-пакета [`../docs/adr/`](../adr).
+> Обязательные по ТЗ диаграммы. Sequence — путь запроса от пользователя до ответа; ER — модель данных платформы. Описывают **закрытый контур работающей платформы**; шаги и сущности, которые собраны, но не встроены, подписаны.
 
-## Sequence — обработка сложного запроса (персональный агентный чат)
+## Sequence — путь запроса
 
-Поток по брифу: `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response`. Плоскость — Open WebUI + LangGraph-агент; общий LLM — Qwen3.5 (vLLM).
+Требование ТЗ: `User → Guardrails → Rerank → Agent Loop → Tool Execution → Response`. В реальной платформе перед этим есть ещё два шага, без которых остальное не имеет смысла: проверка подписи и проверка границы контура.
 
 ```mermaid
 sequenceDiagram
-  autonumber
-  actor U as Пользователь
-  participant W as Open WebUI
-  participant G as Guardrails (Pipeline)
-  participant A as Agent (LangGraph)
-  participant R as Retriever (hybrid+rerank)
-  participant Q as Qdrant
-  participant M as MCP-серверы
-  participant L as vLLM · Qwen3.5
-  participant P as Postgres (state/logs)
+    autonumber
+    actor U as Сотрудник
+    participant E as Периметр
+    participant A as API / Control Plane
+    participant K as Keycloak
+    participant G as Шлюз моделей
+    participant S as Супервизор
+    participant T as Инструмент (репозиторий)
+    participant Q as Qdrant
+    participant N as Neo4j
+    participant L as vLLM
+    participant J as Журнал и трассировка
 
-  U->>W: запрос (SSO-сессия)
-  W->>G: input-проверка
-  G->>G: PII / prompt-injection
-  alt запрос отклонён
-    G-->>W: блок + причина
-    W-->>U: вежливый отказ
-  else запрос допущен
-    G->>A: очищенный запрос
-    A->>A: Planner (ReAct / Plan-and-Execute)
-    A->>P: создать run, checkpoint
+    U->>E: вопрос (TLS)
+    E->>A: проксирование
+    A->>K: проверка подписи токена (JWKS)
+    K-->>A: claims: субъект, группы
+    Note over A: роли берутся из подписи,<br/>тело запроса на доступ не влияет
 
-    loop Agent Loop (до ответа или лимита шагов/бюджета)
-      A->>R: hybrid search (dense + BM25)
-      R->>Q: kNN + sparse (RBAC pre-filter)
-      Q-->>R: кандидаты
-      R->>R: rerank (cross-encoder)
-      R-->>A: top-k чанки
-      opt нужен инструмент/действие
-        A->>M: вызов инструмента (MCP)
-        opt необратимое действие
-          A->>U: запрос подтверждения (HITL)
-          U-->>A: подтверждено
-        end
-        M-->>A: результат
-      end
-      A->>L: generate(промпт + контекст + tool-results)
-      L-->>A: следующий шаг / черновик ответа
-      A->>P: checkpoint + лог шага (tokens, latency)
+    A->>A: guardrail на входе — инъекции
+    alt подозрение на инъекцию
+        A-->>U: 400, запрос отклонён
+        A->>J: событие блокировки
     end
 
-    A->>G: output-проверка (черновик)
-    G->>G: PII-маска, toxicity, faithfulness
-    G-->>W: финальный ответ
-    W-->>U: ответ (streaming)
-    W-)P: лог сессии/реплики (async)
-  end
+    A->>G: вызов с ключом субъекта
+    G->>G: ключ жив? бюджет? модель разрешена?
+    alt модель вне списка ключа
+        G-->>A: отказ до обращения к upstream
+        G->>J: событие отказа по границе контура
+    end
+
+    A->>S: поручение супервизору
+    Note over S: маршрутизация правилами;<br/>LLM-классификация только на промахах
+
+    loop по каждой роли-агенту (лимит шагов)
+        S->>T: поиск от имени роли
+        Note over T: права = права пользователя ∩ мандат роли
+        T->>Q: гибридный поиск с метками доступа
+        Q-->>T: кандидаты
+        T->>N: обход графа, ACL-предикат на каждом узле
+        N-->>T: связанные пункты: отмены, ссылки
+        T->>T: rerank
+        T-->>S: находки + пометки об отменах
+    end
+
+    S->>G: сведённый контекст
+    G->>L: генерация в контуре
+    L-->>G: ответ (стриминг)
+    G->>J: потребление: токены, стоимость, ключ, модель
+    G-->>A: ответ
+    A->>A: guardrail на выходе — маска ПДн
+    A-->>U: ответ с цитатами и предупреждением об отменах
+    A->>J: событие выдачи: субъект, источники, request_id
 ```
+
+Что эта диаграмма обязана донести:
+
+- **Два шага безопасности стоят раньше всего остального** — подпись и граница контура. Отказ на них происходит до того, как что-либо ушло наружу или было прочитано из знаний.
+- **Цикл агентов ограничен** — лимит шагов и вызовов инструментов; исчерпание даёт объяснимую деградацию.
+- **Сужение прав происходит в инструменте** на каждом шаге, а не один раз на входе.
+- **Журналируются и выдачи, и отказы** — с одним идентификатором обращения, который совпадает с идентификатором трассы.
+
+> Шаги 14–22 (супервизор, обход графа) собраны в [`backend/`](../../backend/) и покрыты тестами; в платформу встраиваются — см. [сверку](../adr-audit.md).
 
 ## ER — модель данных
 
-Векторы физически живут в **Qdrant** (ADR-0004); реляционная модель хранит метаданные, RBAC-права (permission-aware retrieval), сессии и аудит. `EMBEDDING.vector_ref` ссылается на point id в Qdrant.
-
 ```mermaid
 erDiagram
-  USER ||--o{ USER_ROLE : has
-  ROLE ||--o{ USER_ROLE : grants
-  USER ||--o{ SESSION : opens
-  USER ||--o{ AUDIT_LOG : generates
-  SESSION ||--o{ MESSAGE : contains
-  SESSION ||--o{ AGENT_RUN : triggers
-  AGENT_RUN ||--o{ TOOL_CALL : invokes
-  DOCUMENT ||--o{ CHUNK : split_into
-  CHUNK ||--|| EMBEDDING : has
-  DOCUMENT ||--o{ DOCUMENT_ACL : protected_by
-  ROLE ||--o{ DOCUMENT_ACL : allows
+    ORGANIZATION ||--o{ USER : "сотрудники"
+    ORGANIZATION ||--|| WALLET : "кошелёк"
+    ORGANIZATION ||--o{ INVOICE : "счета"
+    USER ||--o{ API_KEY : "ключи"
+    API_KEY ||--o{ SPEND_LOG : "потребление"
+    API_KEY }o--o{ MODEL : "разрешённые модели"
 
-  USER {
-    uuid id PK
-    string sso_subject
-    string email
-    string display_name
-    timestamp created_at
-  }
-  ROLE {
-    uuid id PK
-    string name
-  }
-  USER_ROLE {
-    uuid user_id FK
-    uuid role_id FK
-  }
-  DOCUMENT {
-    uuid id PK
-    string source
-    string external_id
-    string title
-    string acl_ref
-    timestamp updated_at
-  }
-  CHUNK {
-    uuid id PK
-    uuid document_id FK
-    int ordinal
-    text content
-    int token_count
-  }
-  EMBEDDING {
-    uuid id PK
-    uuid chunk_id FK
-    string model
-    int dim
-    string vector_ref
-    jsonb sparse_terms
-  }
-  DOCUMENT_ACL {
-    uuid document_id FK
-    uuid role_id FK
-    string permission
-  }
-  SESSION {
-    uuid id PK
-    uuid user_id FK
-    string channel
-    timestamp started_at
-  }
-  MESSAGE {
-    uuid id PK
-    uuid session_id FK
-    string role
-    text content
-    timestamp created_at
-  }
-  AGENT_RUN {
-    uuid id PK
-    uuid session_id FK
-    uuid message_id FK
-    string status
-    int steps
-    int tokens_total
-    int latency_ms
-    timestamp created_at
-  }
-  TOOL_CALL {
-    uuid id PK
-    uuid agent_run_id FK
-    string tool
-    jsonb input
-    jsonb output
-    uuid approved_by FK
-    timestamp created_at
-  }
-  AUDIT_LOG {
-    uuid id PK
-    uuid user_id FK
-    string action
-    string resource
-    timestamp ts
-  }
+    DOCUMENT ||--o{ CHUNK : "содержит"
+    CHUNK }o--o{ ROLE : "доступен роли"
+    DOCUMENT }o--o{ ROLE : "доступен роли"
+    CHUNK ||--o{ EMBEDDING : "вектор"
+    CHUNK }o--o{ CHUNK : "отменяет"
+    CHUNK }o--o{ DOCUMENT : "ссылается на"
+
+    USER ||--o{ SESSION : "диалоги"
+    SESSION ||--o{ MESSAGE : "сообщения"
+    MESSAGE }o--o{ CHUNK : "цитирует"
+
+    USER ||--o{ ACCESS_LOG : "обращения"
+    ACCESS_LOG }o--|| REQUEST : "request_id"
+    REQUEST ||--o{ TRACE_SPAN : "шаги"
+
+    ORGANIZATION {
+        uuid id
+        string name
+        string unp "УНП юрлица"
+    }
+    USER {
+        uuid id
+        string subject "sub из токена"
+        string[] groups "группы каталога"
+    }
+    API_KEY {
+        string key_id
+        uuid owner
+        decimal budget
+        string[] models "пусто = весь каталог (дефект, ADR-0020)"
+        timestamp expires_at
+    }
+    SPEND_LOG {
+        string key_id
+        string model
+        int tokens_in
+        int tokens_out
+        decimal cost
+        timestamp at
+    }
+    DOCUMENT {
+        string code "ЛПА-01"
+        string title
+        string[] acl_roles "материализованные права"
+        json cancels "что отменяет"
+    }
+    CHUNK {
+        int id
+        string doc_code
+        string ordinal "номер пункта"
+        text body
+        string[] acl_roles
+        string extracted_by "text | ocr | vl"
+        float confidence "провенанс"
+    }
+    ACCESS_LOG {
+        string request_id
+        string subject
+        string outcome "ok | no_answer | denied | blocked"
+        string[] sources
+        timestamp at
+    }
 ```
 
-### Заметки к модели
-- **RBAC / permission-aware (№ 99-З):** `DOCUMENT_ACL` + `USER_ROLE` → pre-filter в Qdrant по правам (пользователь не видит чужое); `AUDIT_LOG` — учёт доступа.
-- **Vectors / chunks:** `DOCUMENT → CHUNK → EMBEDDING`; вектор в Qdrant, метаданные и payload-фильтры — в реляционке (синхронизированы).
-- **Sessions / logs:** `SESSION → MESSAGE`, `AGENT_RUN → TOOL_CALL` — трейс агента (steps/tokens/latency) для отладки, FinOps и аудита; `TOOL_CALL.approved_by` фиксирует HITL.
-- **Onyx** ведёт собственную модель индекса для общих БЗ (ADR-0008); эта ER — для персональной/агентной плоскости (Qdrant + состояние).
+### Что в модели данных сделано намеренно
+
+**Права материализованы в двух местах сразу** — на документе и на чанке. Дублирование сознательное: предикат обязан работать и на векторном пути (фильтр по метке чанка), и на графовом (проверка на каждом узле, включая документ-владелец). Единая таблица связей потребовала бы join'а там, где нужен дешёвый фильтр.
+
+**Провенанс живёт на чанке**, а не на документе: одна страница может быть распознана моделью, а соседняя взята из текстового слоя. Без этого нельзя отличить цитату от результата распознавания.
+
+**`request_id` — сквозной ключ**: он же идентификатор трассы, он же ключ в журнале доступа, он же ключ состояния агентного цикла. Разбор инцидента идёт по одному значению, а не по сопоставлению времени.
+
+**Связи между чанками — отдельные сущности, а не поле.** «Отменяет» и «ссылается на» имеют собственные свойства (номер пункта, чем выведена связь) и обходятся графом, а не рекурсивным SQL.
+
+**Список разрешённых моделей у ключа** — то самое поле, которым проходит граница контура. Его дефект (пусто = всё) зафиксирован прямо в схеме, чтобы не потерялся.
+
+### Чего в модели нет
+
+- **Ретеншн**: у сессий, сообщений, журналов и трасс не определены сроки хранения.
+- **Версионирование документов**: хранится текущая редакция; история изменений ЛПА ведётся отменяющими документами, а не версиями чанков.
+- **Разделение арендаторов на уровне векторной базы**: ключ доступа к ней один на инстанс, изоляция потребителей — по именам коллекций.
