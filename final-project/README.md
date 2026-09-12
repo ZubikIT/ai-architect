@@ -90,7 +90,7 @@
 
 - **Видео-демо (Deep Dive) 5–7 мин** — «под капотом»: трейсы Jaeger/Langfuse, логи vLLM, визуализация графа в браузере Neo4j.
 - **Нагрузочный отчёт** — ✅ [`docs/load-report.md`](docs/load-report.md): RPS и латентность на своём железе, разложение по шагам из трейсов, проверка SLO (методика — [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md)).
-- **Презентация защиты** — по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf) (структура — в [конспекте занятия 33](sessions/33-konsultaciya.md)).
+- **Презентация защиты** — ✅ [`docs/presentation.md`](docs/presentation.md), структура по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf) (разбор — в [конспекте занятия 33](sessions/33-konsultaciya.md)).
 
 ---
 
@@ -115,7 +115,7 @@
 - [x] **Streaming (SSE)** → `POST /ask/stream`, [`test_streaming.py`](backend/tests/test_streaming.py) — источники уходят раньше текста, пометка об отмене отдельным событием, маска ПДн на потоке
 - [x] **Нагрузочный отчёт** (RPS / latency) → [`docs/load-report.md`](docs/load-report.md), [методика](docs/load/methodology.md), [сырые замеры](docs/load/raw.json) — узкое место реранк (76–90 %), граф ~1 %, накладные расходы MAS 0,8 %; ёмкость реплики 4 клиента по SLO ADR-0017
 - [ ] Видео-демо 5–7 мин
-- [ ] Презентация для защиты
+- [x] **Презентация для защиты** → [`docs/presentation.md`](docs/presentation.md) — 24 слайда по шаблону OTUS с диаграммами, замерами, честным списком «чего нет» и дорожной картой; в каждом слайде заметки докладчику _(вёрстка в PDF/PPTX — за автором, тулчейна на машине нет)_
 - [ ] Голос (STT/TTS) — [ADR-0010](docs/adr/0010-voice-stack.md), опциональное расширение вне требований ТЗ
 
 ## Структура (monorepo по формату сдачи)
