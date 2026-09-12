@@ -72,12 +72,21 @@ class HybridRetriever:
         with telemetry.span("retrieve.embed", chars=len(query)):
             qv = self.embedder.encode([query], normalize_embeddings=True)[0]
 
-        with telemetry.span("retrieve.dense", top_k=top_k):
+        with telemetry.span("retrieve.dense", top_k=top_k) as sp:
             dense = self.client.search(
                 collection_name=self.settings.collection,
                 query_vector=qv.tolist(), limit=top_k,
             )
             dense_ids = [int(p.id) for p in dense]
+            top_score = max((p.score for p in dense), default=0.0)
+            sp.set_attribute("top_score", round(float(top_score), 4))
+
+        # Отказ от ответа. Без этого порога система отвечает на любой вопрос —
+        # включая те, которых в корпусе нет, — и прикладывает к ответу цитаты,
+        # что выглядит убедительнее, чем есть на самом деле.
+        if top_score < self.settings.min_relevance:
+            telemetry.LOW_RELEVANCE.inc()
+            return []
 
         with telemetry.span("retrieve.bm25", top_k=top_k):
             scores = self.bm25.get_scores(_tok(query))
@@ -89,6 +98,7 @@ class HybridRetriever:
         # RBAC pre-filter (№ 99-З): только разрешённые роли
         cand = [self.chunks[i] for i in fused if self._allowed(self.chunks[i], roles)][:top_k]
         if not cand:
+            telemetry.ACL_DENIALS.inc()
             return []
 
         # rerank (cross-encoder) — урок 06. Стоимость линейна по числу кандидатов,

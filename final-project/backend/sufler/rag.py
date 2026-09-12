@@ -27,6 +27,8 @@ ANSWER_RULES = (
 
 SYSTEM = "Ты — корпоративный ассистент «Суфлёр». " + ANSWER_RULES
 
+NO_ANSWER = "Не нашёл подходящих пунктов ЛПА — уточните формулировку или обратитесь в профильный отдел."
+
 
 def build_context(found):
     """Результаты retrieval → (блоки контекста, источники, тексты, пометки об отменах).
@@ -55,7 +57,11 @@ def build_context(found):
         elif item.from_graph:
             mark = f" · связан по графу ({item.relation}, через {item.via})"
         blocks.append(f"[{c.doc} · {c.section}{mark}]\n{c.text}")
-        sources.append({"chunk_id": c.id, "doc": c.doc, "section": c.section,
+        # doc_code и ordinal отдаются наружу намеренно: «ЛПА-01 § 1» — устойчивый
+        # адрес пункта, переживающий перечанкинг, в отличие от chunk_id. На нём
+        # держится golden set (eval/golden.yaml) и человекочитаемая ссылка в UI.
+        sources.append({"chunk_id": c.id, "doc": c.doc, "doc_code": c.doc_code,
+                        "ordinal": c.ordinal, "section": c.section,
                         "relation": item.relation, "via": item.via,
                         "extracted_by": c.extracted_by})
         contexts.append(c.text)
@@ -97,12 +103,16 @@ class Sufler:
                 sp.set_attribute("chunks", len(found))
 
             if not found:
-                # Отказ — такое же событие для аудита, как и выдача (ADR-0016, инвариант 6).
-                telemetry.ACL_DENIALS.labels("rag").inc()
-                root.set_attribute("outcome", "no_access")
-                return {"answer": "Не нашёл релевантных пунктов ЛПА для вашего уровня доступа.",
-                        "sources": [], "contexts": [], "graph_notes": [],
-                        "request_id": ctx.request_id}
+                # Отказ — такое же событие для аудита, как и выдача (ADR-0016, инвариант 6);
+                # причину (права или релевантность) считает ретривер, он её и знает.
+                #
+                # Формулировка намеренно одна на оба случая. Прежняя — «нет пунктов
+                # ДЛЯ ВАШЕГО УРОВНЯ ДОСТУПА» — сообщала, что документ существует,
+                # просто закрыт. Это та самая утечка через факт существования,
+                # против которой построен весь ACL на узлах графа (ADR-0016).
+                root.set_attribute("outcome", "no_answer")
+                return {"answer": NO_ANSWER, "sources": [], "contexts": [],
+                        "graph_notes": [], "request_id": ctx.request_id}
 
             blocks, sources, contexts, notes = build_context(found)
             context = "\n\n".join(blocks)

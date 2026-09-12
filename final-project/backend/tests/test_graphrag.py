@@ -113,3 +113,43 @@ def test_annotations_hide_cancellation_by_invisible_document(corpus):
     target = next(c for c in chunks if c.doc_code == "ЛПА-01" and c.ordinal == "1")
     assert store.annotations([target.id], ["all"]) == {}, "факт отмены раскрыт без прав"
     assert store.annotations([target.id], ["security"]), "владелец прав должен видеть отмену"
+
+
+# --------------------------------------------------------------------------- #
+#  Отказ от ответа: порог релевантности
+# --------------------------------------------------------------------------- #
+def test_out_of_corpus_question_is_refused(engine):
+    """На вопрос не про ЛПА система отвечает отказом, а не пятью цитатами.
+
+    Без порога релевантности выдача top-k возвращается всегда, и ответ про
+    спутники приходит с ссылками на положение об отпуске — выглядит убедительно
+    ровно в той мере, в какой неверен.
+    """
+    from sufler.rag import NO_ANSWER
+    res = engine.answer("Каков регламент запуска спутника на геостационарную орбиту?",
+                        roles=("all",))
+    assert res["sources"] == []
+    assert res["answer"] == NO_ANSWER
+
+
+def test_refusal_does_not_disclose_that_something_exists(engine):
+    """Отказ по правам неотличим от отказа по релевантности.
+
+    Прежняя формулировка — «нет пунктов для вашего уровня доступа» — сообщала,
+    что документ существует, просто закрыт. Это утечка через факт существования,
+    против которой построен ACL на узлах графа (ADR-0016).
+    """
+    restricted = engine.answer("Что такое принцип минимальных привилегий?", roles=("all",))
+    nonsense = engine.answer("Каков регламент запуска спутника?", roles=("all",))
+    if not restricted["sources"]:
+        assert restricted["answer"] == nonsense["answer"], \
+            "по тексту отказа видно, что документ существует"
+    assert "доступ" not in nonsense["answer"].lower()
+
+
+def test_relevant_questions_survive_the_floor(engine):
+    """Порог не должен резать нормальные вопросы — иначе он вредит, а не помогает."""
+    for question in ("Сколько дней основной ежегодный отпуск?",
+                     "Какой размер суточных при командировке?",
+                     "Когда выплачивается компенсация за неиспользованный отпуск?"):
+        assert engine.answer(question, roles=("all",))["sources"], question

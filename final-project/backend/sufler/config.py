@@ -21,6 +21,13 @@ class Settings:
     # (офлайн-демо и тесты): стек поднимать не нужно, шаги pipeline те же.
     qdrant_url: str = os.getenv("QDRANT_URL", "")
 
+    # Порог отказа от ответа. Косинус нормированных эмбеддингов, а НЕ оценка
+    # cross-encoder: логиты ms-marco не калиброваны на русском корпусе и не
+    # разделяют вопросы в корпусе и вне его (замер — docs/eval-report.md).
+    # Косинус разделяет: 0.585 минимум по корпусу против 0.369 максимума вне,
+    # порог посередине со смещением в сторону «лучше ответить».
+    min_relevance: float = float(os.getenv("SUFLER_MIN_RELEVANCE", "0.45"))
+
     # граф знаний (ADR-0012/0013). Без NEO4J_URI — in-memory режим (офлайн-демо, тесты)
     neo4j_uri: str = os.getenv("NEO4J_URI", "")
     neo4j_user: str = os.getenv("NEO4J_USER", "neo4j")

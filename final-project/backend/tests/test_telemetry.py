@@ -100,11 +100,14 @@ def test_root_span_carries_the_outcome(engine, spans):
     assert root.attributes["cancellation_flagged"] is True
 
 
-def test_denied_request_is_traced_as_such(engine, spans):
-    """Отказ по правам — такое же событие трейса, как и выдача (ADR-0016)."""
-    engine.answer("Каков порядок утилизации космического мусора?", roles=("all",))
+def test_refusal_is_traced_as_such(engine, spans):
+    """Отказ — такое же событие трейса, как и выдача (ADR-0016, инвариант 6)."""
+    res = engine.answer("Каков порядок утилизации космического мусора?", roles=("all",))
+    assert not res["sources"], "вопрос вне корпуса не должен получать источники"
     root = by_name(spans, "ask")
-    assert root.attributes["outcome"] in ("ok", "no_access")
+    assert root.attributes["outcome"] == "no_answer"
+    # Порог сработал по плотному поиску — это видно в спане, а не только по факту
+    assert by_name(spans, "retrieve.dense").attributes["top_score"] < 0.45
 
 
 # --------------------------------------------------------------------------- #

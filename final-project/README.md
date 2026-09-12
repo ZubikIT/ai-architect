@@ -78,7 +78,7 @@
 
 **Желательно:**
 - [ ] потоковый ответ (Streaming)
-- [ ] unit-тесты на промпты (**LLM-as-a-Judge**)
+- [x] unit-тесты на промпты — golden set из 14 кейсов с гейтами приёмки ([`docs/eval-report.md`](docs/eval-report.md)); метрики считаются без LLM, **LLM-as-a-Judge** подключается отдельной моделью и без GPU не прогонялся
 
 ## Формат сдачи
 
@@ -111,7 +111,8 @@
 - [x] **Граница доверия: роли из проверенного JWT, а не из тела запроса** → [`auth.py`](backend/sufler/auth.py), [`test_auth.py`](backend/tests/test_auth.py) — подпись по JWKS, фиксированный список алгоритмов, негативные случаи (подмена `RS256→HS256`, `alg: none`, чужой `aud`/`iss`) _(против живого Keycloak не прогонялось)_
 - [x] **Observability**: OTel → Jaeger (`trace_id` = `request_id`), доменные метрики и дашборд Grafana как код → [`telemetry.py`](backend/sufler/telemetry.py), [`infra/grafana/`](infra/grafana/) — трейсы разложены по шагам, прогон вскрыл два молча сломанных конфига _(экспорт в Langfuse и метрики качества — не подключены)_
 - [x] Monorepo-раскладка `/infra`, `/backend`, `/docs` + [`docker-compose`](infra/docker-compose.yml) всего стека — профиль `core` поднят и проверен (Neo4j + Qdrant + PostgreSQL) _(пины образов по digest и профиль red teaming — TODO)_
-- [ ] Streaming (SSE) и LLM-as-a-Judge тесты промптов — _методика в [ADR-0018](docs/adr/0018-security-testing.md)_
+- [x] **Golden set и гейты приёмки** → [`docs/eval-report.md`](docs/eval-report.md), [`backend/eval/golden.yaml`](backend/eval/golden.yaml) — recall 1,0, нарушений ACL 0, точность маршрутизации 13/13; LLM-as-a-Judge подключается через `SUFLER_JUDGE_MODEL` (без GPU не замерено)
+- [ ] Streaming (SSE) — _не реализован_
 - [x] **Нагрузочный отчёт** (RPS / latency) → [`docs/load-report.md`](docs/load-report.md), [методика](docs/load/methodology.md), [сырые замеры](docs/load/raw.json) — узкое место реранк (76–90 %), граф ~1 %, накладные расходы MAS 0,8 %; ёмкость реплики 4 клиента по SLO ADR-0017
 - [ ] Видео-демо 5–7 мин
 - [ ] Презентация для защиты

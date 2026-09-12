@@ -35,7 +35,7 @@ from . import telemetry
 from .access import RequestContext
 from .config import settings
 from .guardrails import check_input, mask_pii
-from .rag import ANSWER_RULES, Sufler, build_context
+from .rag import ANSWER_RULES, NO_ANSWER, Sufler, build_context
 from .roles import DEFAULT_ROLE, ROLE_BY_ID, ROLES, ROUTING_SYSTEM, route_by_rules
 from .tools import GraphSearchTool
 
@@ -308,7 +308,7 @@ class Platform:
 
         drafts = [f for f in state["findings"] if f["draft"]]
         if not drafts:
-            answer = "Не нашёл релевантных пунктов ЛПА для вашего уровня доступа."
+            answer = NO_ANSWER
         elif len(drafts) == 1:
             # Один сотрудник — сводить нечего. Лишний вызов LLM здесь был бы
             # платой за симметрию схемы, а не за качество ответа (ADR-0015: цена
@@ -377,8 +377,7 @@ class Platform:
                 Sufler._record(root, "mas", final["sources"], from_graph,
                                bool(final["graph_notes"]))
             else:
-                telemetry.ACL_DENIALS.labels("mas").inc()
-                root.set_attribute("outcome", "no_access")
+                root.set_attribute("outcome", "no_answer")
 
         return {
             "answer": final["answer"],

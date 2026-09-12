@@ -53,7 +53,11 @@ GRAPH_EXPAND = Histogram("sufler_graph_expand_seconds", "Время обхода
                          ["backend"], buckets=(0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2))
 GRAPH_HOPS = Histogram("sufler_graph_expansions", "Связанных пунктов добавлено обходом",
                        buckets=(0, 1, 2, 3, 5, 8, 13))
-ACL_DENIALS = Counter("sufler_acl_denials_total", "Запросы без доступных пунктов", ["path"])
+# Две причины пустого ответа, и их нельзя смешивать: «прав не хватило» и «вопрос
+# не про наш корпус» требуют разных действий от эксплуатации. Обе считаются в
+# ретривере — только он знает, что именно отсекло выдачу.
+ACL_DENIALS = Counter("sufler_acl_denials_total", "Запросы, где права не оставили ни одного пункта")
+LOW_RELEVANCE = Counter("sufler_low_relevance_total", "Запросы, отсечённые порогом релевантности")
 GUARDRAIL_BLOCKS = Counter("sufler_guardrail_blocks_total", "Срабатывания guardrails", ["stage"])
 AUTH_FAILURES = Counter("sufler_auth_failures_total", "Отклонённые токены", ["reason"])
 AGENT_STEPS = Histogram("sufler_agent_steps", "Шагов агентов на запрос",
