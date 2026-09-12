@@ -143,7 +143,7 @@ def build_judge(settings):
     model = os.getenv("SUFLER_JUDGE_MODEL", "")
     if not model:
         return None
-    if model == settings.llm_model:
+    if model == settings.llm_model and os.getenv("SUFLER_JUDGE_BASE_URL", "") in ("", settings.openai_base_url):
         # Оценка собственного ответа той же моделью систематически завышена:
         # судья и подсудимый — одна сущность (урок 13, ADR-0017 правило 5).
         print("SUFLER_JUDGE_MODEL совпадает с отвечающей моделью — судья отключён",
@@ -151,7 +151,11 @@ def build_judge(settings):
         return None
 
     from openai import OpenAI
-    client = OpenAI(base_url=settings.openai_base_url, api_key=settings.openai_api_key)
+    # Судья может жить на другом эндпоинте: у платформы это отдельный сервинг
+    # (например, VL-модель на соседнем порту). Без своей переменной судьёй
+    # оказалась бы та же модель на том же адресе — то есть подсудимый.
+    base = os.getenv("SUFLER_JUDGE_BASE_URL", settings.openai_base_url)
+    client = OpenAI(base_url=base, api_key=settings.openai_api_key)
     system = ("Ты — строгий проверяющий. Ответь одним числом от 0 до 1: какая доля утверждений "
               "ответа подтверждается контекстом. Только число, без пояснений.")
 

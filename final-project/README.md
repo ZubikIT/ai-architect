@@ -86,8 +86,8 @@
 | Диаграммы: C4, Deployment, Data Flow, Sequence, ER | [`docs/diagrams/`](docs/diagrams/) |
 | Vision & Goals, требования | [`docs/vision-goals.md`](docs/vision-goals.md), [`docs/requirements.md`](docs/requirements.md) |
 | Экономика | [`docs/economics/tco.md`](docs/economics/tco.md) |
-| **Нагрузочный отчёт** | [`docs/load-report.md`](docs/load-report.md) — узкое место реранк 76 %, граф ~1 % |
-| **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0 |
+| **Нагрузочный отчёт** | [`docs/load-report.md`](docs/load-report.md) — без генерации узкое место реранк (76 %), с боевой моделью генерация 68 % / реранк 30 %, граф 0,3 % |
+| **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0, faithfulness 0,923 на боевой модели |
 | **Презентация защиты** | [`docs/presentation.pdf`](docs/presentation.pdf) |
 | Код компонентов | [`backend/`](backend/) — 75 тестов |
 | Развёртывание компонентов | [`infra/`](infra/) — compose, профили `core` и `obs` |
@@ -100,7 +100,7 @@
 - **мультимодальный ingestion** — спроектирован, конвейера нет
 - **граф и агентный слой в платформе** — собраны, не встроены
 - **сквозной трейсинг** через продукты
-- **faithfulness / RAGAS** — нужен судья, отличный от отвечающей модели
+- **метрики качества сверх faithfulness** — RAGAS (context precision/recall как оценка модели, а не совпадение с эталоном) не подключён
 - **алерты с runbook'ами** — ADR-0017 требует runbook, его нет
 - **red teaming по методике занятия 33** — методика описана, не применялась
 - **ретеншн** диалогов, трассировок и логов не определён
