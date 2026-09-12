@@ -147,3 +147,45 @@ def test_uncalibrated_low_score_does_not_abstain(retriever):
 def test_calibrated_high_score_answers(retriever):
     retriever.reranker = StubReranker(0.99, calibrated=True)
     assert retriever.search("Сколько дней основной ежегодный отпуск?", ["all"]) != []
+
+
+# --- адрес пункта в индексируемом тексте ----------------------------------
+#
+# Текст «## 3. Возмещение расходов. Возмещаются расходы на проезд…» сам по себе
+# не говорит, из какого он документа. Модель ранжирования вынуждена угадывать по
+# словам, и на корпусе, где слова разных документов похожи, она ошибается.
+# У платформы нарезка с адресом дала +22 п.п. hit@1 (пилот 01.08.2026).
+
+def test_indexed_text_carries_the_address(corpus):
+    _, chunks = corpus
+    c = next(c for c in chunks if c.doc_code == "ЛПА-02" and c.ordinal == "3")
+    assert c.indexed_text.startswith("ЛПА-02 «Положение о служебных командировках» — пункт 3\n")
+    assert c.text in c.indexed_text
+
+
+def test_text_itself_stays_clean(corpus):
+    """Адрес не вписывается в `text`: оттуда текст уходит в контекст модели,
+    где адрес уже стоит отдельной строкой цитаты. Дублировать — тратить контекст."""
+    _, chunks = corpus
+    assert all(not c.text.startswith(c.doc_code + " «") for c in chunks)
+
+
+def test_document_header_chunk_has_no_clause_number(corpus):
+    """У заголовочного куска номера пункта нет — «— пункт » с пустотой был бы мусором."""
+    _, chunks = corpus
+    head = next(c for c in chunks if c.doc_code == "ЛПА-03" and not c.ordinal)
+    assert head.address == "ЛПА-03 «Регламент доступа к персональным данным (ограниченный)»"
+    assert "пункт" not in head.address
+
+
+def test_title_does_not_repeat_the_code(corpus):
+    """«ЛПА-02. Положение…» → «Положение…»: код в адресе уже стоит отдельно."""
+    docs, _ = corpus
+    d = next(d for d in docs if d.code == "ЛПА-02")
+    assert d.title.startswith("ЛПА-02")          # исходный заголовок не тронут
+    c = next(c for c in _corpus_chunks(corpus) if c.doc_code == "ЛПА-02")
+    assert c.doc_title == "Положение о служебных командировках"
+
+
+def _corpus_chunks(corpus):
+    return corpus[1]

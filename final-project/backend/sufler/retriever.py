@@ -27,7 +27,10 @@ class HybridRetriever:
         # dense → Qdrant: self-hosted сервер при QDRANT_URL, иначе встроенный
         # :memory: (офлайн-демо и тесты). Сервис в compose до этого никем не
         # использовался — поднятый Qdrant стоял пустым, а индекс жил в процессе.
-        vecs = self.embedder.encode([c.text for c in chunks], normalize_embeddings=True)
+        # indexed_text, а не text: каждый кусок несёт собственный адрес, иначе
+        # «пункт 3. Возмещение расходов» неотличим от любого другого пункта 3
+        # в корпусе (ADR-0027, вывод пилота платформы).
+        vecs = self.embedder.encode([c.indexed_text for c in chunks], normalize_embeddings=True)
         dim = int(vecs.shape[1])
         self.client = QdrantClient(url=settings.qdrant_url) if settings.qdrant_url \
             else QdrantClient(":memory:")
@@ -50,7 +53,7 @@ class HybridRetriever:
         )
 
         # sparse → BM25
-        self.bm25 = BM25Okapi([_tok(c.text) for c in chunks])
+        self.bm25 = BM25Okapi([_tok(c.indexed_text) for c in chunks])
 
     @staticmethod
     def _allowed(chunk, roles):
@@ -107,7 +110,7 @@ class HybridRetriever:
         # rerank (cross-encoder) — урок 06. Стоимость линейна по числу кандидатов,
         # а их число зависит от прав субъекта: широкие права — дороже запрос.
         with telemetry.span("retrieve.rerank", candidates=len(cand)) as sp:
-            rr = self.reranker.predict([(query, c.text) for c in cand])
+            rr = self.reranker.predict([(query, c.indexed_text) for c in cand])
             sp.set_attribute("model", self.reranker.model_name)
             sp.set_attribute("remote", not isinstance(self.reranker, LocalCrossEncoder))
         order = np.argsort(rr)[::-1]

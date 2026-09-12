@@ -147,7 +147,7 @@ uvicorn sufler.api:app --port 8080
 ## Тесты
 
 ```bash
-pytest -q      # 80 тестов офлайн; при первом запуске тянет модели эмбеддера и реранкера
+pytest -q      # 84 теста офлайн; при первом запуске тянет модели эмбеддера и реранкера
 
 # + 5 тестов боевого графа (пропускаются без стека)
 docker compose -f ../infra/docker-compose.yml --profile core up -d neo4j qdrant
