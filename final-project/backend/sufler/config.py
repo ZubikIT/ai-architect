@@ -13,6 +13,14 @@ class Settings:
     embed_model: str = os.getenv("SUFLER_EMBED_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
     rerank_model: str = os.getenv("SUFLER_RERANK_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
 
+    # Ранжирование сервисом платформы (Infinity, Jina-совместимый /rerank).
+    # Без SUFLER_RERANK_URL работает локальный cross-encoder — офлайн-демо и тесты.
+    # С ним реранк уходит на GPU-сервис: 82 мс на набор против 664–708 мс на CPU,
+    # и оценки становятся калиброванными (ADR-0004, новая редакция).
+    rerank_url: str = os.getenv("SUFLER_RERANK_URL", "")
+    rerank_api_key: str = os.getenv("SUFLER_RERANK_API_KEY", "")
+    rerank_model_remote: str = os.getenv("SUFLER_RERANK_MODEL_REMOTE", "BAAI/bge-reranker-v2-m3")
+
     # параметры retrieval (урок 06)
     top_k_retrieve: int = int(os.getenv("SUFLER_TOP_K", "20"))
     top_k_context: int = int(os.getenv("SUFLER_TOP_CTX", "5"))
@@ -27,6 +35,13 @@ class Settings:
     # Косинус разделяет: 0.585 минимум по корпусу против 0.369 максимума вне,
     # порог посередине со смещением в сторону «лучше ответить».
     min_relevance: float = float(os.getenv("SUFLER_MIN_RELEVANCE", "0.45"))
+
+    # Второй порог — на оценке реранкера, и он применяется ТОЛЬКО если реранкер
+    # калиброван (bge-reranker-v2-m3 — да, ms-marco — нет). Косинус остаётся
+    # дешёвым ранним выходом: он отсекает заведомо чужой вопрос ещё до похода в
+    # сервис. Решает же релевантность: 0.9919 худший свой против 0.0004 лучшего
+    # чужого — порог сильно ниже зазора, чтобы не резать пограничные вопросы.
+    min_rerank_score: float = float(os.getenv("SUFLER_MIN_RERANK_SCORE", "0.10"))
 
     # граф знаний (ADR-0012/0013). Без NEO4J_URI — in-memory режим (офлайн-демо, тесты)
     neo4j_uri: str = os.getenv("NEO4J_URI", "")

@@ -14,7 +14,7 @@
 - **Центр:** шлюз моделей — ключи, бюджеты, учёт потребления, каталог (ADR-0019). Через него проходит **каждый** вызов модели.
 - **Граница контура:** права ключа, проверка до вызова (ADR-0020). Закрытый режим — свой инференс; внешний — вне периметра проекта.
 - **Инференс:** vLLM нативно на GPU-боксе (ADR-0003), MoE-модель в AWQ на 4× V100 (ADR-0002/0006 — с поправкой на реальное железо).
-- **Знания:** Qdrant (ADR-0004); граф связей и GraphRAG (ADR-0012/0013) **спроектированы, в платформу не встроены** — код в [`../../backend/`](../../backend/).
+- **Знания:** хранилище векторов (ADR-0004 → [ADR-0027](0027-konveyer-ranzhirovaniya.md)); ранжирование — сервис платформы `bge-reranker-v2-m3`, и именно оно определяет качество. Граф связей и GraphRAG (ADR-0012/0013) **спроектированы, в платформу не встроены** — код в [`../../backend/`](../../backend/).
 - **Агенты:** иерархия supervisor + роли-агенты (ADR-0015) — там же, встраивание предстоит.
 - **Доступ:** Keycloak с федерацией каталога, группы в токене (ADR-0021) → материализованные метки на чанках и узлах (ADR-0016).
 - **Состояние:** ключи и потребление в HA-кластере PostgreSQL (ADR-0022); биллинг читает его напрямую (ADR-0023).
@@ -32,7 +32,7 @@
 | [ADR-0001](0001-on-premise-self-hosted-llm.md) | Self-hosted open-weight LLM вместо облачного API (on-premise / air-gapped) | accepted | 2026-05-26 |
 | [ADR-0002](0002-vybor-modeli.md) | Выбор LLM — Qwen3.5-27B (open-weight, dense) | accepted | 2026-05-26 |
 | [ADR-0003](0003-llm-serving-engine.md) | LLM Serving Engine — vLLM (vs SGLang, TGI) | proposed | 2026-05-26 |
-| [ADR-0004](0004-vector-db.md) | Vector Database — Qdrant (vs Milvus, Weaviate) | proposed | 2026-05-26 |
+| [ADR-0004](0004-vector-db.md) | Vector Database — Qdrant (vs Milvus, Weaviate) | superseded by ADR-0027 | 2026-05-26 |
 | [ADR-0005](0005-orchestration.md) | Orchestration — LangGraph (vs LlamaIndex Workflows) | proposed | 2026-05-26 |
 | [ADR-0006](0006-kvantovanie-i-sizing-gpu.md) | Квантование и sizing GPU — FP8 на 2× H100 NVL | accepted | 2026-05-26 |
 | [ADR-0007](0007-chat-interface.md) | Чат-интерфейс — Open WebUI (SSO + Pipelines, мобайл Conduit) | superseded by ADR-0025 | 2026-05-26 |
@@ -55,11 +55,12 @@
 | [ADR-0024](0024-klaster-i-gitops.md) | Переезд в кластер Talos с GitOps — выкат без простоя | accepted | 2026-09-12 |
 | [ADR-0025](0025-svoy-chat-vmesto-dorabotki-chuzhogo.md) | Свой чат вместо доработки открытого | accepted | 2026-09-12 |
 | [ADR-0026](0026-perimetr-i-sertifikaty.md) | Периметр — обратный прокси и wildcard через DNS-01 | accepted | 2026-09-12 |
+| [ADR-0027](0027-konveyer-ranzhirovaniya.md) | Конвейер ранжирования вместо собственной модели реранка | accepted | 2026-09-12 |
 
 ## Планируемые ADR (из брифа проекта)
 - [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.5-27B (proposed)
 - [x] **ADR-0003** — LLM Serving Engine: vLLM vs SGLang vs TGI → [ADR-0003](0003-llm-serving-engine.md) (proposed)
-- [x] **ADR-0004** — Vector Database → [ADR-0004](0004-vector-db.md): Qdrant (proposed)
+- [x] **ADR-0004** — Vector Database → [ADR-0004](0004-vector-db.md): Qdrant (superseded by [ADR-0027](0027-konveyer-ranzhirovaniya.md) — предметом решения оказалось не хранилище, а конвейер ранжирования)
 - [x] **ADR-0005** — Orchestration framework → [ADR-0005](0005-orchestration.md): LangGraph (proposed)
 - [x] **ADR-0006** — стратегия квантования и sizing GPU → [ADR-0006](0006-kvantovanie-i-sizing-gpu.md): FP8 на 2× H100 NVL (proposed)
 

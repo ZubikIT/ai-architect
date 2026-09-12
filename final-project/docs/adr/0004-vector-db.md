@@ -2,12 +2,14 @@
 id: ADR-0004
 title: Vector Database — Qdrant (vs Milvus, Weaviate)
 date: 2026-05-26
-status: proposed
+status: superseded by ADR-0027
 deciders: [Зубик Александр]
 tags: [vector-db, qdrant, milvus, weaviate, rag, hybrid-search, metadata-filtering, rbac]
 ---
 
 # ADR-0004. Vector Database — Qdrant (vs Milvus, Weaviate)
+
+> **Заменено [ADR-0027](0027-konveyer-ranzhirovaniya.md).** Решение не отменено как ошибочное — оно оказалось **решением не того вопроса**. Три независимых замера (пилот платформы 01.08.2026, нагрузочный отчёт проекта, проверка разделяющей способности) сошлись на том, что выбор хранилища на качество не влияет: векторный поиск стоит 0,3 % времени ответа, а результат определяет реранкер. Текст ниже сохранён как есть — вместе с тем, чего в нём не было.
 
 ## Контекст
 RAG-ядру (уроки 06/08) нужно self-hosted хранилище векторов для базы знаний. Силы давления:

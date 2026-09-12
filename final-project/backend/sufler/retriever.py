@@ -3,11 +3,12 @@ import re
 
 import numpy as np
 from rank_bm25 import BM25Okapi
-from sentence_transformers import CrossEncoder, SentenceTransformer
+from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 
 from . import telemetry
+from .ranking import LocalCrossEncoder, build_reranker
 
 
 def _tok(s: str):
@@ -19,7 +20,9 @@ class HybridRetriever:
         self.chunks = chunks
         self.settings = settings
         self.embedder = SentenceTransformer(settings.embed_model)
-        self.reranker = CrossEncoder(settings.rerank_model)
+        # Где считается ранжирование — вопрос конфигурации, а не кода retrieval:
+        # сервис платформы при заданном SUFLER_RERANK_URL, иначе локальная модель.
+        self.reranker = build_reranker(settings)
 
         # dense → Qdrant: self-hosted сервер при QDRANT_URL, иначе встроенный
         # :memory: (офлайн-демо и тесты). Сервис в compose до этого никем не
@@ -105,6 +108,18 @@ class HybridRetriever:
         # а их число зависит от прав субъекта: широкие права — дороже запрос.
         with telemetry.span("retrieve.rerank", candidates=len(cand)) as sp:
             rr = self.reranker.predict([(query, c.text) for c in cand])
-            sp.set_attribute("model", self.settings.rerank_model)
+            sp.set_attribute("model", self.reranker.model_name)
+            sp.set_attribute("remote", not isinstance(self.reranker, LocalCrossEncoder))
         order = np.argsort(rr)[::-1]
+
+        # Отказ по релевантности — здесь он точнее, чем по косинусу выше: косинус
+        # меряет близость запроса к тексту, реранкер — отвечает ли текст на
+        # вопрос. Разница видна на вопросах, которые звучат по-корпоративному, но
+        # ответа в корпусе не имеют. Порог работает только на калиброванной
+        # модели; на некалиброванной решает косинус, и это осознанная деградация,
+        # а не запасной вариант «на всякий случай».
+        if self.reranker.calibrated and float(rr[order[0]]) < self.settings.min_rerank_score:
+            telemetry.LOW_RELEVANCE.inc()
+            return []
+
         return [cand[i] for i in order][:top_ctx]

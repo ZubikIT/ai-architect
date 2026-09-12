@@ -1,0 +1,699 @@
+{
+  "summary": {
+    "cases": 14,
+    "context_recall": {
+      "rag": 1.0,
+      "mas": 1.0
+    },
+    "context_precision": {
+      "rag": 0.195,
+      "mas": 0.192
+    },
+    "acl_violations": 0,
+    "routing_accuracy_exact": 1.0,
+    "routing_accuracy_lenient": 1.0,
+    "cost_mas": {
+      "steps_per_request": 1.143,
+      "tool_calls_per_request": 1.214,
+      "tokens_per_request": 739.286
+    },
+    "cancellation_pass": 1.0,
+    "refusal_pass": 0.5,
+    "faithfulness": null
+  },
+  "rows": [
+    {
+      "id": "otpusk-prodolzhitelnost",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.4,
+        "acl_violation": false,
+        "checks": {
+          "cancellation": true
+        },
+        "retrieved": [
+          "ЛПА-01·1",
+          "ЛПА-04·1",
+          "ЛПА-02·4",
+          "ЛПА-02·1",
+          "ЛПА-01·2"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.4,
+        "acl_violation": false,
+        "checks": {
+          "cancellation": true
+        },
+        "retrieved": [
+          "ЛПА-01·1",
+          "ЛПА-04·1",
+          "ЛПА-02·4",
+          "ЛПА-02·1",
+          "ЛПА-01·2"
+        ]
+      },
+      "route": [
+        "hr"
+      ],
+      "route_expected": [
+        "hr"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 626,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "otpusk-zayavlenie",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-01·2",
+          "ЛПА-01·4",
+          "ЛПА-02·1",
+          "ЛПА-01·3",
+          "ЛПА-04·2",
+          "ЛПА-01·"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-01·2",
+          "ЛПА-01·4",
+          "ЛПА-02·1",
+          "ЛПА-01·3",
+          "ЛПА-04·2",
+          "ЛПА-01·"
+        ]
+      },
+      "route": [
+        "hr"
+      ],
+      "route_expected": [
+        "hr"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 628,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "otpusk-perenos",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-01·3",
+          "ЛПА-01·1",
+          "ЛПА-01·2",
+          "ЛПА-04·1",
+          "ЛПА-04·2",
+          "ЛПА-01·"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-01·3",
+          "ЛПА-01·1",
+          "ЛПА-01·2",
+          "ЛПА-04·1",
+          "ЛПА-04·2",
+          "ЛПА-01·"
+        ]
+      },
+      "route": [
+        "hr"
+      ],
+      "route_expected": [
+        "hr"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 726,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "otpusk-kompensaciya",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-01·4",
+          "ЛПА-01·2",
+          "ЛПА-02·1",
+          "ЛПА-01·1",
+          "ЛПА-02·3.1",
+          "ЛПА-04·1"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-01·4",
+          "ЛПА-01·2",
+          "ЛПА-02·1",
+          "ЛПА-01·1",
+          "ЛПА-02·3.1",
+          "ЛПА-04·1"
+        ]
+      },
+      "route": [
+        "hr"
+      ],
+      "route_expected": [
+        "hr"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 647,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "komandirovka-oformlenie",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.14285714285714285,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·1",
+          "ЛПА-04·2",
+          "ЛПА-01·3",
+          "ЛПА-01·1",
+          "ЛПА-01·2",
+          "ЛПА-04·1",
+          "ЛПА-01·"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.14285714285714285,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·1",
+          "ЛПА-04·2",
+          "ЛПА-01·3",
+          "ЛПА-01·1",
+          "ЛПА-01·2",
+          "ЛПА-04·1",
+          "ЛПА-01·"
+        ]
+      },
+      "route": [
+        "hr"
+      ],
+      "route_expected": [
+        "hr"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 800,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "komandirovka-sutochnye",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.2,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·2",
+          "ЛПА-02·1",
+          "ЛПА-02·3",
+          "ЛПА-02·4",
+          "ЛПА-01·3"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.2,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·2",
+          "ЛПА-02·1",
+          "ЛПА-02·3",
+          "ЛПА-02·4",
+          "ЛПА-01·3"
+        ]
+      },
+      "route": [
+        "hr"
+      ],
+      "route_expected": [
+        "hr"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 554,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "komandirovka-avansovyy-otchet",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·4",
+          "ЛПА-02·1",
+          "ЛПА-02·3",
+          "ЛПА-01·2",
+          "ЛПА-01·1",
+          "ЛПА-04·1"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·4",
+          "ЛПА-02·1",
+          "ЛПА-02·3",
+          "ЛПА-01·2",
+          "ЛПА-01·1",
+          "ЛПА-04·1"
+        ]
+      },
+      "route": [
+        "hr"
+      ],
+      "route_expected": [
+        "hr"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 684,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "komandirovka-vyhodnoy",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.2,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·4",
+          "ЛПА-02·1",
+          "ЛПА-01·4",
+          "ЛПА-01·2",
+          "ЛПА-02·3.1"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.2,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·4",
+          "ЛПА-02·1",
+          "ЛПА-01·4",
+          "ЛПА-01·2",
+          "ЛПА-02·3.1"
+        ]
+      },
+      "route": [
+        "hr"
+      ],
+      "route_expected": [
+        "hr"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 510,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "pdn-komandirovannogo-bez-prav",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.14285714285714285,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·3.1",
+          "ЛПА-04·2",
+          "ЛПА-01·1",
+          "ЛПА-01·2",
+          "ЛПА-01·4",
+          "ЛПА-04·1",
+          "ЛПА-01·"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.14285714285714285,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·3.1",
+          "ЛПА-04·2",
+          "ЛПА-01·1",
+          "ЛПА-01·2",
+          "ЛПА-01·4",
+          "ЛПА-04·1",
+          "ЛПА-01·"
+        ]
+      },
+      "route": [
+        "hr",
+        "compliance"
+      ],
+      "route_expected": [
+        "hr",
+        "compliance"
+      ],
+      "budget": {
+        "steps": 2,
+        "tool_calls": 2,
+        "tokens_estimate": 1511,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "pdn-komandirovannogo-s-pravami",
+      "roles": [
+        "legal"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.25,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·3.1",
+          "ЛПА-04·2",
+          "ЛПА-01·1",
+          "ЛПА-01·2",
+          "ЛПА-03·1",
+          "ЛПА-04·1",
+          "ЛПА-03·",
+          "ЛПА-01·"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.2222222222222222,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-02·3.1",
+          "ЛПА-04·2",
+          "ЛПА-01·1",
+          "ЛПА-01·2",
+          "ЛПА-01·4",
+          "ЛПА-04·1",
+          "ЛПА-01·",
+          "ЛПА-03·1",
+          "ЛПА-03·"
+        ]
+      },
+      "route": [
+        "hr",
+        "compliance"
+      ],
+      "route_expected": [
+        "hr",
+        "compliance"
+      ],
+      "budget": {
+        "steps": 2,
+        "tool_calls": 2,
+        "tokens_estimate": 1630,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "pdn-minimalnye-privilegii",
+      "roles": [
+        "legal"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-03·2",
+          "ЛПА-04·2",
+          "ЛПА-01·2",
+          "ЛПА-01·4",
+          "ЛПА-01·3",
+          "ЛПА-01·"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-03·2",
+          "ЛПА-04·2",
+          "ЛПА-01·2",
+          "ЛПА-01·4",
+          "ЛПА-01·3",
+          "ЛПА-01·"
+        ]
+      },
+      "route": [
+        "compliance"
+      ],
+      "route_expected": [
+        "compliance"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 664,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "pdn-transgranichnaya-peredacha",
+      "roles": [
+        "legal"
+      ],
+      "rag": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-03·4",
+          "ЛПА-01·3",
+          "ЛПА-03·1",
+          "ЛПА-02·3",
+          "ЛПА-02·3.1",
+          "ЛПА-03·"
+        ]
+      },
+      "mas": {
+        "recall": 1.0,
+        "precision": 0.16666666666666666,
+        "acl_violation": false,
+        "checks": {},
+        "retrieved": [
+          "ЛПА-03·4",
+          "ЛПА-01·3",
+          "ЛПА-03·1",
+          "ЛПА-02·3",
+          "ЛПА-02·3.1",
+          "ЛПА-03·"
+        ]
+      },
+      "route": [
+        "compliance"
+      ],
+      "route_expected": [
+        "compliance"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 632,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "pdn-audit-bez-prav",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": null,
+        "precision": null,
+        "acl_violation": false,
+        "checks": {
+          "empty": false
+        },
+        "retrieved": [
+          "ЛПА-04·1",
+          "ЛПА-02·1",
+          "ЛПА-01·1",
+          "ЛПА-01·3",
+          "ЛПА-04·2",
+          "ЛПА-01·"
+        ]
+      },
+      "mas": {
+        "recall": null,
+        "precision": null,
+        "acl_violation": false,
+        "checks": {
+          "empty": false
+        },
+        "retrieved": [
+          "ЛПА-04·1",
+          "ЛПА-02·1",
+          "ЛПА-01·1",
+          "ЛПА-01·3",
+          "ЛПА-04·2",
+          "ЛПА-01·"
+        ]
+      },
+      "route": [
+        "compliance"
+      ],
+      "route_expected": [
+        "compliance"
+      ],
+      "budget": {
+        "steps": 1,
+        "tool_calls": 1,
+        "tokens_estimate": 738,
+        "degraded": ""
+      },
+      "routing_exact": true,
+      "routing_covered": true
+    },
+    {
+      "id": "vne-korpusa",
+      "roles": [
+        "all"
+      ],
+      "rag": {
+        "recall": null,
+        "precision": null,
+        "acl_violation": false,
+        "checks": {
+          "empty": true
+        },
+        "retrieved": []
+      },
+      "mas": {
+        "recall": null,
+        "precision": null,
+        "acl_violation": false,
+        "checks": {
+          "empty": true
+        },
+        "retrieved": []
+      },
+      "route": [
+        "legal"
+      ],
+      "route_expected": null,
+      "budget": {
+        "steps": 1,
+        "tool_calls": 2,
+        "tokens_estimate": 0,
+        "degraded": ""
+      }
+    }
+  ]
+}
