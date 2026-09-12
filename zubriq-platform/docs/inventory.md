@@ -56,7 +56,8 @@
 | Pigsty PostgreSQL | ВМ `10.100.1.72–.74`, RW-VIP **`10.100.1.75`** | HA-кластер: БД LiteLLM, консоли, Grafana, Coder |
 | Vault | кластер `10.100.1.52–.54` (raft HA, auto-unseal через transit) | секреты |
 | MinIO | `10.100.1.21–.24` | S3: веса моделей, артефакты, файлы |
-| Qdrant | `10.100.1.46:6333` | векторная БЗ Суфлёра (коллекция `lpa`) и Shield-сканера |
+| **pgvector** | в Pigsty, таблица `kb_chunks` | **продуктовый retrieval чата** (bge-m3 → bge-reranker-v2-m3, hybrid + FTS + RRF) |
+| Qdrant | `10.100.1.46:6333` | Суфлёр и Shield-сканер; из продуктового пути выведен 01.08.2026 |
 | Redis | `10.100.1.11` | кэш, очереди |
 | GitLab | `10.100.1.20` (`git.artcloud.by`) | репозитории, CI |
 | GitLab Runner | `10.100.1.41` | сборки |
