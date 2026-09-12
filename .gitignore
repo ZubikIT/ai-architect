@@ -68,3 +68,4 @@ otus-originals/
 # Сборка слайдов: HTML — промежуточный артефакт (картинки встроены base64,
 # файл на мегабайты). В git идут исходник .md и готовый .pdf.
 final-project/docs/presentation.html
+zubriq-platform/docs/presentation.html
