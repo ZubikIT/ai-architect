@@ -5,6 +5,7 @@ rank-bm25>=0.2.2
 openai>=1.30
 langgraph>=1.0,<2        # state machine мультиагентного слоя (ADR-0015)
 # langgraph-checkpoint-postgres  # долговечный checkpointer; без него состояние в памяти
+pyjwt[crypto]>=2.8       # валидация access token по JWKS Keycloak (ADR-0016)
 fastapi>=0.110
 uvicorn>=0.29
 prometheus-client>=0.20

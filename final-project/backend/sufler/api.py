@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from prometheus_client import Counter, Histogram, make_asgi_app
 
+from .config import settings
 from .rag import Sufler
 
 _engine = None
@@ -83,18 +84,52 @@ def get_platform():
     return _platform
 
 
+_verifier = None
+_verifier_built = False
+
+
+def get_verifier():
+    """Верификатор JWT или None в dev-режиме (ADR-0016). Строится один раз."""
+    global _verifier, _verifier_built
+    if not _verifier_built:
+        from .auth import build_verifier
+        _verifier = build_verifier(settings)
+        _verifier_built = True
+    return _verifier
+
+
+def subject_of(request: Request, body_roles=("all",)):
+    """Кто спрашивает: (роли, субъект).
+
+    При настроенном Keycloak роли берутся ТОЛЬКО из подписанного токена, а поле
+    `roles` в теле запроса не влияет на доступ вообще — не «влияет меньше», а не
+    влияет (ADR-0016, урок 26: контекст субъекта из токена, а не из тела).
+    """
+    verifier = get_verifier()
+    if verifier is None:
+        return tuple(body_roles), "anonymous"      # dev-режим доверенного контура
+    from .auth import AuthError
+    try:
+        ctx = verifier.context(request.headers.get("authorization", ""))
+    except AuthError as e:
+        # Наружу — факт отказа, без подробностей о том, какая проверка не прошла.
+        raise HTTPException(status_code=401, detail=str(e),
+                            headers={"WWW-Authenticate": "Bearer"})
+    return ctx.roles, ctx.subject
+
+
 class AskReq(BaseModel):
     question: str
-    # ВРЕМЕННО: роли из тела запроса — только для локальной отладки и демо.
-    # Целевой путь (ADR-0016): роли берутся из проверенного по JWKS токена
-    # Keycloak, тело запроса на доступ не влияет. Пока OIDC_JWKS_URL не задан,
-    # сервис обязан работать в доверенном контуре.
+    # Роли из тела — только для dev-режима и демо без Keycloak. При заданном
+    # OIDC_JWKS_URL это поле игнорируется: см. `subject_of`.
     roles: list[str] = ["all"]
 
 
 @app.get("/healthz")
 def healthz():
-    return {"status": "ok"}
+    # Режим доступа виден снаружи намеренно: dev-режим, о котором не знают, —
+    # это открытый контур, который считают закрытым.
+    return {"status": "ok", "auth": "jwt" if settings.oidc_jwks_url else "dev"}
 
 
 @app.get("/graph/stats")
@@ -104,9 +139,10 @@ def graph_stats():
 
 
 @app.post("/ask")
-def ask(req: AskReq):
+def ask(req: AskReq, request: Request):
+    roles, subject = subject_of(request, req.roles)
     try:
-        return get_engine().answer(req.question, tuple(req.roles))
+        return get_engine().answer(req.question, roles, subject)
     except ValueError as e:  # guardrail-блок
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -120,26 +156,34 @@ def agents():
 
 
 @app.post("/agents/ask")
-def agents_ask(req: AskReq):
+def agents_ask(req: AskReq, request: Request):
     """Мультиагентный путь: супервизор → роли-агенты → сведение (ADR-0015).
 
     Отдельный эндпоинт, а не флаг в /ask: у ответа другой контракт — маршрут,
     ReAct-trace и израсходованный бюджет. Клиент выбирает путь осознанно.
     """
+    platform = get_platform()
+    roles, subject = subject_of(request, req.roles)
     try:
-        return get_platform().answer(req.question, tuple(req.roles))
+        return platform.answer(req.question, roles, subject)
     except ValueError as e:  # guardrail-блок — до создания checkpoint
         raise HTTPException(status_code=400, detail=str(e))
 
 
 @app.post("/v1/chat/completions")
-def chat_completions(body: dict):
-    """Минимальная OpenAI-совместимость — чтобы Open WebUI мог подключить Суфлёр как модель."""
+def chat_completions(body: dict, request: Request):
+    """Минимальная OpenAI-совместимость — чтобы Open WebUI мог подключить Суфлёр как модель.
+
+    Границу доверия проходит так же, как `/ask`: OpenAI-совместимая обёртка не
+    повод для второго, более слабого пути аутентификации (ADR-0011 брал роли из
+    `body.user.groups` — здесь этого нет).
+    """
     messages = body.get("messages", [])
     if not messages:
         raise HTTPException(status_code=400, detail="messages required")
+    roles, subject = subject_of(request)
     question = messages[-1]["content"]
-    res = get_engine().answer(question)
+    res = get_engine().answer(question, roles, subject)
     content = res["answer"]
     if res["sources"]:
         content += "\n\nИсточники: " + "; ".join(f"{s['doc']}·{s['section']}" for s in res["sources"])

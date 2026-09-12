@@ -72,7 +72,7 @@
 - [x] **нет реализации GraphRAG** (простой векторный поиск не принимается) — ✅ реализовано: [`backend/sufler/graph.py`](backend/sufler/graph.py), [`graphrag.py`](backend/sufler/graphrag.py); эффект доказан тестом с контрольным замером
 
 **Критично:**
-- [x] **Security** — User B не получает ответ по секретному документу — ✅ автотест [`test_graphrag.py`](backend/tests/test_graphrag.py) (проверяется и контекст LLM, не только ответ)
+- [x] **Security** — User B не получает ответ по секретному документу — ✅ автотест [`test_graphrag.py`](backend/tests/test_graphrag.py) (проверяется и контекст LLM, не только ответ); роли берутся из подписанного токена, а не из тела запроса — [`test_auth.py`](backend/tests/test_auth.py)
 - [x] **Architecture** — явное разделение **Control Plane** / **Data Plane** ✅ в [C4 L2](docs/diagrams/c4.md#c2--containers), [C3](docs/diagrams/c4.md#c3--components-agent-internals--langgraph), [Deployment](docs/diagrams/c4.md#deployment) и [Data Flow](docs/diagrams/data-flow.md) — осталось подтвердить реализацией
 - [x] **Stack** — LangGraph / state machine, а не линейные скрипты — ✅ супервизор ⇄ роли-агенты с циклом, ветвлением, лимитами и checkpointer: [`backend/sufler/mas.py`](backend/sufler/mas.py); структура графа выполнения проверяется тестом `test_execution_graph_has_branch_and_cycle`
 
@@ -107,7 +107,8 @@
 - [x] **GraphRAG-ядро** (онтология, построение графа, graph-augmented retrieval) → [`backend/`](backend/) — **прогнан на живой Neo4j**: паритет с in-memory проверен тестом по всему корпусу для трёх наборов ролей; прогон вскрыл и закрыл 3 расхождения боевого бэкенда
 - [ ] **Мультимодальный ingestion** (сканы, чертежи, сложные PDF) — _спроектирован в [ADR-0014](docs/adr/0014-multimodalnyy-ingestion.md), не реализован_
 - [x] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph) → [`mas.py`](backend/sufler/mas.py), [`roles.py`](backend/sufler/roles.py), [`tools.py`](backend/sufler/tools.py) — 4 роли, детерминированная маршрутизация, least privilege на инструменте, лимиты и ReAct-trace _(замеры на golden set не сделаны → [ADR-0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) остаётся `proposed`)_
-- [x] **ACL на уровне узлов графа + тест «User B»** → [`access.py`](backend/sufler/access.py), [`test_graphrag.py`](backend/tests/test_graphrag.py) _(JWT-валидация — TODO)_
+- [x] **ACL на уровне узлов графа + тест «User B»** → [`access.py`](backend/sufler/access.py), [`test_graphrag.py`](backend/tests/test_graphrag.py)
+- [x] **Граница доверия: роли из проверенного JWT, а не из тела запроса** → [`auth.py`](backend/sufler/auth.py), [`test_auth.py`](backend/tests/test_auth.py) — подпись по JWKS, фиксированный список алгоритмов, негативные случаи (подмена `RS256→HS256`, `alg: none`, чужой `aud`/`iss`) _(против живого Keycloak не прогонялось)_
 - [ ] Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana, примеры трейсов и дашбордов — _спроектировано в [ADR-0017](docs/adr/0017-observability.md); дашборд Суфлёра уже в коде_
 - [x] Monorepo-раскладка `/infra`, `/backend`, `/docs` + [`docker-compose`](infra/docker-compose.yml) всего стека — профиль `core` поднят и проверен (Neo4j + Qdrant + PostgreSQL) _(пины образов по digest и профиль red teaming — TODO)_
 - [ ] Streaming (SSE) и LLM-as-a-Judge тесты промптов — _методика в [ADR-0018](docs/adr/0018-security-testing.md)_

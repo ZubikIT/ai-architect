@@ -30,6 +30,15 @@ class Settings:
     graph_limit: int = int(os.getenv("SUFLER_GRAPH_LIMIT", "10"))
     graph_slots: int = int(os.getenv("SUFLER_GRAPH_SLOTS", "3"))  # резерв мест под связанные пункты
 
+    # Граница доверия (ADR-0016): роли берутся из проверенного по JWKS токена
+    # Keycloak. Без OIDC_JWKS_URL сервис остаётся в dev-режиме (роли из тела
+    # запроса) — допустимо только в доверенном контуре и видно в /healthz.
+    oidc_jwks_url: str = os.getenv("OIDC_JWKS_URL", "")
+    oidc_audience: str = os.getenv("OIDC_AUDIENCE", "")
+    oidc_issuer: str = os.getenv("OIDC_ISSUER", "")
+    oidc_roles_claim: str = os.getenv("OIDC_ROLES_CLAIM", "groups")   # ADR-0016: claims.groups
+    oidc_jwks_ttl: int = int(os.getenv("OIDC_JWKS_TTL", "300"))
+
     # Мультиагентный слой — «цифровые сотрудники» (ADR-0015).
     # Лимиты не декоративные: без потолка шагов и вызовов инструментов цикл
     # рассуждений — это LLM06 Unbounded Consumption и каскадный отказ ASI08.
