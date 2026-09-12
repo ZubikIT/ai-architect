@@ -89,7 +89,7 @@
 ```
 
 - **Видео-демо (Deep Dive) 5–7 мин** — «под капотом»: трейсы Jaeger/Langfuse, логи vLLM, визуализация графа в браузере Neo4j.
-- **Нагрузочный отчёт** — RPS и латентность на своём железе (методика — [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md)).
+- **Нагрузочный отчёт** — ✅ [`docs/load-report.md`](docs/load-report.md): RPS и латентность на своём железе, разложение по шагам из трейсов, проверка SLO (методика — [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md)).
 - **Презентация защиты** — по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf) (структура — в [конспекте занятия 33](sessions/33-konsultaciya.md)).
 
 ---
@@ -112,7 +112,7 @@
 - [x] **Observability**: OTel → Jaeger (`trace_id` = `request_id`), доменные метрики и дашборд Grafana как код → [`telemetry.py`](backend/sufler/telemetry.py), [`infra/grafana/`](infra/grafana/) — трейсы разложены по шагам, прогон вскрыл два молча сломанных конфига _(экспорт в Langfuse и метрики качества — не подключены)_
 - [x] Monorepo-раскладка `/infra`, `/backend`, `/docs` + [`docker-compose`](infra/docker-compose.yml) всего стека — профиль `core` поднят и проверен (Neo4j + Qdrant + PostgreSQL) _(пины образов по digest и профиль red teaming — TODO)_
 - [ ] Streaming (SSE) и LLM-as-a-Judge тесты промптов — _методика в [ADR-0018](docs/adr/0018-security-testing.md)_
-- [ ] Нагрузочный отчёт (RPS / latency)
+- [x] **Нагрузочный отчёт** (RPS / latency) → [`docs/load-report.md`](docs/load-report.md), [методика](docs/load/methodology.md), [сырые замеры](docs/load/raw.json) — узкое место реранк (76–90 %), граф ~1 %, накладные расходы MAS 0,8 %; ёмкость реплики 4 клиента по SLO ADR-0017
 - [ ] Видео-демо 5–7 мин
 - [ ] Презентация для защиты
 - [ ] Голос (STT/TTS) — [ADR-0010](docs/adr/0010-voice-stack.md), опциональное расширение вне требований ТЗ

@@ -7,6 +7,8 @@ from sentence_transformers import CrossEncoder, SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 
+from . import telemetry
+
 
 def _tok(s: str):
     return re.findall(r"\w+", s.lower())
@@ -63,15 +65,23 @@ class HybridRetriever:
         top_k = top_k or self.settings.top_k_retrieve
         top_ctx = top_ctx or self.settings.top_k_context
 
-        qv = self.embedder.encode([query], normalize_embeddings=True)[0]
-        dense = self.client.search(
-            collection_name=self.settings.collection,
-            query_vector=qv.tolist(), limit=top_k,
-        )
-        dense_ids = [int(p.id) for p in dense]
+        # Шаги разделены спанами не для красоты: в нагрузочном отчёте вопрос
+        # «что именно упирается» без этого разложения не имеет ответа, а без
+        # ответа непонятно, что оптимизировать — индекс, эмбеддер или реранк
+        # (ADR-0017: hybrid-поиск и rerank — отдельные шаги трейса).
+        with telemetry.span("retrieve.embed", chars=len(query)):
+            qv = self.embedder.encode([query], normalize_embeddings=True)[0]
 
-        scores = self.bm25.get_scores(_tok(query))
-        bm25_ids = [int(i) for i in np.argsort(scores)[::-1][:top_k]]
+        with telemetry.span("retrieve.dense", top_k=top_k):
+            dense = self.client.search(
+                collection_name=self.settings.collection,
+                query_vector=qv.tolist(), limit=top_k,
+            )
+            dense_ids = [int(p.id) for p in dense]
+
+        with telemetry.span("retrieve.bm25", top_k=top_k):
+            scores = self.bm25.get_scores(_tok(query))
+            bm25_ids = [int(i) for i in np.argsort(scores)[::-1][:top_k]]
 
         # объединение результатов (Reciprocal Rank Fusion)
         fused = self._rrf([dense_ids, bm25_ids])
@@ -81,7 +91,10 @@ class HybridRetriever:
         if not cand:
             return []
 
-        # rerank (cross-encoder) — урок 06
-        rr = self.reranker.predict([(query, c.text) for c in cand])
+        # rerank (cross-encoder) — урок 06. Стоимость линейна по числу кандидатов,
+        # а их число зависит от прав субъекта: широкие права — дороже запрос.
+        with telemetry.span("retrieve.rerank", candidates=len(cand)) as sp:
+            rr = self.reranker.predict([(query, c.text) for c in cand])
+            sp.set_attribute("model", self.settings.rerank_model)
         order = np.argsort(rr)[::-1]
         return [cand[i] for i in order][:top_ctx]

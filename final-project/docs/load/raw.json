@@ -1,0 +1,347 @@
+{
+  "base_url": "http://localhost:8080",
+  "duration": 30.0,
+  "warmup": 5.0,
+  "results": [
+    {
+      "scenario": "healthz",
+      "concurrency": 1,
+      "wall_seconds": 30.0,
+      "requests": 12658,
+      "ok": 12658,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 421.92,
+      "latency_ms": {
+        "mean": 2.4,
+        "p50": 2.3,
+        "p95": 2.9,
+        "p99": 3.2,
+        "max": 6.7
+      }
+    },
+    {
+      "scenario": "healthz",
+      "concurrency": 2,
+      "wall_seconds": 30.0,
+      "requests": 15059,
+      "ok": 15059,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 501.93,
+      "latency_ms": {
+        "mean": 4.0,
+        "p50": 3.4,
+        "p95": 8.0,
+        "p99": 10.0,
+        "max": 21.4
+      }
+    },
+    {
+      "scenario": "healthz",
+      "concurrency": 4,
+      "wall_seconds": 30.01,
+      "requests": 20158,
+      "ok": 20158,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 671.79,
+      "latency_ms": {
+        "mean": 6.0,
+        "p50": 5.5,
+        "p95": 9.0,
+        "p99": 10.4,
+        "max": 300.8
+      }
+    },
+    {
+      "scenario": "healthz",
+      "concurrency": 8,
+      "wall_seconds": 30.01,
+      "requests": 16633,
+      "ok": 16633,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 554.28,
+      "latency_ms": {
+        "mean": 14.4,
+        "p50": 9.9,
+        "p95": 37.2,
+        "p99": 74.8,
+        "max": 373.6
+      }
+    },
+    {
+      "scenario": "healthz",
+      "concurrency": 16,
+      "wall_seconds": 30.03,
+      "requests": 12943,
+      "ok": 12943,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 430.96,
+      "latency_ms": {
+        "mean": 37.1,
+        "p50": 19.6,
+        "p95": 115.1,
+        "p99": 183.6,
+        "max": 405.3
+      }
+    },
+    {
+      "scenario": "ask",
+      "concurrency": 1,
+      "wall_seconds": 30.14,
+      "requests": 46,
+      "ok": 46,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.53,
+      "latency_ms": {
+        "mean": 655.1,
+        "p50": 651.1,
+        "p95": 720.5,
+        "p99": 788.4,
+        "max": 788.4
+      }
+    },
+    {
+      "scenario": "ask",
+      "concurrency": 2,
+      "wall_seconds": 30.3,
+      "requests": 50,
+      "ok": 50,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.65,
+      "latency_ms": {
+        "mean": 1207.3,
+        "p50": 1205.0,
+        "p95": 1329.2,
+        "p99": 1354.4,
+        "max": 1354.4
+      }
+    },
+    {
+      "scenario": "ask",
+      "concurrency": 4,
+      "wall_seconds": 30.82,
+      "requests": 54,
+      "ok": 54,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.75,
+      "latency_ms": {
+        "mean": 2253.3,
+        "p50": 2260.8,
+        "p95": 2523.9,
+        "p99": 2606.9,
+        "max": 2606.9
+      }
+    },
+    {
+      "scenario": "ask",
+      "concurrency": 8,
+      "wall_seconds": 32.37,
+      "requests": 61,
+      "ok": 61,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.88,
+      "latency_ms": {
+        "mean": 4115.5,
+        "p50": 4226.3,
+        "p95": 4537.7,
+        "p99": 4621.0,
+        "max": 4621.0
+      }
+    },
+    {
+      "scenario": "ask",
+      "concurrency": 16,
+      "wall_seconds": 34.04,
+      "requests": 64,
+      "ok": 64,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.88,
+      "latency_ms": {
+        "mean": 8318.6,
+        "p50": 8290.0,
+        "p95": 9155.8,
+        "p99": 9263.7,
+        "max": 9263.7
+      }
+    },
+    {
+      "scenario": "ask-acl",
+      "concurrency": 1,
+      "wall_seconds": 30.4,
+      "requests": 30,
+      "ok": 30,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.99,
+      "latency_ms": {
+        "mean": 1013.2,
+        "p50": 1001.4,
+        "p95": 1111.5,
+        "p99": 1174.0,
+        "max": 1174.0
+      }
+    },
+    {
+      "scenario": "ask-acl",
+      "concurrency": 2,
+      "wall_seconds": 30.48,
+      "requests": 32,
+      "ok": 32,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.05,
+      "latency_ms": {
+        "mean": 1903.8,
+        "p50": 1903.4,
+        "p95": 1959.4,
+        "p99": 1969.5,
+        "max": 1969.5
+      }
+    },
+    {
+      "scenario": "ask-acl",
+      "concurrency": 4,
+      "wall_seconds": 31.74,
+      "requests": 36,
+      "ok": 36,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.13,
+      "latency_ms": {
+        "mean": 3495.2,
+        "p50": 3539.2,
+        "p95": 3705.0,
+        "p99": 3728.7,
+        "max": 3728.7
+      }
+    },
+    {
+      "scenario": "ask-acl",
+      "concurrency": 8,
+      "wall_seconds": 34.48,
+      "requests": 40,
+      "ok": 40,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.16,
+      "latency_ms": {
+        "mean": 6750.4,
+        "p50": 6980.4,
+        "p95": 7320.7,
+        "p99": 7963.4,
+        "max": 7963.4
+      }
+    },
+    {
+      "scenario": "ask-acl",
+      "concurrency": 16,
+      "wall_seconds": 40.85,
+      "requests": 48,
+      "ok": 48,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 1.17,
+      "latency_ms": {
+        "mean": 13530.6,
+        "p50": 13579.9,
+        "p95": 14038.9,
+        "p99": 14077.5,
+        "max": 14077.5
+      }
+    },
+    {
+      "scenario": "agents",
+      "concurrency": 1,
+      "wall_seconds": 31.11,
+      "requests": 18,
+      "ok": 18,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.58,
+      "latency_ms": {
+        "mean": 1728.3,
+        "p50": 1715.3,
+        "p95": 1910.5,
+        "p99": 1910.5,
+        "max": 1910.5
+      }
+    },
+    {
+      "scenario": "agents",
+      "concurrency": 2,
+      "wall_seconds": 32.12,
+      "requests": 20,
+      "ok": 20,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.62,
+      "latency_ms": {
+        "mean": 3209.7,
+        "p50": 3202.6,
+        "p95": 3277.4,
+        "p99": 3277.4,
+        "max": 3277.4
+      }
+    },
+    {
+      "scenario": "agents",
+      "concurrency": 4,
+      "wall_seconds": 33.75,
+      "requests": 23,
+      "ok": 23,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.68,
+      "latency_ms": {
+        "mean": 5668.8,
+        "p50": 5924.7,
+        "p95": 6055.3,
+        "p99": 6140.0,
+        "max": 6140.0
+      }
+    },
+    {
+      "scenario": "agents",
+      "concurrency": 8,
+      "wall_seconds": 34.44,
+      "requests": 24,
+      "ok": 24,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.7,
+      "latency_ms": {
+        "mean": 11272.5,
+        "p50": 11223.6,
+        "p95": 11754.8,
+        "p99": 11966.7,
+        "max": 11966.7
+      }
+    },
+    {
+      "scenario": "agents",
+      "concurrency": 16,
+      "wall_seconds": 45.98,
+      "requests": 32,
+      "ok": 32,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.7,
+      "latency_ms": {
+        "mean": 22450.5,
+        "p50": 22166.4,
+        "p95": 23902.3,
+        "p99": 23983.2,
+        "max": 23983.2
+      }
+    }
+  ]
+}

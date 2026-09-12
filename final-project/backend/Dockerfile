@@ -12,7 +12,8 @@ ENV PIP_NO_CACHE_DIR=1 \
     SUFLER_DATA_DIR=/app/data/lpa
 
 # CPU-only torch: сервису не нужен GPU (эмбеддер/реранкер на CPU, LLM внешний).
-# Иначе pip тянет CUDA-сборку torch + nvidia-* (~6-7 ГБ). С CPU-торчем образ ~2-2.5 ГБ.
+# Иначе pip тянет CUDA-сборку torch + nvidia-* (~6-7 ГБ). С CPU-торчем образ 3.3 ГБ
+# (замерено на сборке 12.09.2026; прежняя оценка «2-2.5 ГБ» была догадкой).
 # Отдельным слоем от requirements.txt: правка зависимости приложения не должна
 # заново тянуть ~200 МБ torch — это минуты сборки на каждой итерации.
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
