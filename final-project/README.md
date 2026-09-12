@@ -33,7 +33,7 @@
 | **Sequence** | `User → Guardrails → Rerank → Agent Loop → Tools → Response` | [x] [`sequence-er.md`](docs/diagrams/sequence-er.md) — плюс два шага безопасности до всего остального |
 | **ER** | векторы, чанки, сессии, логи, права | [x] с графом, провенансом и биллингом |
 | **Data Flow** | ingestion → граф → retrieval → ответ | [x] [`data-flow.md`](docs/diagrams/data-flow.md) — плюс классификация данных |
-| **ADR-пакет** | ключевые решения с trade-off | [x] **26 ADR** → [`docs/adr/`](docs/adr/), из них 8 приняты в проде |
+| **ADR-пакет** | ключевые решения с trade-off | [x] **27 ADR** → [`docs/adr/`](docs/adr/), из них 8 приняты в проде, один — новая редакция по замеру |
 
 ## Блок 2. Infrastructure & Stack
 
@@ -42,7 +42,8 @@
 | **Шлюз моделей** | — | **центр платформы**: ключи, бюджеты, учёт, каталог, граница контура | [0019](docs/adr/0019-shlyuz-modeley-kak-centr-platformy.md), [0020](docs/adr/0020-dva-rezhima-dostupa.md) |
 | **LLM Serving** | vLLM / SGLang / TGI, квантование | vLLM **нативно из systemd**, без контейнера — контроль над VRAM | [0003](docs/adr/0003-llm-serving-engine.md) |
 | **Models** | Open Source с RU | MoE 35B при ~3B активных, AWQ, tensor-parallel на 4 картах | [0002](docs/adr/0002-vybor-modeli.md), [0006](docs/adr/0006-kvantovanie-i-sizing-gpu.md) |
-| **Vector DB** | self-hosted | Qdrant в контуре | [0004](docs/adr/0004-vector-db.md) |
+| **Vector DB** | self-hosted | продуктовый retrieval — **pgvector в Pigsty** (`kb_chunks`); Qdrant остался под Суфлёра и Shield | [0027](docs/adr/0027-konveyer-ranzhirovaniya.md) ← 0004 |
+| **Ранжирование** | rerank перед подачей в LLM | **`bge-reranker-v2-m3` на GPU**, сервис платформы. Замер: латентность ×4, порог отказа стал возможен | [0027](docs/adr/0027-konveyer-ranzhirovaniya.md) |
 | **Graph DB** | Neo4j | **спроектирован и собран, в платформу не встроен** | [0012](docs/adr/0012-graph-db.md), [0013](docs/adr/0013-graphrag-strategiya.md) |
 | **Orchestration** | LangGraph, линейные цепочки запрещены | LangGraph — реализовано в [`backend/`](backend/), встраивание предстоит | [0005](docs/adr/0005-orchestration.md), [0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) |
 | **Identity** | — | Keycloak с федерацией каталога, группы в токене | [0021](docs/adr/0021-identifikaciya-keycloak-federaciya.md) |
