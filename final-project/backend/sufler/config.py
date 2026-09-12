@@ -26,6 +26,17 @@ class Settings:
     graph_limit: int = int(os.getenv("SUFLER_GRAPH_LIMIT", "10"))
     graph_slots: int = int(os.getenv("SUFLER_GRAPH_SLOTS", "3"))  # резерв мест под связанные пункты
 
+    # Мультиагентный слой — «цифровые сотрудники» (ADR-0015).
+    # Лимиты не декоративные: без потолка шагов и вызовов инструментов цикл
+    # рассуждений — это LLM06 Unbounded Consumption и каскадный отказ ASI08.
+    mas_enabled: bool = os.getenv("SUFLER_MAS", "1") == "1"
+    mas_max_steps: int = int(os.getenv("SUFLER_MAS_MAX_STEPS", "6"))
+    mas_max_tool_calls: int = int(os.getenv("SUFLER_MAS_MAX_TOOLS", "4"))
+    mas_token_budget: int = int(os.getenv("SUFLER_MAS_TOKEN_BUDGET", "6000"))
+    mas_fanout: int = int(os.getenv("SUFLER_MAS_FANOUT", "2"))
+    # checkpointer состояния: PostgreSQL в проде, in-memory без DATABASE_URL
+    database_url: str = os.getenv("DATABASE_URL", "")
+
     # LLM — OpenAI-совместимый эндпоинт (в проде vLLM + Qwen3.5, ADR-0002/0003)
     openai_base_url: str = os.getenv("OPENAI_BASE_URL", "http://localhost:8000/v1")
     openai_api_key: str = os.getenv("OPENAI_API_KEY", "not-needed")

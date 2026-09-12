@@ -13,13 +13,52 @@ from .guardrails import check_input, mask_pii
 from .ingest import chunk_documents, load_documents
 from .retriever import HybridRetriever
 
-SYSTEM = (
-    "Ты — корпоративный ассистент «Суфлёр». Отвечай ТОЛЬКО на основе предоставленного "
-    "контекста из локальных правовых актов (ЛПА). Если ответа в контексте нет — честно скажи "
-    "«Не нашёл в ЛПА, уточните у профильного отдела». Всегда указывай источник (документ и раздел). "
+# Правила ответа отделены от роли: их наследуют и Суфлёр, и каждый «цифровой
+# сотрудник» (ADR-0015). Разъедься эти формулировки — разъехались бы и требования
+# цитирования с предупреждением об отмене, то есть ровно то, что проверяется.
+ANSWER_RULES = (
+    "Отвечай ТОЛЬКО на основе предоставленного контекста из локальных правовых актов (ЛПА). "
+    "Если ответа в контексте нет — честно скажи «Не нашёл в ЛПА, уточните у профильного отдела». "
+    "Всегда указывай источник (документ и раздел). "
     "Если пункт помечен как отменённый — отвечай по действующей редакции и прямо предупреди, "
     "что прежняя норма отменена. Не выдумывай факты."
 )
+
+SYSTEM = "Ты — корпоративный ассистент «Суфлёр». " + ANSWER_RULES
+
+
+def build_context(found):
+    """Результаты retrieval → (блоки контекста, источники, тексты, пометки об отменах).
+
+    Вынесено из `Sufler.answer`, потому что мультиагентный слой (ADR-0015) собирает
+    контекст тем же способом. Разойдись эти две сборки — разошлись бы и пометки об
+    отменах, а ради них и строился граф: «цифровой сотрудник» обязан предупреждать
+    об отменённой норме ровно так же, как одиночный Суфлёр.
+
+    Списки параллельны (i-й блок ↔ i-й источник ↔ i-й текст): на этом держится
+    слияние находок нескольких агентов по `chunk_id`.
+    """
+    blocks, sources, contexts, notes = [], [], [], []
+    for item in found:
+        c = item.chunk
+        mark = ""
+        if item.relation == CANCELLED_BY:
+            mark = " · ОТМЕНЁН, применению не подлежит"
+            # Заметка формулируется от отменённого пункта: парное ребро
+            # ОТМЕНЯЕТ описывает ту же отмену с другой стороны, и вторая
+            # формулировка только зашумила бы предупреждение.
+            notes.append(f"{c.doc_code} «{c.section}» отменён"
+                         + (f" документом {item.via}" if item.via else ""))
+        elif item.relation == CANCELS:
+            mark = " · действующая редакция, отменяет прежнюю"
+        elif item.from_graph:
+            mark = f" · связан по графу ({item.relation}, через {item.via})"
+        blocks.append(f"[{c.doc} · {c.section}{mark}]\n{c.text}")
+        sources.append({"chunk_id": c.id, "doc": c.doc, "section": c.section,
+                        "relation": item.relation, "via": item.via,
+                        "extracted_by": c.extracted_by})
+        contexts.append(c.text)
+    return blocks, sources, contexts, notes
 
 
 class Sufler:
@@ -48,27 +87,7 @@ class Sufler:
                     "sources": [], "contexts": [], "graph_notes": [],
                     "request_id": ctx.request_id}
 
-        blocks, sources, contexts, notes = [], [], [], []
-        for item in found:
-            c = item.chunk
-            mark = ""
-            if item.relation == CANCELLED_BY:
-                mark = " · ОТМЕНЁН, применению не подлежит"
-                # Заметка формулируется от отменённого пункта: парное ребро
-                # ОТМЕНЯЕТ описывает ту же отмену с другой стороны, и вторая
-                # формулировка только зашумила бы предупреждение.
-                notes.append(f"{c.doc_code} «{c.section}» отменён"
-                             + (f" документом {item.via}" if item.via else ""))
-            elif item.relation == CANCELS:
-                mark = " · действующая редакция, отменяет прежнюю"
-            elif item.from_graph:
-                mark = f" · связан по графу ({item.relation}, через {item.via})"
-            blocks.append(f"[{c.doc} · {c.section}{mark}]\n{c.text}")
-            sources.append({"doc": c.doc, "section": c.section,
-                            "relation": item.relation, "via": item.via,
-                            "extracted_by": c.extracted_by})
-            contexts.append(c.text)
-
+        blocks, sources, contexts, notes = build_context(found)
         context = "\n\n".join(blocks)
         if self.llm:
             draft = self.llm.chat(SYSTEM, f"Контекст:\n{context}\n\nВопрос: {question}")

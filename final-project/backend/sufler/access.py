@@ -20,8 +20,14 @@ class RequestContext:
     request_id: str = field(default_factory=lambda: uuid.uuid4().hex)
 
     @classmethod
-    def of(cls, roles: Iterable[str], subject: str = "anonymous") -> "RequestContext":
+    def of(cls, roles: Iterable[str], subject: str = "anonymous",
+           request_id: str = "") -> "RequestContext":
         rr = tuple(r.strip() for r in roles if r and r.strip()) or (PUBLIC,)
+        if request_id:
+            # Мультиагентный слой (ADR-0015) сужает права для каждого «сотрудника»,
+            # но идентификатор запроса обязан остаться общим: иначе шаги одного
+            # обращения не сшиваются в аудите и в трейсе.
+            return cls(subject=subject, roles=rr, request_id=request_id)
         return cls(subject=subject, roles=rr)
 
 

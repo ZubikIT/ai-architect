@@ -1,4 +1,5 @@
-"""HTTP API: /ask (нативный) + /v1/chat/completions (OpenAI-совместимый — для Open WebUI, ADR-0007)."""
+"""HTTP API: /ask (нативный) · /agents/ask (мультиагентный, ADR-0015) ·
+/v1/chat/completions (OpenAI-совместимый — для Open WebUI, ADR-0007)."""
 import time
 import uuid
 
@@ -10,6 +11,7 @@ from .rag import Sufler
 
 app = FastAPI(title="Суфлёр MVP", version="0.1")
 _engine = None
+_platform = None
 
 # ── Observability (урок 15): Golden Signals для дашборда GenAI/Суфлёр ──────────
 # Имена совпадают с sufler-dashboard.json: ① latency, ② traffic, ③ errors.
@@ -50,6 +52,23 @@ def get_engine() -> Sufler:
     return _engine
 
 
+def get_platform():
+    """Мультиагентный слой поверх того же движка (ADR-0015): индекс, граф и
+    ACL-инварианты у одиночного Суфлёра и у «цифровых сотрудников» общие.
+
+    `SUFLER_MAS=0` — рубильник: если слой агентов начинает вести себя плохо в
+    проде, контур остаётся рабочим на одиночном `/ask`, а не выключается целиком.
+    """
+    from .config import settings
+    if not settings.mas_enabled:
+        raise HTTPException(status_code=503, detail="Мультиагентный слой выключен (SUFLER_MAS=0)")
+    global _platform
+    if _platform is None:
+        from .mas import Platform
+        _platform = Platform(engine=get_engine())
+    return _platform
+
+
 class AskReq(BaseModel):
     question: str
     # ВРЕМЕННО: роли из тела запроса — только для локальной отладки и демо.
@@ -75,6 +94,27 @@ def ask(req: AskReq):
     try:
         return get_engine().answer(req.question, tuple(req.roles))
     except ValueError as e:  # guardrail-блок
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/agents")
+def agents():
+    """Штат «цифровых сотрудников»: компетенция, мандат прав, правила маршрутизации."""
+    from .config import settings
+    from .mas import roster
+    return {"enabled": settings.mas_enabled, "agents": roster()}
+
+
+@app.post("/agents/ask")
+def agents_ask(req: AskReq):
+    """Мультиагентный путь: супервизор → роли-агенты → сведение (ADR-0015).
+
+    Отдельный эндпоинт, а не флаг в /ask: у ответа другой контракт — маршрут,
+    ReAct-trace и израсходованный бюджет. Клиент выбирает путь осознанно.
+    """
+    try:
+        return get_platform().answer(req.question, tuple(req.roles))
+    except ValueError as e:  # guardrail-блок — до создания checkpoint
         raise HTTPException(status_code=400, detail=str(e))
 
 

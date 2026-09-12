@@ -19,3 +19,10 @@ def engine():
 def corpus():
     from sufler.ingest import chunk_documents, load_documents
     return chunk_documents(load_documents(os.environ["SUFLER_DATA_DIR"]))
+
+
+@pytest.fixture(scope="session")
+def platform(engine):
+    """Мультиагентный слой поверх того же движка — второй раз модели не грузим."""
+    from sufler.mas import Platform
+    return Platform(engine=engine)

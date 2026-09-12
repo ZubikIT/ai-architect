@@ -47,7 +47,7 @@
 | **Models** | Open Source с RU: Qwen 2.5/3, DeepSeek-V3, T-lite/Saiga | Qwen3.5-27B (текст) + Qwen3-VL с адаптером Zubr (разбор страниц-исключений) | [0002](docs/adr/0002-vybor-modeli.md), [0014](docs/adr/0014-multimodalnyy-ingestion.md) |
 | **Vector DB** | self-hosted: Qdrant / Milvus / Weaviate | Qdrant | [0004](docs/adr/0004-vector-db.md) |
 | **Graph DB** | Neo4j (образ в материалах ЛК) | Neo4j Community 5.x + гибрид с Qdrant | [0012](docs/adr/0012-graph-db.md), [0013](docs/adr/0013-graphrag-strategiya.md) |
-| **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph | [0005](docs/adr/0005-orchestration.md) |
+| **Orchestration** | **LangGraph** / LlamaIndex Workflows; **линейные цепочки запрещены** | LangGraph — реализовано ([`mas.py`](backend/sufler/mas.py)) | [0005](docs/adr/0005-orchestration.md), [0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) |
 | **Observability** | OpenTelemetry (трейсинг), Prometheus / Grafana (токены/сек, latency) | OTel → Jaeger + Langfuse, VictoriaMetrics + Grafana | [0017](docs/adr/0017-observability.md) |
 
 **Принято:** [Graph DB — Neo4j](docs/adr/0012-graph-db.md) · [стратегия GraphRAG и онтология](docs/adr/0013-graphrag-strategiya.md). [ACL на узлах графа](docs/adr/0016-acl-na-uzlah-grafa.md) · [мультимодальный ingestion](docs/adr/0014-multimodalnyy-ingestion.md) · [топология MAS](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) · [Observability](docs/adr/0017-observability.md) · [security testing](docs/adr/0018-security-testing.md) — **ADR-пакет закрыт** (18 решений).
@@ -55,7 +55,7 @@
 ## Блок 3. Implementation (MVP)
 
 - [x] **B. Advanced RAG** — **GraphRAG** (обязателен) + мультимодальный ingestion сканов/чертежей
-- [x] **A. Cognitive Architecture** — Multi-Agent Collaboration: supervisor + роли-агенты (цифровые сотрудники) на LangGraph
+- [x] **A. Cognitive Architecture** — Multi-Agent Collaboration: supervisor + роли-агенты (цифровые сотрудники) на LangGraph — реализовано, [`backend/sufler/mas.py`](backend/sufler/mas.py)
 - [x] **C. Security** — Input/Output Guardrails (PII, prompt injection) + ACL на уровне узлов графа
 
 Дизайн ядра и доменная часть (корпус ЛПА, ingestion, hybrid search) — [`docs/mvp.md`](docs/mvp.md); «Суфлёр» становится одним из цифровых сотрудников платформы.
@@ -74,7 +74,7 @@
 **Критично:**
 - [x] **Security** — User B не получает ответ по секретному документу — ✅ автотест [`test_graphrag.py`](backend/tests/test_graphrag.py) (проверяется и контекст LLM, не только ответ)
 - [x] **Architecture** — явное разделение **Control Plane** / **Data Plane** ✅ в [C4 L2](docs/diagrams/c4.md#c2--containers), [C3](docs/diagrams/c4.md#c3--components-agent-internals--langgraph), [Deployment](docs/diagrams/c4.md#deployment) и [Data Flow](docs/diagrams/data-flow.md) — осталось подтвердить реализацией
-- [ ] **Stack** — LangGraph / state machine, а не линейные скрипты
+- [x] **Stack** — LangGraph / state machine, а не линейные скрипты — ✅ супервизор ⇄ роли-агенты с циклом, ветвлением, лимитами и checkpointer: [`backend/sufler/mas.py`](backend/sufler/mas.py); структура графа выполнения проверяется тестом `test_execution_graph_has_branch_and_cycle`
 
 **Желательно:**
 - [ ] потоковый ответ (Streaming)
@@ -106,7 +106,7 @@
 - [x] MVP: домен, ingestion ЛПА, hybrid RAG (этапы 1–2) → [`backend/`](backend/)
 - [x] **GraphRAG-ядро** (онтология, построение графа, graph-augmented retrieval) → [`backend/`](backend/) _(Neo4j-бэкенд написан; прогон на живой БД — TODO)_
 - [ ] **Мультимодальный ingestion** (сканы, чертежи, сложные PDF) — _спроектирован в [ADR-0014](docs/adr/0014-multimodalnyy-ingestion.md), не реализован_
-- [ ] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph) — _спроектирован в [ADR-0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), не реализован_
+- [x] **Мультиагентный слой** (supervisor + роли-агенты на LangGraph) → [`mas.py`](backend/sufler/mas.py), [`roles.py`](backend/sufler/roles.py), [`tools.py`](backend/sufler/tools.py) — 4 роли, детерминированная маршрутизация, least privilege на инструменте, лимиты и ReAct-trace _(замеры на golden set не сделаны → [ADR-0015](docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md) остаётся `proposed`)_
 - [x] **ACL на уровне узлов графа + тест «User B»** → [`access.py`](backend/sufler/access.py), [`test_graphrag.py`](backend/tests/test_graphrag.py) _(JWT-валидация — TODO)_
 - [ ] Observability: OTel → Jaeger + Langfuse, Prometheus/Grafana, примеры трейсов и дашбордов — _спроектировано в [ADR-0017](docs/adr/0017-observability.md); дашборд Суфлёра уже в коде_
 - [x] Monorepo-раскладка `/infra`, `/backend`, `/docs` + [`docker-compose`](infra/docker-compose.yml) всего стека _(пины образов и профиль red teaming — TODO)_
