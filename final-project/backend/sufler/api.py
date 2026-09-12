@@ -2,6 +2,7 @@
 /v1/chat/completions (OpenAI-совместимый — для Open WebUI, ADR-0007)."""
 import time
 import uuid
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
@@ -9,9 +10,22 @@ from prometheus_client import Counter, Histogram, make_asgi_app
 
 from .rag import Sufler
 
-app = FastAPI(title="Суфлёр MVP", version="0.1")
 _engine = None
 _platform = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    # Соединение с графом закрывается на остановке сервиса: иначе драйвер Neo4j
+    # доживает до сборщика мусора, а пул сокетов — до перезапуска пода.
+    global _engine, _platform
+    if _engine is not None:
+        _engine.close()
+    _engine = _platform = None
+
+
+app = FastAPI(title="Суфлёр MVP", version="0.1", lifespan=lifespan)
 
 # ── Observability (урок 15): Golden Signals для дашборда GenAI/Суфлёр ──────────
 # Имена совпадают с sufler-dashboard.json: ① latency, ② traffic, ③ errors.

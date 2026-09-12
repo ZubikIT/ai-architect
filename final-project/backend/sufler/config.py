@@ -17,6 +17,10 @@ class Settings:
     top_k_retrieve: int = int(os.getenv("SUFLER_TOP_K", "20"))
     top_k_context: int = int(os.getenv("SUFLER_TOP_CTX", "5"))
 
+    # вектор: self-hosted Qdrant (ADR-0004). Без QDRANT_URL — встроенный :memory:
+    # (офлайн-демо и тесты): стек поднимать не нужно, шаги pipeline те же.
+    qdrant_url: str = os.getenv("QDRANT_URL", "")
+
     # граф знаний (ADR-0012/0013). Без NEO4J_URI — in-memory режим (офлайн-демо, тесты)
     neo4j_uri: str = os.getenv("NEO4J_URI", "")
     neo4j_user: str = os.getenv("NEO4J_USER", "neo4j")

@@ -7,7 +7,7 @@
 | Сервис | Роль | Решение |
 |---|---|---|
 | `neo4j` | граф знаний, Neo4j Browser для визуализации | [ADR-0012](../docs/adr/0012-graph-db.md) |
-| `qdrant` | dense + BM25, payload-фильтр по ролям | [ADR-0004](../docs/adr/0004-vector-db.md) |
+| `qdrant` | dense-индекс (BM25 — в процессе), RBAC pre-filter по ролям; подключается через `QDRANT_URL` | [ADR-0004](../docs/adr/0004-vector-db.md) |
 | `postgres` | checkpointer LangGraph, сессии, журнал доступа | [ADR-0015](../docs/adr/0015-topologiya-mas-cifrovye-sotrudniki.md), [ADR-0016](../docs/adr/0016-acl-na-uzlah-grafa.md) |
 | `backend` | API, агенты, слой репозитория | [`../backend`](../backend/) |
 | `otel-collector` | приём спанов и метрик | [ADR-0017](../docs/adr/0017-observability.md) |
@@ -26,6 +26,16 @@ docker compose --profile core --profile obs up -d # + наблюдаемость
 ```
 
 Проверка: Neo4j Browser — `http://localhost:7474`, Jaeger — `http://localhost:16686`, Grafana — `http://localhost:3000`, API — `http://localhost:8080/healthz`.
+
+Профиль `core` поднят и проверен: граф строится в живой Neo4j, вектор ложится в Qdrant (19 точек, dim 384), набор тестов проходит против стека целиком. Прогон вскрыл три расхождения боевого бэкенда с демо-режимом — разобраны в [`../backend/README.md`](../backend/README.md#живой-прогон-что-нашёл-боевой-бэкенд).
+
+Запуск сервиса из исходников против поднятых БД (быстрее, чем собирать образ):
+
+```bash
+cd ../backend
+export NEO4J_URI=bolt://localhost:7687 NEO4J_PASSWORD=... QDRANT_URL=http://localhost:6333
+python -m sufler.cli --stats && uvicorn sufler.api:app --port 8080
+```
 
 Офлайн-демо без GPU: `SUFLER_USE_LLM=0` — ответы собираются экстрактивно, retrieval и граф работают полностью.
 

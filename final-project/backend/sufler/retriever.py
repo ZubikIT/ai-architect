@@ -19,11 +19,19 @@ class HybridRetriever:
         self.embedder = SentenceTransformer(settings.embed_model)
         self.reranker = CrossEncoder(settings.rerank_model)
 
-        # dense → Qdrant (в демо :memory:, в проде — self-hosted сервер, ADR-0004)
+        # dense → Qdrant: self-hosted сервер при QDRANT_URL, иначе встроенный
+        # :memory: (офлайн-демо и тесты). Сервис в compose до этого никем не
+        # использовался — поднятый Qdrant стоял пустым, а индекс жил в процессе.
         vecs = self.embedder.encode([c.text for c in chunks], normalize_embeddings=True)
         dim = int(vecs.shape[1])
-        self.client = QdrantClient(":memory:")
-        self.client.recreate_collection(
+        self.client = QdrantClient(url=settings.qdrant_url) if settings.qdrant_url \
+            else QdrantClient(":memory:")
+        # Коллекция пересоздаётся на старте: индекс — производный артефакт, его
+        # источник истины остаётся в корпусе ЛПА (ADR-0012, тот же принцип, что и
+        # для графа). В проде это работа индексатора, а не runtime-учётки (ADR-0016).
+        if self.client.collection_exists(settings.collection):
+            self.client.delete_collection(settings.collection)
+        self.client.create_collection(
             collection_name=settings.collection,
             vectors_config=VectorParams(size=dim, distance=Distance.COSINE),
         )

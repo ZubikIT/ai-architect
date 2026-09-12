@@ -160,7 +160,10 @@ class InMemoryGraphStore(GraphStore):
         return ann
 
     def stats(self):
-        return {"backend": "in-memory", "nodes": len(self.chunks), "edges": len(self.edges)}
+        cancels = sum(1 for _, rel, _, _ in self.edges if rel == CANCELS)
+        return {"backend": "in-memory", "nodes": len(self.chunks),
+                "documents": len(self.doc_acl), "edges": len(self.edges),
+                "cancels": cancels, "references": len(self.edges) - cancels}
 
 
 class Neo4jGraphStore(GraphStore):
@@ -208,13 +211,26 @@ class Neo4jGraphStore(GraphStore):
     SET e.derived_by = 'rule'
     """
 
-    # ACL-предикат стоит на КАЖДОМ узле пути, включая документ-владелец.
+    # ОДИН хоп обхода. ACL-предикат стоит на КАЖДОМ узле пути, включая
+    # документ-владелец. Глубина набирается повторным запуском этого же запроса
+    # с новым фронтиром (см. `expand`), а не переменной длиной пути: во-первых,
+    # Cypher не принимает верхнюю границу `*1..$hops` параметром, и пришлось бы
+    # склеивать запрос строкой — ровно то, что ADR-0013 запрещает; во-вторых,
+    # пошаговый фронтир даёт ту же семантику, что у InMemoryGraphStore, по
+    # построению, а не по совпадению. Цена — `hops` round-trip'ов вместо одного.
     EXPAND = """
     MATCH (seed:Чанк) WHERE seed.chunk_id IN $seeds
     MATCH (seed)<-[:ОТМЕНЯЕТ]-(other:Чанк)<-[:СОДЕРЖИТ]-(od:Документ)
     WHERE ('all' IN other.acl_roles OR any(r IN other.acl_roles WHERE r IN $roles))
       AND ('all' IN od.acl_roles   OR any(r IN od.acl_roles   WHERE r IN $roles))
     RETURN other.chunk_id AS chunk_id, 'ОТМЕНЯЕТ' AS relation,
+           seed.doc_code + ' · ' + seed.section AS via
+    UNION
+    MATCH (seed:Чанк) WHERE seed.chunk_id IN $seeds
+    MATCH (seed)-[:ОТМЕНЯЕТ]->(other:Чанк)<-[:СОДЕРЖИТ]-(od:Документ)
+    WHERE ('all' IN other.acl_roles OR any(r IN other.acl_roles WHERE r IN $roles))
+      AND ('all' IN od.acl_roles   OR any(r IN od.acl_roles   WHERE r IN $roles))
+    RETURN other.chunk_id AS chunk_id, 'ОТМЕНЁН' AS relation,
            seed.doc_code + ' · ' + seed.section AS via
     UNION
     MATCH (seed:Чанк) WHERE seed.chunk_id IN $seeds
@@ -242,9 +258,16 @@ class Neo4jGraphStore(GraphStore):
            other.doc_code + ' · ' + other.section AS via
     """
 
+    # Считаем ровно то же, что и in-memory: смысловые рёбра онтологии.
+    # СОДЕРЖИТ и ДОСТУПЕН_РОЛИ — служебная разводка (структура документа и
+    # материализованный ACL), и если сложить их в ту же цифру, показатели двух
+    # бэкендов перестают быть сопоставимыми: на демо-корпусе получалось 4 против 52.
     STATS = """
-    MATCH (c:Чанк) WITH count(c) AS nodes
-    MATCH ()-[e]->() RETURN nodes, count(e) AS edges
+    MATCH (c:Чанк) WITH count(c) AS chunks
+    MATCH (d:Документ) WITH chunks, count(d) AS documents
+    OPTIONAL MATCH ()-[e:ОТМЕНЯЕТ]->() WITH chunks, documents, count(e) AS cancels
+    OPTIONAL MATCH ()-[e:ССЫЛАЕТСЯ_НА]->()
+    RETURN chunks, documents, cancels, count(e) AS references
     """
 
     def __init__(self, uri: str, user: str, password: str):
@@ -269,16 +292,27 @@ class Neo4jGraphStore(GraphStore):
                     s.run(self.LINK_REFERENCES, src=src, code=dst_code, clause=dst_id)
 
     def expand(self, seed_ids, roles, hops=1, limit=10):
+        """Обход фронтиром: `hops` одинаковых запросов, каждый — от узлов,
+        найденных на предыдущем шаге. Цепочка отмен (ЛПА-07 отменяет ЛПА-04,
+        который отменил ЛПА-01) достаётся только так; одиночный запрос находил
+        лишь первое звено, и боевой бэкенд молча терял глубину, заявленную в
+        `SUFLER_GRAPH_HOPS`."""
+        out, seen, frontier = [], set(seed_ids), list(seed_ids)
         with self._driver.session() as s:
-            rows = s.run(self.EXPAND, seeds=list(seed_ids), roles=list(roles))
-            out, seen = [], set(seed_ids)
-            for r in rows:
-                cid = int(r["chunk_id"])
-                if cid in seen:
-                    continue
-                seen.add(cid)
-                out.append(Expansion(cid, r["relation"], r["via"]))
-            return out[:limit]
+            for _ in range(max(1, hops)):
+                if not frontier:
+                    break
+                rows = s.run(self.EXPAND, seeds=frontier, roles=list(roles))
+                nxt = []
+                for r in rows:
+                    cid = int(r["chunk_id"])
+                    if cid in seen:
+                        continue
+                    seen.add(cid)
+                    nxt.append(cid)
+                    out.append(Expansion(cid, r["relation"], r["via"]))
+                frontier = nxt
+        return out[:limit]
 
     def annotations(self, chunk_ids, roles):
         with self._driver.session() as s:
@@ -291,7 +325,11 @@ class Neo4jGraphStore(GraphStore):
     def stats(self):
         with self._driver.session() as s:
             rec = s.run(self.STATS).single()
-            return {"backend": "neo4j", "nodes": rec["nodes"], "edges": rec["edges"]} if rec else {}
+            if not rec:
+                return {}
+            return {"backend": "neo4j", "nodes": rec["chunks"], "documents": rec["documents"],
+                    "edges": rec["cancels"] + rec["references"],
+                    "cancels": rec["cancels"], "references": rec["references"]}
 
     def close(self):
         self._driver.close()

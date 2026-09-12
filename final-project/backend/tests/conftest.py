@@ -12,7 +12,9 @@ os.environ.setdefault("SUFLER_DATA_DIR", os.path.join(os.path.dirname(__file__),
 @pytest.fixture(scope="session")
 def engine():
     from sufler.rag import Sufler
-    return Sufler()
+    eng = Sufler()
+    yield eng
+    eng.close()      # при NEO4J_URI это закрытие драйвера, а не формальность
 
 
 @pytest.fixture(scope="session")

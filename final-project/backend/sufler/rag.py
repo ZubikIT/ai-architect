@@ -105,3 +105,8 @@ class Sufler:
 
     def graph_stats(self):
         return self.retriever.graph_stats()
+
+    def close(self):
+        """Освободить соединение с графом. Драйвер Neo4j держит пул сокетов:
+        в долгоживущем сервисе его обязан закрывать владелец, а не сборщик мусора."""
+        self.graph.close()

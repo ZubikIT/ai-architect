@@ -43,17 +43,7 @@ def _fmt(res: dict, show_trace: bool = False) -> str:
     return out + f"\n\nrequest_id: {res['request_id']}"
 
 
-def main():
-    ap = argparse.ArgumentParser(description="Суфлёр — GraphRAG по ЛПА")
-    ap.add_argument("question", nargs="*", help="вопрос; без него — интерактивный режим")
-    ap.add_argument("--roles", default="all", help="роли субъекта через запятую (демо)")
-    ap.add_argument("--stats", action="store_true", help="показать статистику графа и выйти")
-    ap.add_argument("--mas", action="store_true",
-                    help="мультиагентный путь: супервизор + роли-агенты (ADR-0015)")
-    ap.add_argument("--trace", action="store_true", help="показать ReAct-trace (с --mas)")
-    args = ap.parse_args()
-
-    eng = Sufler()
+def _run(args, eng):
     if args.stats:
         print(eng.graph_stats())
         return
@@ -73,6 +63,23 @@ def main():
         q = line.strip()
         if q:
             print(_fmt(eng.answer(q, roles=roles), args.trace))
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Суфлёр — GraphRAG по ЛПА")
+    ap.add_argument("question", nargs="*", help="вопрос; без него — интерактивный режим")
+    ap.add_argument("--roles", default="all", help="роли субъекта через запятую (демо)")
+    ap.add_argument("--stats", action="store_true", help="показать статистику графа и выйти")
+    ap.add_argument("--mas", action="store_true",
+                    help="мультиагентный путь: супервизор + роли-агенты (ADR-0015)")
+    ap.add_argument("--trace", action="store_true", help="показать ReAct-trace (с --mas)")
+    args = ap.parse_args()
+
+    eng = Sufler()
+    try:
+        _run(args, eng)
+    finally:
+        eng.close()   # драйвер графа закрывает тот, кто его открыл
 
 
 if __name__ == "__main__":
