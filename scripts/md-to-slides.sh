@@ -106,6 +106,10 @@ for chunk in re.split(r"^---\s*$", text, flags=re.M):
     for i, img in enumerate(images):
         body = body.replace(f"<p>IMGSLOT{i}END</p>", f'<figure>{img}</figure>')
         body = body.replace(f"IMGSLOT{i}END", img)
+    # Обычная markdown-картинка идёт как <p><img></p> и без обёртки не
+    # ограничена по высоте — скриншот вылезал за слайд. Оборачиваем в figure,
+    # у неё в CSS есть и flex-растяжение, и max-height.
+    body = re.sub(r"<p>(<img[^>]*/?>)</p>", r"<figure>\1</figure>", body)
     slides_html.append(f'<section class="slide">\n{body}</section>')
 
 dst.write_text(f"""<!doctype html>
