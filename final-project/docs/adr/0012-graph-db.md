@@ -2,12 +2,14 @@
 id: ADR-0012
 title: Graph Database — Neo4j Community (vs ArangoDB, NebulaGraph, Memgraph, граф внутри Qdrant/PostgreSQL)
 date: 2026-09-11
-status: proposed
+status: superseded by ADR-0028
 deciders: [Зубик Александр]
 tags: [graph-db, neo4j, graphrag, cypher, apoc, gds, arangodb, nebulagraph, memgraph, air-gapped, acl]
 ---
 
 # ADR-0012. Graph Database — Neo4j Community (vs ArangoDB, NebulaGraph, Memgraph, граф внутри Qdrant/PostgreSQL)
+
+> **Заменено [ADR-0028](0028-grafovoe-hranilishche.md).** Решение не было ошибочным — изменилось его основание: векторная часть платформы уехала в PostgreSQL, и отдельный Neo4j стал вторым stateful-хранилищем ради онтологии из четырёх типов узлов. Замер трёх бэкендов на одном корпусе — [`graph-backends.md`](../graph-backends.md); качество не разошлось ни на один случай, решили изоляция окружений и стоимость сопровождения.
 
 ## Контекст
 

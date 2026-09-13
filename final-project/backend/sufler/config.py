@@ -47,6 +47,11 @@ class Settings:
     neo4j_uri: str = os.getenv("NEO4J_URI", "")
     neo4j_user: str = os.getenv("NEO4J_USER", "neo4j")
     neo4j_password: str = os.getenv("NEO4J_PASSWORD", "")
+    # Третий бэкенд графа — рекурсивные CTE в той же СУБД, где уже живёт
+    # векторная часть платформы. Выбор делается замером, а не умолчанием
+    # (ADR-0028): SUFLER_GRAPH_BACKEND = auto | neo4j | postgres | memory.
+    graph_backend: str = os.getenv("SUFLER_GRAPH_BACKEND", "auto")
+    graph_dsn: str = os.getenv("SUFLER_GRAPH_DSN", "")
     graph_enabled: bool = os.getenv("SUFLER_GRAPH", "1") == "1"
     graph_hops: int = int(os.getenv("SUFLER_GRAPH_HOPS", "2"))
     graph_limit: int = int(os.getenv("SUFLER_GRAPH_LIMIT", "10"))

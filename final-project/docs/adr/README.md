@@ -14,7 +14,7 @@
 - **Центр:** шлюз моделей — ключи, бюджеты, учёт потребления, каталог (ADR-0019). Через него проходит **каждый** вызов модели.
 - **Граница контура:** права ключа, проверка до вызова (ADR-0020). Закрытый режим — свой инференс; внешний — вне периметра проекта.
 - **Инференс:** vLLM нативно на GPU-боксе (ADR-0003), MoE-модель в AWQ на 4× V100 (ADR-0002/0006 — с поправкой на реальное железо).
-- **Знания:** хранилище векторов (ADR-0004 → [ADR-0027](0027-konveyer-ranzhirovaniya.md)); ранжирование — сервис платформы `bge-reranker-v2-m3`, и именно оно определяет качество. Граф связей и GraphRAG (ADR-0012/0013) **спроектированы, в платформу не встроены** — код в [`../../backend/`](../../backend/).
+- **Знания:** хранилище векторов (ADR-0004 → [ADR-0027](0027-konveyer-ranzhirovaniya.md)); ранжирование — сервис платформы `bge-reranker-v2-m3`, и именно оно определяет качество. Граф связей — рекурсивные CTE в той же СУБД (ADR-0012 → [ADR-0028](0028-grafovoe-hranilishche.md)); GraphRAG (ADR-0013) **спроектирован, в платформу не встроен** — код в [`../../backend/`](../../backend/).
 - **Агенты:** иерархия supervisor + роли-агенты (ADR-0015) — там же, встраивание предстоит.
 - **Доступ:** Keycloak с федерацией каталога, группы в токене (ADR-0021) → материализованные метки на чанках и узлах (ADR-0016).
 - **Состояние:** ключи и потребление в HA-кластере PostgreSQL (ADR-0022); биллинг читает его напрямую (ADR-0023).
@@ -40,7 +40,7 @@
 | [ADR-0009](0009-mcp-integration-layer.md) | MCP как стандартный слой интеграции (Open WebUI + Onyx) | proposed | 2026-05-26 |
 | [ADR-0010](0010-voice-stack.md) | Голосовой стек — self-hosted STT/TTS (faster-whisper/GigaAM + Silero) | proposed | 2026-05-27 |
 | [ADR-0011](0011-sufler-pipeline-integration.md) | Интеграция Суфлёра как Open WebUI Pipeline + RBAC через Keycloak | superseded by ADR-0019 | 2026-05-27 |
-| [ADR-0012](0012-graph-db.md) | Graph Database — Neo4j Community (vs ArangoDB, NebulaGraph, Memgraph) | proposed | 2026-09-11 |
+| [ADR-0012](0012-graph-db.md) | Graph Database — Neo4j Community (vs ArangoDB, NebulaGraph, Memgraph) | superseded by ADR-0028 | 2026-09-11 |
 | [ADR-0013](0013-graphrag-strategiya.md) | Стратегия GraphRAG — гибрид «вектор → обход графа» + онтология из 4 узлов | proposed | 2026-09-11 |
 | [ADR-0014](0014-multimodalnyy-ingestion.md) | Мультимодальный ingestion — каскад «текстовый слой → layout → VL» с понижением доверия | proposed | 2026-09-11 |
 | [ADR-0015](0015-topologiya-mas-cifrovye-sotrudniki.md) | Топология MAS «цифровые сотрудники» — supervisor + роли-агенты на LangGraph | proposed | 2026-09-11 |
@@ -56,6 +56,7 @@
 | [ADR-0025](0025-svoy-chat-vmesto-dorabotki-chuzhogo.md) | Свой чат вместо доработки открытого | accepted | 2026-09-12 |
 | [ADR-0026](0026-perimetr-i-sertifikaty.md) | Периметр — обратный прокси и wildcard через DNS-01 | accepted | 2026-09-12 |
 | [ADR-0027](0027-konveyer-ranzhirovaniya.md) | Конвейер ранжирования вместо собственной модели реранка | accepted | 2026-09-12 |
+| [ADR-0028](0028-grafovoe-hranilishche.md) | Графовое хранилище — рекурсивные CTE в PostgreSQL вместо Neo4j | accepted | 2026-09-13 |
 
 ## Планируемые ADR (из брифа проекта)
 - [x] **ADR-0002** — выбор модели (RU-поддержка, размер, лицензия) → [ADR-0002](0002-vybor-modeli.md): Qwen3.5-27B (proposed)
@@ -72,7 +73,7 @@
 - [x] **ADR-0011** — интеграция в реальный деплой → [ADR-0011](0011-sufler-pipeline-integration.md): Суфлёр-Pipe + Keycloak RBAC (proposed)
 
 ## Планируемые ADR (из уточнённого ТЗ, занятие [32](../../sessions/32-vybor-temy.md))
-- [x] **ADR-0012** — Graph Database → [ADR-0012](0012-graph-db.md): Neo4j Community (proposed)
+- [x] **ADR-0012** — Graph Database → [ADR-0012](0012-graph-db.md): Neo4j Community (superseded by [ADR-0028](0028-grafovoe-hranilishche.md) — по замеру трёх бэкендов: качество не разошлось, решили изоляция окружений и стоимость сопровождения)
 - [x] **ADR-0013** — стратегия GraphRAG и онтология → [ADR-0013](0013-graphrag-strategiya.md): гибрид + 4 типа узлов (proposed)
 - [x] **ADR-0014** — [мультимодальный ingestion](0014-multimodalnyy-ingestion.md): каскад «текстовый слой → layout-парсер → VL на исключениях», провенанс `extracted_by` (proposed)
 - [x] **ADR-0015** — [топология MAS «цифровые сотрудники»](0015-topologiya-mas-cifrovye-sotrudniki.md): иерархия supervisor + 4 роли, checkpointer, лимиты, ReAct-trace (proposed)
