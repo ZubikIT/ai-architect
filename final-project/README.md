@@ -82,7 +82,7 @@
 
 | Что | Где |
 |---|---|
-| **ADR-пакет** — 26 решений | [`docs/adr/`](docs/adr/) |
+| **ADR-пакет** — 28 решений | [`docs/adr/`](docs/adr/) |
 | **Сверка ADR с реальностью** | [`docs/adr-audit.md`](docs/adr-audit.md) |
 | Диаграммы: C4, Deployment, Data Flow, Sequence, ER | [`docs/diagrams/`](docs/diagrams/) |
 | Vision & Goals, требования | [`docs/vision-goals.md`](docs/vision-goals.md), [`docs/requirements.md`](docs/requirements.md) |
@@ -90,7 +90,7 @@
 | **Нагрузочный отчёт** | [`docs/load-report.md`](docs/load-report.md) — без генерации узкое место реранк (76 %), с боевой моделью генерация 68 % / реранк 30 %, граф 0,3 % |
 | **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0, faithfulness 0,923 на боевой модели |
 | **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 11 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 39 слайдов, резерв на вопросы |
-| Код компонентов | [`backend/`](backend/) — 75 тестов |
+| Код компонентов | [`backend/`](backend/) — 103 теста |
 | Развёртывание компонентов | [`infra/`](infra/) — compose, профили `core` и `obs` |
 | **Описание платформы as-is** | [`../zubriq-platform/`](../zubriq-platform/README.md) |
 
@@ -106,13 +106,14 @@
 - **red teaming по методике занятия 33** — методика описана, не применялась
 - **ретеншн** диалогов, трассировок и логов не определён
 - **отзыв токена до истечения** — интроспекции нет
+- **видео-демо** по ТЗ — сценарий написан, запись не сделана
 
 ## Дорожная карта
 
 1. Встроить граф и агентный слой в платформу — они уже совместимы по интерфейсам
 2. Перевернуть умолчание прав ключа: пусто = только свои модели
 3. Тест на схему БД шлюза в CI — иначе счета сломаются молча
-4. Реранк на ONNX в отдельный пул — 76 % латентности в одном компоненте
+4. ~~Реранк на ONNX в отдельный пул~~ → **сделано иначе: ранжирование отдано сервису платформы** ([ADR-0027](docs/adr/0027-konveyer-ranzhirovaniya.md)). Следующий — эмбеддер туда же, с переиндексацией
 5. Ретеншн и режим доступа к трассировке
 6. Мультимодальный ingestion: layout → OCR → VL с провенансом
 7. Red teaming с ASR-гейтом в CI
@@ -126,6 +127,7 @@
 ```
 
 - **Демонстрация** — вживую по презентации: граф в браузере Neo4j, трейс по `request_id`, дашборд, потоковый ответ.
+- **Видео-демо 5–7 минут** (требование ТЗ) — **не записано**; раскадровка с командами и обязательными кадрами готова: [`docs/demo-video-script.md`](docs/demo-video-script.md).
 - **Нагрузочный отчёт** — [`docs/load-report.md`](docs/load-report.md), методика по [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md).
 - **Презентация** — защита идёт по [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) (11 слайдов, дословный сценарий с хронометражем в [`docs/presentation-5min.md`](docs/presentation-5min.md)); полная [`docs/presentation.pdf`](docs/presentation.pdf) остаётся резервом на вопросы. Структура — по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf).
 
