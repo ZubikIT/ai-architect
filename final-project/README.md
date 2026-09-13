@@ -89,7 +89,7 @@
 | Экономика | [`docs/economics/tco.md`](docs/economics/tco.md) |
 | **Нагрузочный отчёт** | [`docs/load-report.md`](docs/load-report.md) — без генерации узкое место реранк (76 %), с боевой моделью генерация 68 % / реранк 30 %, граф 0,3 % |
 | **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0, faithfulness 0,923 на боевой модели |
-| **Презентация защиты** | [`docs/presentation.pdf`](docs/presentation.pdf) |
+| **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 11 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 39 слайдов, резерв на вопросы |
 | Код компонентов | [`backend/`](backend/) — 75 тестов |
 | Развёртывание компонентов | [`infra/`](infra/) — compose, профили `core` и `obs` |
 | **Описание платформы as-is** | [`../zubriq-platform/`](../zubriq-platform/README.md) |
@@ -127,7 +127,7 @@
 
 - **Демонстрация** — вживую по презентации: граф в браузере Neo4j, трейс по `request_id`, дашборд, потоковый ответ.
 - **Нагрузочный отчёт** — [`docs/load-report.md`](docs/load-report.md), методика по [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md).
-- **Презентация** — [`docs/presentation.pdf`](docs/presentation.pdf), структура по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf).
+- **Презентация** — защита идёт по [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) (11 слайдов, дословный сценарий с хронометражем в [`docs/presentation-5min.md`](docs/presentation-5min.md)); полная [`docs/presentation.pdf`](docs/presentation.pdf) остаётся резервом на вопросы. Структура — по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf).
 
 ## Открытые вопросы
 
