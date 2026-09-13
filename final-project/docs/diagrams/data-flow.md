@@ -52,7 +52,7 @@ flowchart TB
   subgraph dp["Data Plane"]
     emb["Эмбеддинг запроса"]
     vec["Гибридный поиск + метки доступа"]
-    graph["Обход графа<br/>ACL-предикат на каждом узле<br/><i>собрано, не встроено</i>"]
+    walk["Обход графа<br/>ACL-предикат на каждом узле<br/><i>собрано, не встроено</i>"]
     rr["Rerank"]
     gen["Генерация · vLLM в контуре"]
   end
@@ -61,12 +61,12 @@ flowchart TB
   ans(["Ответ с цитатами<br/>и пометками об отменах"])
   audit[("Журнал доступа<br/>выдачи и отказы")]
 
-  q --> jwt --> gin --> key --> route --> emb --> vec --> graph --> rr --> gen --> gout --> ans
+  q --> jwt --> gin --> key --> route --> emb --> vec --> walk --> rr --> gen --> gout --> ans
   key -.->|"внешняя модель<br/>не разрешена ключу"| deny(["Отказ<br/>наружу ничего не ушло"])
-  jwt & key & vec & graph --> audit
+  jwt & key & vec & walk --> audit
 
   classDef planned stroke-dasharray: 6 4
-  class route,graph planned
+  class route,walk planned
 ```
 
 Четыре места, где поток принимает решение о безопасности, и все четыре — **до** того, как данные куда-то уйдут:

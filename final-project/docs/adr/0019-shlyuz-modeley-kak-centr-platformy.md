@@ -53,7 +53,7 @@ flowchart TB
     auth["Ключ жив? бюджет не исчерпан?"]
     perm["Поле models у ключа<br/>(граница контура, ADR-0020)"]
     route["Маршрут по имени модели<br/>каталог моделей и цен"]
-    call["Вызов upstream · ретраи · фолбэк"]
+    upcall["Вызов upstream · ретраи · фолбэк"]
     spend["Запись потребления"]
   end
   own["Свой инференс · vLLM"]
@@ -61,10 +61,10 @@ flowchart TB
   pg[("PostgreSQL: ключи и спенд")]
   bill["Консоль: счёт в BYN"]
 
-  req --> auth --> perm --> route --> call
-  call --> own
-  call -->|"если разрешено ключу"| ext
-  call --> spend --> pg --> bill
+  req --> auth --> perm --> route --> upcall
+  upcall --> own
+  upcall -->|"если разрешено ключу"| ext
+  upcall --> spend --> pg --> bill
 ```
 
 **Правила, которые из этого следуют:**
