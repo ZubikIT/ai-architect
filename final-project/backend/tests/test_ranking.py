@@ -189,3 +189,97 @@ def test_title_does_not_repeat_the_code(corpus):
 
 def _corpus_chunks(corpus):
     return corpus[1]
+
+
+# --- отказ сервиса ранжирования -------------------------------------------
+#
+# Проверяется одно свойство: сбой инфраструктуры НЕ должен выглядеть как пустая
+# выдача. «Не нашёл релевантных пунктов» при лежащем реранкере — это ложь о
+# корпусе, и пользователь уйдёт с выводом, что регламента не существует.
+
+import socket
+import urllib.error
+
+from sufler.ranking import RerankUnavailable
+
+
+def _raiser(exc, calls):
+    def fake_urlopen(req, timeout=None):
+        calls.append(1)
+        raise exc
+    return fake_urlopen
+
+
+def test_connection_error_is_retried_once(monkeypatch):
+    calls = []
+    monkeypatch.setattr("sufler.ranking.urllib.request.urlopen",
+                        _raiser(urllib.error.URLError(ConnectionResetError()), calls))
+    rr = RemoteReranker("http://rerank.local", "m")
+    with pytest.raises(RerankUnavailable):
+        rr.predict([("q", "т")])
+    assert len(calls) == 2          # одна попытка + один повтор, не больше
+    assert rr.healthy is False
+
+
+def test_timeout_is_not_retried(monkeypatch):
+    """Повтор на таймауте добавляет нагрузки сервису, которому и так тяжело."""
+    calls = []
+    monkeypatch.setattr("sufler.ranking.urllib.request.urlopen",
+                        _raiser(urllib.error.URLError(socket.timeout()), calls))
+    rr = RemoteReranker("http://rerank.local", "m", timeout=1.0)
+    with pytest.raises(RerankUnavailable, match="таймаут"):
+        rr.predict([("q", "т")])
+    assert len(calls) == 1
+
+
+def test_client_error_is_not_retried(monkeypatch):
+    """401/400 — ошибка конфигурации: вторая попытка вернёт ровно то же."""
+    calls = []
+    err = urllib.error.HTTPError("http://rerank.local/rerank", 401, "Unauthorized", {}, None)
+    monkeypatch.setattr("sufler.ranking.urllib.request.urlopen", _raiser(err, calls))
+    rr = RemoteReranker("http://rerank.local", "m")
+    with pytest.raises(RerankUnavailable, match="401"):
+        rr.predict([("q", "т")])
+    assert len(calls) == 1
+
+
+def test_server_error_is_retried(monkeypatch):
+    calls = []
+    err = urllib.error.HTTPError("http://rerank.local/rerank", 503, "Unavailable", {}, None)
+    monkeypatch.setattr("sufler.ranking.urllib.request.urlopen", _raiser(err, calls))
+    rr = RemoteReranker("http://rerank.local", "m")
+    with pytest.raises(RerankUnavailable):
+        rr.predict([("q", "т")])
+    assert len(calls) == 2
+
+
+def test_garbage_response_is_not_silently_used(monkeypatch):
+    """Мусорный ответ опаснее отказа: порядок кандидатов стал бы случайным."""
+    def fake_urlopen(req, timeout=None):
+        return FakeResponse_raw(b"<html>502 Bad Gateway</html>")
+    monkeypatch.setattr("sufler.ranking.urllib.request.urlopen", fake_urlopen)
+    rr = RemoteReranker("http://rerank.local", "m")
+    with pytest.raises(RerankUnavailable, match="неожиданный ответ"):
+        rr.predict([("q", "т")])
+
+
+class FakeResponse_raw:
+    def __init__(self, raw):
+        self._raw = raw
+
+    def read(self):
+        return self._raw
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
+def test_healthy_recovers_after_success(captured):
+    captured["reply"] = {"results": [{"index": 0, "relevance_score": 0.5}]}
+    rr = RemoteReranker("http://rerank.local", "m")
+    rr.healthy = False
+    rr.predict([("q", "т")])
+    assert rr.healthy is True

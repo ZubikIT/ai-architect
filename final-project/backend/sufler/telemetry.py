@@ -58,6 +58,10 @@ GRAPH_HOPS = Histogram("sufler_graph_expansions", "Связанных пункт
 # ретривере — только он знает, что именно отсекло выдачу.
 ACL_DENIALS = Counter("sufler_acl_denials_total", "Запросы, где права не оставили ни одного пункта")
 LOW_RELEVANCE = Counter("sufler_low_relevance_total", "Запросы, отсечённые порогом релевантности")
+# Третья причина пустоты, и она не про корпус вовсе: сервис ранжирования лёг.
+# Считается отдельно от двух выше именно поэтому — всплеск здесь означает
+# инцидент зависимости, а не изменение вопросов пользователей.
+RERANK_FAILURES = Counter("sufler_rerank_failures_total", "Отказы сервиса ранжирования", ["reason"])
 GUARDRAIL_BLOCKS = Counter("sufler_guardrail_blocks_total", "Срабатывания guardrails", ["stage"])
 AUTH_FAILURES = Counter("sufler_auth_failures_total", "Отклонённые токены", ["reason"])
 AGENT_STEPS = Histogram("sufler_agent_steps", "Шагов агентов на запрос",

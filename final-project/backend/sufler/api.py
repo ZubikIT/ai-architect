@@ -6,12 +6,13 @@ import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from prometheus_client import Counter, Histogram, make_asgi_app
 
 from . import telemetry
 from .config import settings
+from .ranking import RerankUnavailable
 from .rag import Sufler
 
 _engine = None
@@ -136,11 +137,41 @@ class AskReq(BaseModel):
     roles: list[str] = ["all"]
 
 
+# Отказ зависимости — не ошибка запроса и не пустая выдача. Отдельный обработчик
+# существует ради того, чтобы сбой сервиса ранжирования НЕ выглядел как «в
+# корпусе такого нет»: пользователь, получивший «не нашёл релевантных пунктов»
+# при лежащем реранкере, уйдёт с ложным выводом об отсутствии регламента.
+#
+# Правило единого текста отказа (ADR-0016) здесь НЕ действует, и это не
+# исключение из него, а его границы. Оно запрещает раскрывать **существование
+# документа**; сообщение о недоступности сервиса о документах не говорит ничего.
+@app.exception_handler(RerankUnavailable)
+async def _rerank_unavailable(request: Request, exc: RerankUnavailable):
+    telemetry.RERANK_FAILURES.labels(str(exc)[:40]).inc()
+    return JSONResponse(
+        status_code=503,
+        content={"detail": "Сервис ранжирования временно недоступен. "
+                           "Это сбой на нашей стороне, а не отсутствие ответа в базе знаний — "
+                           "повторите запрос позже."},
+        headers={"Retry-After": "30"},
+    )
+
+
 @app.get("/healthz")
 def healthz():
     # Режим доступа виден снаружи намеренно: dev-режим, о котором не знают, —
     # это открытый контур, который считают закрытым.
-    return {"status": "ok", "auth": "jwt" if settings.oidc_jwks_url else "dev"}
+    body = {"status": "ok", "auth": "jwt" if settings.oidc_jwks_url else "dev",
+            "rerank": "local" if not settings.rerank_url else "service"}
+    # Состояние внешней зависимости видно снаружи, но статус ответа остаётся 200:
+    # это liveness, а перезапуск пода отказ чужого сервиса не лечит. Признак
+    # существует для дежурного и дашборда, а не для kubelet.
+    if _engine is not None and settings.rerank_url:
+        reranker = getattr(_engine.retriever, "hybrid", None)
+        reranker = getattr(reranker, "reranker", None)
+        if reranker is not None and hasattr(reranker, "healthy"):
+            body["rerank_healthy"] = bool(reranker.healthy)
+    return body
 
 
 @app.get("/graph/stats")
