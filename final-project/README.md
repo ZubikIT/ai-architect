@@ -56,7 +56,7 @@
 - [x] **C. Security** — граница контура правами ключа, роли из подписи, guardrails, ACL на уровне чанков и узлов
 - [x] **B. Advanced RAG** — GraphRAG в [`backend/`](backend/): граф связей, обход с ACL, контрольный замер без графа
 - [x] **A. Cognitive Architecture** — супервизор и роли-агенты на LangGraph, там же
-- [ ] **Мультимодальный ingestion** — VL-модель в каталоге платформы есть, конвейера разбора нет
+- [ ] **Мультимодальный ingestion** — конвейера разбора нет. Модель для него есть и она своя: **Zubr-VL-32B**, QLoRA поверх Qwen3-VL-32B на праве РБ (757 НПА), опубликована, тест на memorization пройден — но vision-башня при обучении заморожена, поэтому в конвейере она полезна на извлечении связей, а не на распознавании страницы ([ADR-0014](docs/adr/0014-multimodalnyy-ingestion.md))
 
 > **Честно о состоянии.** Пункты B и A существуют как компоненты с тестами, но **в платформу ещё не встроены**: у неё сегодня векторный retrieval без графа и без агентного слоя. Встраивание — первый пункт дорожной карты, и это подключение, а не переписывание: тот же Qdrant, те же группы Keycloak, тот же шлюз как вход.
 
@@ -92,6 +92,7 @@
 | **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0, faithfulness 0,923 на боевой модели |
 | **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 11 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 39 слайдов, резерв на вопросы |
 | Код компонентов | [`backend/`](backend/) — 108 тестов |
+| **Своя модель** | `ArtCloud/Zubr1.5-VL-32B` — QLoRA на праве РБ; [Model Card и тест на memorization](../30-ethical-ai-governance/artifacts/) |
 | Развёртывание компонентов | [`infra/`](infra/) — compose, профили `core` и `obs` |
 | **Описание платформы as-is** | [`../zubriq-platform/`](../zubriq-platform/README.md) |
 
