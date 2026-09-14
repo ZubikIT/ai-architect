@@ -86,7 +86,7 @@
 | **Сверка ADR с реальностью** | [`docs/adr-audit.md`](docs/adr-audit.md) |
 | Диаграммы: C4, Deployment, Data Flow, Sequence, ER | [`docs/diagrams/`](docs/diagrams/) |
 | Vision & Goals, требования | [`docs/vision-goals.md`](docs/vision-goals.md), [`docs/requirements.md`](docs/requirements.md) |
-| Экономика | [`docs/economics/tco.md`](docs/economics/tco.md) |
+| **Экономика** | [`docs/economics/tco.md`](docs/economics/tco.md) — железо арендовано, TCO $29,4k/3 года; **утилизация измерена: 0,9 %** → фактическая цена 1M токенов $142, контур не окупается по цене и покупается ради юрисдикции |
 | **Нагрузочный отчёт** | [`docs/load-report.md`](docs/load-report.md) — без генерации узкое место реранк (76 %), с боевой моделью генерация 68 % / реранк 30 %, граф 0,3 % |
 | **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0, faithfulness 0,923 на боевой модели |
 | **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 11 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 39 слайдов, резерв на вопросы |
@@ -106,7 +106,7 @@
 - **red teaming по методике занятия 33** — методика описана, не применялась
 - **ретеншн** диалогов, трассировок и логов не определён
 - **отзыв токена до истечения** — интроспекции нет
-- **видео-демо** по ТЗ — сценарий написан, запись не сделана
+- **видео-демо** по ТЗ — терминальная часть записана, браузерные кадры (Neo4j, Jaeger, Grafana) не сняты
 
 ## Дорожная карта
 
@@ -127,7 +127,7 @@
 ```
 
 - **Демонстрация** — вживую по презентации: граф в браузере Neo4j, трейс по `request_id`, дашборд, потоковый ответ.
-- **Видео-демо 5–7 минут** (требование ТЗ) — **не записано**; раскадровка с командами и обязательными кадрами готова: [`docs/demo-video-script.md`](docs/demo-video-script.md).
+- **Видео-демо** (требование ТЗ, 5–7 минут) — **терминальная часть записана**: `docs/demo/demo.mp4`, 66 секунд (в git не хранится — пересобирается из [`docs/demo/demo.cast`](docs/demo/demo.cast)) — граф, контрольный замер без графа, критерий «пользователь B», тесты; собирается одной командой из [`docs/demo/demo.sh`](docs/demo/demo.sh) через asciinema и [`cast2mp4.py`](docs/demo/cast2mp4.py), офлайн и без GPU. **Осталось доснять с экрана** граф в браузере Neo4j, трейс в Jaeger, дашборд и потоковый ответ — раскадровка с командами: [`docs/demo-video-script.md`](docs/demo-video-script.md).
 - **Нагрузочный отчёт** — [`docs/load-report.md`](docs/load-report.md), методика по [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md).
 - **Презентация** — защита идёт по [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) (11 слайдов, дословный сценарий с хронометражем в [`docs/presentation-5min.md`](docs/presentation-5min.md)); полная [`docs/presentation.pdf`](docs/presentation.pdf) остаётся резервом на вопросы. Структура — по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf).
 
