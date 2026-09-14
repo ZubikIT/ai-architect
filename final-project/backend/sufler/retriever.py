@@ -3,11 +3,11 @@ import re
 
 import numpy as np
 from rank_bm25 import BM25Okapi
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, PointStruct, VectorParams
 
 from . import telemetry
+from .embedding import build_embedder
 from .ranking import LocalCrossEncoder, build_reranker
 
 
@@ -19,9 +19,10 @@ class HybridRetriever:
     def __init__(self, chunks, settings):
         self.chunks = chunks
         self.settings = settings
-        self.embedder = SentenceTransformer(settings.embed_model)
-        # Где считается ранжирование — вопрос конфигурации, а не кода retrieval:
-        # сервис платформы при заданном SUFLER_RERANK_URL, иначе локальная модель.
+        # Где считаются модели — вопрос конфигурации, а не кода retrieval:
+        # сервис платформы при заданных SUFLER_EMBED_URL / SUFLER_RERANK_URL,
+        # иначе локальные модели на CPU (офлайн-демо и тесты).
+        self.embedder = build_embedder(settings)
         self.reranker = build_reranker(settings)
 
         # dense → Qdrant: self-hosted сервер при QDRANT_URL, иначе встроенный

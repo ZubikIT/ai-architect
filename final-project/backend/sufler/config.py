@@ -1,6 +1,6 @@
 """Конфигурация Суфлёра (через переменные окружения)."""
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -21,6 +21,19 @@ class Settings:
     rerank_api_key: str = os.getenv("SUFLER_RERANK_API_KEY", "")
     rerank_model_remote: str = os.getenv("SUFLER_RERANK_MODEL_REMOTE", "BAAI/bge-reranker-v2-m3")
 
+    # Эмбеддинги тем же сервисом платформы: тот же инстанс Infinity, тот же ключ,
+    # что и у реранкера. Имена переменных взяты у консоли (`config/services.php`,
+    # блок `kb`) намеренно — один сервис не должен настраиваться двумя способами,
+    # иначе в Vault появляется второй комплект кредов к тому же адресу.
+    #
+    # Без EMBEDDINGS_URL работает локальная модель на CPU — офлайн-демо и тесты.
+    # С ним эмбеддинг уходит на GPU и меняется сама модель: bge-m3 (1024) вместо
+    # MiniLM (384), то есть коллекция пересоздаётся, а косинусный порог отказа
+    # пересчитывается — см. min_relevance ниже и docs/eval-report.md.
+    embed_url: str = os.getenv("EMBEDDINGS_URL", "")
+    embed_api_key: str = os.getenv("EMBEDDINGS_API_KEY", "")
+    embed_model_remote: str = os.getenv("SUFLER_EMBED_MODEL_REMOTE", "BAAI/bge-m3")
+
     # параметры retrieval (урок 06)
     top_k_retrieve: int = int(os.getenv("SUFLER_TOP_K", "20"))
     top_k_context: int = int(os.getenv("SUFLER_TOP_CTX", "5"))
@@ -34,7 +47,16 @@ class Settings:
     # разделяют вопросы в корпусе и вне его (замер — docs/eval-report.md).
     # Косинус разделяет: 0.585 минимум по корпусу против 0.369 максимума вне,
     # порог посередине со смещением в сторону «лучше ответить».
-    min_relevance: float = float(os.getenv("SUFLER_MIN_RELEVANCE", "0.45"))
+    #
+    # ⚠ Значение зависит от МОДЕЛИ: у bge-m3 масштаб близости другой, и 0.45 на
+    # ней означает не то же самое. Умолчание выбирается по тому, откуда берутся
+    # эмбеддинги, а не одно на оба пути (замер — docs/eval-report.md).
+    # default_factory, а не значение: умолчание зависит от ДРУГОЙ переменной,
+    # и вычислять его один раз на импорте модуля означало бы, что порог не
+    # совпадает с эмбеддером, выбранным этим же конфигом.
+    min_relevance: float = field(default_factory=lambda: float(
+        os.getenv("SUFLER_MIN_RELEVANCE",
+                  "0.55" if os.getenv("EMBEDDINGS_URL") else "0.45")))
 
     # Второй порог — на оценке реранкера, и он применяется ТОЛЬКО если реранкер
     # калиброван (bge-reranker-v2-m3 — да, ms-marco — нет). Косинус остаётся

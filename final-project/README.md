@@ -91,7 +91,7 @@
 | **Граф на боевом корпусе НПА** | [`docs/npa-graph-report.md`](docs/npa-graph-report.md) — 25 кодексов, 7 284 статьи, 2 845 рёбер; обход 6–8 мс; найден и исправлен дефект, невидимый на демо (492 → 6,4 мс за хоп) |
 | **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0, faithfulness 0,923 на боевой модели |
 | **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 11 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 39 слайдов, резерв на вопросы |
-| Код компонентов | [`backend/`](backend/) — 103 теста |
+| Код компонентов | [`backend/`](backend/) — 108 тестов |
 | Развёртывание компонентов | [`infra/`](infra/) — compose, профили `core` и `obs` |
 | **Описание платформы as-is** | [`../zubriq-platform/`](../zubriq-platform/README.md) |
 
