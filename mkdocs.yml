@@ -52,8 +52,13 @@ markdown_extensions:
   - admonition
   - attr_list
   - tables
+  # Кириллица в якорях. Умолчание mkdocs выбрасывает не-ASCII целиком, и
+  # заголовок «Где курс разошёлся с замером» превращается в `#_7` — то есть
+  # ссылка на раздел ломается от любой вставки выше по документу. Slugify из
+  # pymdownx сохраняет кириллицу, и якорь становится читаемым и устойчивым.
   - toc:
       permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.highlight:

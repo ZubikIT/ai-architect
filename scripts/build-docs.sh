@@ -9,6 +9,6 @@ rm -rf docs
 mkdir docs
 cp README.md docs/index.md
 
-for d in [0-9][0-9]-*/ final-project/; do
+for d in [0-9][0-9]-*/ final-project/ kurs/; do
   cp -R "$d" "docs/$d"
 done
