@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Мультиагентная платформа цифровых корпоративных сотрудников</title>
+<style>
+:root{
+  --bg:#ffffff; --surface:#faf8ff; --ink:#1a1a2e; --muted:#5a5a6e;
+  --line:#e3e3ee; --accent:#6f42c1; --accent-soft:#f2f0fa;
+  --ok:#1f7a45; --warn:#b45309; --bad:#b3261e;
+  --term-bg:#1e1f28; --term-fg:#e6e6ee;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#15151d; --surface:#1c1c26; --ink:#e8e8f0; --muted:#a0a0b4;
+    --line:#2c2c3a; --accent:#a78bfa; --accent-soft:#232030;
+    --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:920px; margin:0 auto; padding:0 20px}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.9em;
+  background:var(--accent-soft); padding:1px 5px; border-radius:4px}
+
+/* ── шапка ── */
+header{padding:72px 0 48px; border-bottom:1px solid var(--line)}
+.eyebrow{color:var(--muted); font-size:14px; letter-spacing:.04em; text-transform:uppercase; margin:0 0 14px}
+h1{font-size:clamp(28px,4.4vw,44px); line-height:1.18; margin:0 0 18px; letter-spacing:-.02em}
+.lede{font-size:clamp(17px,2vw,20px); color:var(--muted); margin:0 0 28px; max-width:44em}
+.by{color:var(--muted); font-size:15px}
+.by strong{color:var(--ink)}
+
+/* ── цифры ── */
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1px;
+  background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden; margin:36px 0 0}
+.stat{background:var(--bg); padding:18px 20px}
+.stat b{display:block; font-size:26px; line-height:1.15; color:var(--accent); letter-spacing:-.02em}
+.stat span{display:block; font-size:13px; color:var(--muted); margin-top:5px}
+
+section{padding:56px 0; border-bottom:1px solid var(--line)}
+h2{font-size:clamp(22px,2.8vw,30px); margin:0 0 10px; letter-spacing:-.015em}
+h2 + .sub{color:var(--muted); margin:0 0 28px; max-width:46em}
+h3{font-size:19px; margin:32px 0 10px}
+
+/* ── таблицы ── */
+.scroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+table{border-collapse:collapse; width:100%; font-size:15px; min-width:520px}
+th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+th{background:var(--accent-soft); font-weight:600; font-size:13px; letter-spacing:.02em}
+td.num,th.num{text-align:right; font-variant-numeric:tabular-nums}
+.yes{color:var(--ok); font-weight:600}
+.no{color:var(--bad); font-weight:600}
+.part{color:var(--warn); font-weight:600}
+
+/* ── карточки ── */
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin-top:8px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:20px}
+.card h4{margin:0 0 8px; font-size:16px}
+.card p{margin:0; color:var(--muted); font-size:14.5px}
+.card .fig{display:block; font-size:22px; color:var(--accent); font-weight:700; margin-bottom:6px;
+  font-variant-numeric:tabular-nums}
+
+blockquote{margin:24px 0; padding:16px 20px; background:var(--accent-soft);
+  border-left:3px solid var(--accent); border-radius:0 8px 8px 0}
+blockquote p{margin:0}
+
+/* ── терминал ── */
+.term-shell{background:var(--term-bg); border-radius:12px; overflow:hidden; border:1px solid var(--line)}
+.term-bar{display:flex; align-items:center; gap:8px; padding:9px 13px; background:rgba(255,255,255,.05)}
+.dot{width:11px; height:11px; border-radius:50%}
+.term-bar .t{margin-left:8px; color:#9aa0b4; font-size:12.5px;
+  font-family:ui-monospace,Menlo,Consolas,monospace}
+.term-bar .ctl{margin-left:auto; display:flex; gap:6px}
+.term-bar button{background:rgba(255,255,255,.08); color:#d8d8e4; border:0; border-radius:6px;
+  width:28px; height:26px; cursor:pointer; font-size:12px; line-height:1}
+.term-bar button:hover{background:rgba(255,255,255,.16)}
+pre.term{margin:0; padding:14px 16px; color:var(--term-fg); background:var(--term-bg);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12.5px; line-height:1.5; white-space:pre; overflow:auto; height:26em}
+@media (max-width:640px){ pre.term{font-size:10.5px; height:22em} }
+.t-g{color:#7ee787} .t-c{color:#7fdbff} .t-y{color:#f2cc60} .t-d{color:#8b93a7} .t-b{font-weight:700}
+
+/* ── диаграммы ── */
+figure{margin:0 0 22px}
+/* Диаграммы mermaid высокие: во всю ширину страница растягивается на девять
+   экранов и перестаёт читаться. Ограничиваем высоту, картинка остаётся
+   кликабельной — полный размер открывается в соседней вкладке. */
+figure img{display:block; width:100%; height:auto; max-height:430px; object-fit:contain;
+  background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px}
+figure a:hover img{border-color:var(--accent)}
+.shots figure img{max-height:none; padding:0}
+figcaption{color:var(--muted); font-size:13.5px; margin-top:8px}
+.shots{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px}
+
+/* ── ссылки-артефакты ── */
+.links{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px}
+.link{display:block; background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  padding:15px 17px; color:inherit}
+.link:hover{border-color:var(--accent); text-decoration:none}
+.link b{display:block; color:var(--accent); font-size:15px; margin-bottom:3px}
+.link span{color:var(--muted); font-size:13.5px}
+
+footer{padding:40px 0 64px; color:var(--muted); font-size:14px}
+.nav{position:sticky; top:0; z-index:5; background:color-mix(in srgb,var(--bg) 90%,transparent);
+  backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
+.nav ul{display:flex; gap:20px; list-style:none; margin:0; padding:12px 20px; max-width:920px;
+  margin:0 auto; overflow-x:auto; font-size:14px}
+.nav a{color:var(--muted); white-space:nowrap}
+.nav a:hover{color:var(--accent); text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav class="nav"><ul>
+  <li><a href="#demo">Демо</a></li>
+  <li><a href="#tz">Критерии ТЗ</a></li>
+  <li><a href="#arch">Архитектура</a></li>
+  <li><a href="#graph">Граф</a></li>
+  <li><a href="#security">Доступ</a></li>
+  <li><a href="#measure">Замеры</a></li>
+  <li><a href="#negative">Что не сработало</a></li>
+  <li><a href="#artifacts">Артефакты</a></li>
+</ul></nav>
+
+<header><div class="wrap">
+  <p class="eyebrow">Выпускной проект · OTUS AI Architect · сентябрь 2026</p>
+  <h1>Мультиагентная платформа цифровых корпоративных сотрудников</h1>
+  <p class="lede">Защищённая платформа анализа корпоративных знаний с графовыми подходами.
+    Закрытый контур работающей платформы: свои модели, свой инференс, нулевой egress.</p>
+  <p class="by"><strong>Александр Зубик</strong> · AI Architect · ООО «АртКлауд»</p>
+
+  <div class="stats">
+    <div class="stat"><b>28</b><span>ADR</span></div>
+    <div class="stat"><b>108</b><span>тестов</span></div>
+    <div class="stat"><b>7 284</b><span>статьи в графе</span></div>
+    <div class="stat"><b>0,3 %</b><span>ответа — обход графа</span></div>
+    <div class="stat"><b>6</b><span>отрицательных результатов</span></div>
+  </div>
+</div></header>
+
+<section id="demo"><div class="wrap">
+  <h2>Демонстрация</h2>
+  <p class="sub">Запись реального прогона: сервис поднимается, дожидается готовности и дальше
+    отвечает через свой API. Офлайн-режим — GPU не нужен, граф и права работают полностью.</p>
+
+  <div class="term-shell">
+    <div class="term-bar">
+      <span class="dot" style="background:#ff5f57"></span>
+      <span class="dot" style="background:#febc2e"></span>
+      <span class="dot" style="background:#28c840"></span>
+      <span class="t">demo — закрытый контур</span>
+      <span class="ctl">
+        <button id="tg" title="Пауза / продолжить">⏸</button>
+        <button id="rs" title="Сначала">↺</button>
+      </span>
+    </div>
+    <pre class="term" id="term" data-src="../final-project/docs/demo/demo.cast"></pre>
+  </div>
+
+  <div class="cards" style="margin-top:20px">
+    <div class="card"><h4>Что показано</h4><p>Граф связей · контрольный замер с выключенным
+      графом · критерий «пользователь B» на двух ролях · SSE-поток · штат агентов ·
+      OpenAI-совместимость · прогон тестов.</p></div>
+    <div class="card"><h4>Чего нет в записи</h4><p>Граф в браузере Neo4j, трейс в Jaeger
+      и дашборд — их видно только на живом стенде, эти кадры снимаются с экрана.</p></div>
+  </div>
+</div></section>
+
+<section id="tz"><div class="wrap">
+  <h2>Критерии приёмки</h2>
+  <p class="sub">Четыре блокирующих пункта и два желательных. Каждый подтверждён тестом или
+    замером, а не декларацией.</p>
+  <div class="scroll"><table>
+    <tr><th>Критерий</th><th>Статус</th><th>Чем закрыт</th></tr>
+    <tr><td>Облачные API не используются</td><td class="yes">✓</td>
+        <td>граница контура правами ключа, проверка до вызова вендора</td></tr>
+    <tr><td>Диаграммы Deployment и Data Flow</td><td class="yes">✓</td>
+        <td>обе, плюс Sequence и ER</td></tr>
+    <tr><td><b>Реализация GraphRAG</b></td><td class="yes">✓</td>
+        <td>граф + контрольный замер без графа + прогон на боевом корпусе</td></tr>
+    <tr><td><b>«Пользователь B» не получает закрытый документ</b></td><td class="yes">✓</td>
+        <td>проверяется контекст модели, а не текст ответа</td></tr>
+    <tr><td><b>Control Plane / Data Plane</b></td><td class="yes">✓</td>
+        <td>в диаграммах и в коде</td></tr>
+    <tr><td><b>State machine, а не линейные скрипты</b></td><td class="yes">✓</td>
+        <td>цикл, ветвление, лимиты, checkpointer</td></tr>
+    <tr><td>Streaming · тесты на промпты</td><td class="yes">✓</td>
+        <td>SSE · golden set с гейтами в CI</td></tr>
+    <tr><td>Видео-демо 5–7 минут</td><td class="part">частично</td>
+        <td>терминальная часть записана, браузерные кадры не сняты</td></tr>
+    <tr><td>Мультимодальный ingestion</td><td class="no">нет</td>
+        <td>спроектирован каскадом из трёх ступеней, конвейера нет</td></tr>
+  </table></div>
+</div></section>
+
+<section id="arch"><div class="wrap">
+  <h2>Архитектура</h2>
+  <p class="sub">Пунктиром на схемах — то, что собрано и покрыто тестами, но в платформу пока
+    не встроено. Схема, выдающая желаемое за действительное, хуже отсутствующей.</p>
+
+  <figure>
+    <a href="../final-project/docs/presentation-assets/diagram-e1332fcb7f.png" target="_blank" rel="noopener" title="Открыть в полном размере"><img loading="lazy" src="../final-project/docs/presentation-assets/diagram-e1332fcb7f.png"
+         alt="C4: контейнеры, Control Plane и Data Plane"></a>
+    <figcaption>Control Plane решает, кому что можно; Data Plane только исполняет.</figcaption>
+  </figure>
+  <figure>
+    <a href="../final-project/docs/presentation-assets/diagram-cb3d94ec1b.png" target="_blank" rel="noopener" title="Открыть в полном размере"><img loading="lazy" src="../final-project/docs/presentation-assets/diagram-cb3d94ec1b.png"
+         alt="Deployment"></a>
+    <figcaption>Инференс в кластер не переносится: карты в боксе, движок нативно —
+      ради контроля над видеопамятью.</figcaption>
+  </figure>
+  <figure>
+    <a href="../final-project/docs/presentation-assets/diagram-fc6a457024.png" target="_blank" rel="noopener" title="Открыть в полном размере"><img loading="lazy" src="../final-project/docs/presentation-assets/diagram-fc6a457024.png"
+         alt="Data Flow"></a>
+    <figcaption>Четыре решения о доступе — и все четыре до того, как данные куда-то уйдут.
+      Отказ пишется в журнал наравне с выдачей.</figcaption>
+  </figure>
+</div></section>
+
+<section id="graph"><div class="wrap">
+  <h2>Ради чего нужен граф</h2>
+  <p class="sub">Вопрос: «Сколько дней основной ежегодный отпуск?» Вектор находит норму,
+    которая уже отменена.</p>
+
+  <div class="cards">
+    <div class="card"><h4>Что находит вектор</h4>
+      <p>ЛПА-01 § 1: «<b>28</b> календарных дней». Ответ формально найден в базе — и неверен.</p></div>
+    <div class="card"><h4>Что знает граф</h4>
+      <p>ЛПА-04 § 1: «с 1 апреля — <b>30</b> дней, пункт 1 ЛПА-01 отменяется».
+        Отменяющий документ текстуально похож на десятки других, гарантии попадания в выдачу нет.</p></div>
+  </div>
+
+  <figure style="margin-top:22px">
+    <a href="../final-project/docs/presentation-assets/diagram-a5af591404.png" target="_blank" rel="noopener" title="Открыть в полном размере"><img loading="lazy" src="../final-project/docs/presentation-assets/diagram-a5af591404.png"
+         alt="Retrieval: куда вставлен граф"></a>
+    <figcaption>Обход стоит между поиском и ранжированием, поэтому отмена попадает в контекст
+      безусловно — вне конкуренции за места в выдаче.</figcaption>
+  </figure>
+
+  <blockquote><p><b>Доказательство, а не демонстрация.</b> Обычно показывают, что с графом
+    хорошо. Контрольный замер показывает ещё и что без него плохо: граф выключается переменной
+    окружения, остальной путь не меняется — пометка об отмене исчезает, а ответ выглядит так же
+    уверенно.</p></blockquote>
+
+  <h3>Проверено на боевом корпусе</h3>
+  <div class="cards">
+    <div class="card"><span class="fig">7 284</span><p>статьи в 25 кодексах</p></div>
+    <div class="card"><span class="fig">2 845</span><p>рёбер «ссылается на статью»</p></div>
+    <div class="card"><span class="fig">6–8 мс</span><p>обход на 1–2 хопа</p></div>
+    <div class="card"><span class="fig">0</span><p>рёбер отмены — и это свойство источника,
+      а не реализации</p></div>
+  </div>
+  <p style="color:var(--muted); font-size:15px">Корпус кодексов — консолидированная действующая
+    редакция: отменённый пункт заменён маркером, указывать ребру не на что. Отмены остаются на
+    корпусе, где обе редакции лежат рядом.</p>
+</div></section>
+
+<section id="security"><div class="wrap">
+  <h2>Разграничение доступа</h2>
+  <p class="sub">Предикат стоит на каждом узле обхода, а не на финальной выдаче: иначе закрытый
+    документ утекает через структуру — факт существования, название, соседей.</p>
+
+  <figure>
+    <a href="../final-project/docs/presentation-assets/diagram-08c3b3c77d.png" target="_blank" rel="noopener" title="Открыть в полном размере"><img loading="lazy" src="../final-project/docs/presentation-assets/diagram-08c3b3c77d.png"
+         alt="ACL на каждом узле обхода"></a>
+    <figcaption>Для роли без доступа пути через закрытый узел не существует —
+      и факт отмены тоже не раскрывается.</figcaption>
+  </figure>
+
+  <div class="scroll"><table>
+    <tr><th>Проверка</th><th class="num">Значение</th></tr>
+    <tr><td>Нарушений ACL на golden set</td><td class="num"><b>0</b></td></tr>
+    <tr><td>Тест проходит на обоих путях — одиночном и агентном</td><td class="num yes">✓</td></tr>
+    <tr><td>Мандат роли-агента ⊆ прав пользователя</td><td class="num yes">✓</td></tr>
+    <tr><td>Роли берутся из подписи токена, а не из тела запроса</td><td class="num yes">✓</td></tr>
+  </table></div>
+</div></section>
+
+<section id="measure"><div class="wrap">
+  <h2>Замеры</h2>
+  <p class="sub">Три узких места нашлись в разложении по спанам, а не в рассуждении о том,
+    где может быть медленно.</p>
+
+  <figure>
+    <a href="../final-project/docs/presentation-assets/diagram-917d30eb61.png" target="_blank" rel="noopener" title="Открыть в полном размере"><img loading="lazy" src="../final-project/docs/presentation-assets/diagram-917d30eb61.png"
+         alt="Разложение ответа по шагам"></a>
+    <figcaption>Вопрос «не тормозит ли ваш GraphRAG» закрыт цифрой: обход — три десятых
+      процента ответа.</figcaption>
+  </figure>
+
+  <div class="scroll"><table>
+    <tr><th>Что измерено</th><th class="num">До</th><th class="num">После</th><th>Что изменилось</th></tr>
+    <tr><td>Ранжирование отдано сервису платформы</td><td class="num">1,79 RPS</td>
+        <td class="num"><b>11,03 RPS</b></td><td>на 8 клиентах; +36 % → +107 % прироста</td></tr>
+    <tr><td>Обход графа на боевом корпусе</td><td class="num">492 мс</td>
+        <td class="num"><b>6,4 мс</b></td><td>ссылка разрешается на сборке, а не в рекурсии</td></tr>
+    <tr><td>Эмбеддер на GPU, p90</td><td class="num">158,6 мс</td>
+        <td class="num"><b>60,8 мс</b></td><td>исчез хвост, а не медиана</td></tr>
+  </table></div>
+</div></section>
+
+<section id="negative"><div class="wrap">
+  <h2>Что не сработало</h2>
+  <p class="sub">Шесть решений, опровергнутых собственными замерами и оставленных как есть.
+    Это не приложение к работе — это её содержание.</p>
+
+  <div class="cards">
+    <div class="card"><h4>Мультиагентный слой не поднял качество</h4>
+      <p>Маршрутизация 13/13, прирост recall — нет, цена ×3,7 латентности. Оправдан требованием
+        ТЗ и разделением прав, но не качеством ответов.</p></div>
+    <div class="card"><h4>Решает реранкер, а не хранилище</h4>
+      <p>ADR о выборе векторной базы ушёл в <code>superseded</code>: предметом решения оказался
+        конвейер ранжирования. На графе повторилось — три критерия из четырёх не разделили.</p></div>
+    <div class="card"><h4>Порога отказа не существовало</h4>
+      <p>У слабого эмбеддера зазор между своими и чужими вопросами <b>отрицательный</b> (−0,09):
+        порога нет ни при каком значении. Видно только на примерах, похожих на корпус.</p></div>
+    <div class="card"><h4>Диапазон не содержал ответа</h4>
+      <p>Три редакции расчёта оперировали утилизацией 5–100 %. Замер за 30 дней — <b>0,9 %</b>.
+        Порог окупаемости 31 % посчитан верно и бесполезен: факт ниже в 34 раза.</p></div>
+    <div class="card"><h4>Дефект, невидимый на демо-объёме</h4>
+      <p>19 чанков — обход 2,4 мс. Боевой корпус — 492 мс при бюджете ответа 177 мс. Ошибка была
+        не в выборе конструкции, а в объёме, на котором её проверяли.</p></div>
+    <div class="card"><h4>Механизм ≠ гарантия</h4>
+      <p>Сверка с источником написана правильно и покрывает <b>10 %</b> документов; 29 % не
+        сверятся никогда — у них нет адреса источника. По коду этого не видно.</p></div>
+  </div>
+
+  <blockquote><p><b>Архитектура, не подтверждённая замером, — это гипотеза.</b><br>
+    И следом: скепсис без замера — такая же гипотеза, только с обратным знаком.
+    Изнутри обе ощущаются одинаково убедительно.</p></blockquote>
+</div></section>
+
+<section id="platform"><div class="wrap">
+  <h2>Это работающая система</h2>
+  <p class="sub">Предмет проекта — закрытый контур платформы, которая обслуживает клиентов,
+    считает потребление и выставляет счета.</p>
+  <div class="shots">
+    <figure><img loading="lazy" src="../final-project/docs/presentation-assets/shot-landing.png"
+      alt="Платформа"><figcaption>Платформа в проде</figcaption></figure>
+    <figure><img loading="lazy" src="../final-project/docs/presentation-assets/shot-status.png"
+      alt="Мониторинг"><figcaption>Проверка каждую минуту изнутри контура</figcaption></figure>
+  </div>
+</div></section>
+
+<section id="artifacts"><div class="wrap">
+  <h2>Артефакты</h2>
+  <p class="sub">Всё, на что опираются цифры выше.</p>
+  <div class="links">
+    <a class="link" href="../final-project/docs/presentation.pdf"><b>Презентация защиты</b>
+      <span>51 слайд, полная версия</span></a>
+    <a class="link" href="../final-project/docs/presentation-5min.pdf"><b>Версия на 5 минут</b>
+      <span>12 слайдов, регламент защиты</span></a>
+    <a class="link" href="../final-project/docs/load-report/"><b>Нагрузочный отчёт</b>
+      <span>RPS и латентность по ступеням</span></a>
+    <a class="link" href="../final-project/docs/eval-report/"><b>Golden set и гейты</b>
+      <span>14 кейсов, три разобранные ошибки</span></a>
+    <a class="link" href="../final-project/docs/npa-graph-report/"><b>Граф на боевом корпусе</b>
+      <span>25 кодексов, 7 284 статьи</span></a>
+    <a class="link" href="../final-project/docs/graph-backends/"><b>Сравнение бэкендов графа</b>
+      <span>три реализации, четыре критерия</span></a>
+    <a class="link" href="../final-project/docs/economics/tco/"><b>Экономика</b>
+      <span>TCO и удельная цена по утилизации</span></a>
+    <a class="link" href="../final-project/docs/adr/"><b>28 ADR</b>
+      <span>решения с критериями пересмотра</span></a>
+    <a class="link" href="../kurs/kurs-polnyy/"><b>Разбор курса</b>
+      <span>что применено и где замер разошёлся</span></a>
+    <a class="link" href="../final-project/"><b>Репозиторий проекта</b>
+      <span>ТЗ, критерии, формат сдачи</span></a>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Александр Зубик · AI Architect · ООО «АртКлауд» · сентябрь 2026<br>
+  Внутренняя страница: доступ только участникам проекта.</p>
+</div></footer>
+
+<script>
+/* Плеер asciicast v2: печатает запись по её таймингам прямо в <pre>.
+   Без внешних зависимостей — файл .cast лежит рядом в репозитории.
+   Длинные паузы поджимаются: в записи есть загрузка модели, смотреть её незачем. */
+(function () {
+  var el = document.getElementById('term');
+  if (!el) return;
+  var CLS = {32:'t-g', 36:'t-c', 33:'t-y', 2:'t-d', 1:'t-b'};
+  var IDLE = 1.2;      // потолок паузы между событиями, с
+  var events = [], timer = null, i = 0, started = 0, paused = false, text = '';
+
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+  /* Очистка экрана. Сценарий демо начинается с `clear`, и без этого шапка
+     терминала накладывается на первый кадр: мы печатаем накопленный текст
+     целиком, а не эмулируем курсор. Всё до последней очистки отбрасываем. */
+  function afterClear(raw){
+    var last = -1, re = /\x1b\[[0-3]?J/g, m;
+    while ((m = re.exec(raw))) last = m.index + m[0].length;
+    return last > 0 ? raw.slice(last) : raw;
+  }
+
+  /* ANSI → span. Поддерживаем ровно то, что использует сценарий демо. */
+  function render(raw){
+    raw = afterClear(raw);
+    var out = '', open = false, cls = '', j = 0;
+    while (j < raw.length){
+      var m = /^\x1b\[([0-9;]*)m/.exec(raw.slice(j));
+      if (m){
+        var codes = m[1].split(';').map(Number);
+        var next = '';
+        codes.forEach(function(c){ if (CLS[c]) next = next ? next + ' ' + CLS[c] : CLS[c]; });
+        if (codes.indexOf(0) !== -1) next = '';
+        if (open) { out += '</span>'; open = false; }
+        if (next) { out += '<span class="' + next + '">'; open = true; }
+        cls = next; j += m[0].length; continue;
+      }
+      /* прочие escape-последовательности (очистка экрана и т.п.) пропускаем */
+      var e = /^\x1b\[[0-9;?]*[A-Za-z]/.exec(raw.slice(j));
+      if (e){ if (raw.slice(j, j + e[0].length).indexOf('H') !== -1) {} j += e[0].length; continue; }
+      var ch = raw[j];
+      if (ch === '\r'){ j++; continue; }
+      out += esc(ch); j++;
+    }
+    if (open) out += '</span>';
+    return out;
+  }
+
+  function step(){
+    if (paused || i >= events.length) return;
+    var ev = events[i];
+    text += ev[2];
+    el.innerHTML = render(text);
+    el.scrollTop = el.scrollHeight;
+    i++;
+    if (i < events.length){
+      var gap = Math.min(events[i][0] - ev[0], IDLE);
+      timer = setTimeout(step, Math.max(gap, 0.02) * 1000);
+    }
+  }
+
+  function reset(){
+    clearTimeout(timer); i = 0; text = ''; paused = false;
+    document.getElementById('tg').textContent = '⏸';
+    el.innerHTML = '';
+    step();
+  }
+
+  fetch(el.dataset.src).then(function(r){ return r.text(); }).then(function(body){
+    var lines = body.split('\n').filter(Boolean);
+    lines.slice(1).forEach(function(l){
+      try { var e = JSON.parse(l); if (e[1] === 'o') events.push(e); } catch (_) {}
+    });
+    if (!events.length) { el.textContent = 'запись недоступна'; return; }
+    step();
+  }).catch(function(){ el.textContent = 'не удалось загрузить запись демонстрации'; });
+
+  document.getElementById('tg').onclick = function(){
+    paused = !paused;
+    this.textContent = paused ? '▶' : '⏸';
+    if (!paused) step();
+  };
+  document.getElementById('rs').onclick = reset;
+})();
+</script>
+</body>
+</html>
