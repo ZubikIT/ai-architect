@@ -46,6 +46,7 @@ credentials
 # из .cast. Широкая версия; 64-колоночная идёт на витрину как .cast.
 !final-project/docs/demo/demo.mp4
 !final-project/docs/demo/demo-obs.mp4
+!final-project/docs/demo/demo-deep.mp4
 *.mov
 *.avi
 *.zip
