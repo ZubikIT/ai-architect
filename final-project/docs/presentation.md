@@ -90,7 +90,7 @@ date: "сентябрь 2026"
 
 | Слой | Чем | Впечатление после работы |
 |---|---|---|
-| Инференс | vLLM, MoE в AWQ | **Оправдал.** Нативно из systemd, без контейнера — иначе VRAM не контролируется |
+| Инференс | vLLM, dense 27B в AWQ-INT4 | **Оправдал.** Нативно из systemd, без контейнера — иначе VRAM не контролируется |
 | Оркестрация | LangGraph | **Спорно.** State machine нужна, но прироста качества не дала — [замер](#mas-честный-результат-замера) |
 | Ранжирование | `bge-reranker-v2-m3` | **Лучшее решение проекта.** Свою модель надо было не ускорять, а убрать |
 | Граф | рекурсивные CTE в PostgreSQL | **Пересмотрено по замеру.** Neo4j выразительнее, но это вторая СУБД |
@@ -140,7 +140,7 @@ flowchart TB
     ret["GraphRAG-retrieval<br/><i>собрано, не встроено</i>"]
     pg[("PostgreSQL HA<br/>векторы <b>и граф</b><br/>ADR-0027 · ADR-0028")]
     rr["Сервис ранжирования<br/>bge-reranker-v2-m3 на GPU"]
-    vllm["vLLM · MoE в AWQ"]
+    vllm["vLLM · dense 27B в AWQ-INT4"]
   end
   npm --> api --> gw --> sup -.-> ret
   gw --> vllm
@@ -166,7 +166,7 @@ flowchart TB
       pods["Шлюз · консоль · чат<br/>реплики, выкат без простоя"]
     end
     subgraph gpu["GPU-бокс — Data Plane"]
-      vllm["vLLM <b>нативно, без контейнера</b><br/>4× V100 · tensor-parallel<br/>MoE в AWQ · <b>VRAM эксклюзивна</b>"]
+      vllm["vLLM <b>нативно, без контейнера</b><br/>4× V100 · tensor-parallel<br/>dense 27B в AWQ-INT4 · <b>VRAM эксклюзивна</b>"]
     end
     subgraph st["Состояние"]
       pgc[("PostgreSQL HA<br/>ключи · спенд · векторы · граф")]
