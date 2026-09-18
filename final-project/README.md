@@ -90,7 +90,7 @@
 | **Нагрузочный отчёт** | [`docs/load-report.md`](docs/load-report.md) — без генерации узкое место реранк (76 %), с боевой моделью генерация 68 % / реранк 30 %, граф 0,3 % |
 | **Граф на боевом корпусе НПА** | [`docs/npa-graph-report.md`](docs/npa-graph-report.md) — 25 кодексов, 7 284 статьи, 2 845 рёбер; обход 6–8 мс; найден и исправлен дефект, невидимый на демо (492 → 6,4 мс за хоп) |
 | **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0, faithfulness 0,923 на боевой модели |
-| **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 11 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 39 слайдов, резерв на вопросы |
+| **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 12 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 51 слайд, резерв на вопросы |
 | Код компонентов | [`backend/`](backend/) — 108 тестов |
 | **Своя модель** | `ArtCloud/Zubr1.5-VL-32B` — QLoRA на праве РБ; [Model Card и тест на memorization](../30-ethical-ai-governance/artifacts/) |
 | Развёртывание компонентов | [`infra/`](infra/) — compose, профили `core` и `obs` |
@@ -131,11 +131,11 @@
 - **Демонстрация** — вживую по презентации: граф в браузере Neo4j, трейс по `request_id`, дашборд, потоковый ответ.
 - **Видео-демо** (требование ТЗ, 5–7 минут) — **терминальная часть записана и раскрывает все возможности через API работающего сервиса**, а не набором CLI-вызовов: скрипт поднимает `uvicorn`, дожидается `/healthz` и дальше показывает граф, контрольный замер без графа, критерий «пользователь B» на двух ролях, SSE-стриминг, штат агентов, мультиагентный маршрут с бюджетом, OpenAI-совместимость и прогон тестов. Собирается одной командой из [`docs/demo/demo.sh`](docs/demo/demo.sh) через asciinema и [`cast2mp4.py`](docs/demo/cast2mp4.py) — офлайн, без GPU; mp4 в git не хранится, пересобирается из [`docs/demo/demo.cast`](docs/demo/demo.cast). **Осталось доснять с экрана** граф в браузере Neo4j, трейс в Jaeger и дашборд — раскадровка: [`docs/demo-video-script.md`](docs/demo-video-script.md).
 - **Нагрузочный отчёт** — [`docs/load-report.md`](docs/load-report.md), методика по [ДЗ-24](../24-high-load-low-latency/Zubik_DZ-24_highload-realtime.md).
-- **Презентация** — защита идёт по [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) (11 слайдов, дословный сценарий с хронометражем в [`docs/presentation-5min.md`](docs/presentation-5min.md)); полная [`docs/presentation.pdf`](docs/presentation.pdf) остаётся резервом на вопросы. Структура — по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf).
+- **Презентация** — защита идёт по [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) (12 слайдов, дословный сценарий с хронометражем в [`docs/presentation-5min.md`](docs/presentation-5min.md)); полная [`docs/presentation.pdf`](docs/presentation.pdf) остаётся резервом на вопросы. Структура — по [шаблону OTUS](sessions/artifacts/otus-shablon-prezentacii-zashchity.pdf).
 
 ## Открытые вопросы
 
-- [ ] Дедлайн сдачи и дата защиты в ЛК не проставлены.
+- [x] **Защита — 25 сентября 2026, пятница, 20:00** (занятие 34, 90 минут на группу, Андрей Носов). Регламент выступления — 5 минут.
 - [ ] Веса блоков 2 и 3 в общей оценке.
 - [ ] Достаточно ли `docker-compose` вместо Helm в `/infra`.
 - [ ] Глубина GraphRAG: гибрид «граф + вектор» vs community detection.
