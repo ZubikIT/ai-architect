@@ -45,6 +45,7 @@ credentials
 # 5,6 МБ. Комиссия должна получить его вместе с репозиторием, а не собирать
 # из .cast. Широкая версия; 64-колоночная идёт на витрину как .cast.
 !final-project/docs/demo/demo.mp4
+!final-project/docs/demo/demo-obs.mp4
 *.mov
 *.avi
 *.zip
