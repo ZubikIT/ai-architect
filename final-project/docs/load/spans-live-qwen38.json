@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-25",
+  "model": "qwen3.8-27b",
+  "rerank": "cross-encoder/ms-marco-MiniLM-L-6-v2 (local CPU)",
+  "method": "12 последовательных POST /ask без конкуренции, спаны OpenTelemetry из Jaeger, медиана по трассе",
+  "spans_median_ms": {
+    "ask": 3468.1,
+    "llm.generate": 1932.6,
+    "retrieve": 1533.9,
+    "retrieve.hybrid": 1520.6,
+    "retrieve.rerank": 1423.2,
+    "retrieve.embed": 80.3,
+    "graph.expand": 7.8,
+    "retrieve.dense": 5.6,
+    "graph.annotate": 4.4,
+    "retrieve.bm25": 0.4,
+    "guardrail.output": 0.3,
+    "guardrail.input": 0.0
+  },
+  "n": 12
+}

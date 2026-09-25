@@ -90,7 +90,7 @@
 | **Нагрузочный отчёт** | [`docs/load-report.md`](docs/load-report.md) — без генерации узкое место реранк (76 %), с боевой моделью генерация 68 % / реранк 30 %, граф 0,3 % |
 | **Граф на боевом корпусе НПА** | [`docs/npa-graph-report.md`](docs/npa-graph-report.md) — 25 кодексов, 7 284 статьи, 2 845 рёбер; обход 6–8 мс; найден и исправлен дефект, невидимый на демо (492 → 6,4 мс за хоп) |
 | **Golden set и гейты** | [`docs/eval-report.md`](docs/eval-report.md) — recall 1,0, нарушений ACL 0, faithfulness 0,923 на боевой модели |
-| **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 12 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 51 слайд, резерв на вопросы |
+| **Презентация защиты** | [`docs/presentation-5min.pdf`](docs/presentation-5min.pdf) — регламент 5 минут, 12 слайдов · [`docs/presentation.pdf`](docs/presentation.pdf) — полная дека, 52 слайда, резерв на вопросы |
 | Код компонентов | [`backend/`](backend/) — 108 тестов |
 | **Своя модель** | `ArtCloud/Zubr1.5-VL-32B` — QLoRA на праве РБ; [Model Card и тест на memorization](../30-ethical-ai-governance/artifacts/) |
 | Развёртывание компонентов | [`infra/`](infra/) — compose, профили `core` и `obs` |

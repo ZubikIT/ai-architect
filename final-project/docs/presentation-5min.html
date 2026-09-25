@@ -282,25 +282,32 @@ id="мультиагентный-слой-state-machine-и-честный-зам
 <table>
 <thead>
 <tr>
-<th>Шаг ответа</th>
-<th style="text-align: right;">Доля</th>
+<th>Шаг ответа <code>ask</code></th>
+<th style="text-align: right;">Qwen3.6 · 12.09</th>
+<th style="text-align: right;"><strong>Qwen3.8 · 25.09</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Генерация · своя модель</td>
-<td style="text-align: right;">68 %</td>
+<td style="text-align: right;">1 611 мс</td>
+<td style="text-align: right;"><strong>1 933 мс (+20 %)</strong></td>
 </tr>
 <tr>
-<td>Реранк</td>
-<td style="text-align: right;">30 %</td>
+<td>Реранк (CPU стенда)</td>
+<td style="text-align: right;">708 мс</td>
+<td style="text-align: right;">1 423 мс</td>
 </tr>
 <tr>
 <td><strong>Обход графа</strong></td>
-<td style="text-align: right;"><strong>0,3 %</strong></td>
+<td style="text-align: right;">5,5 мс</td>
+<td style="text-align: right;"><strong>12 мс · 0,35 %</strong></td>
 </tr>
 </tbody>
 </table>
+<p><strong>Смена модели — +322 мс на ответ:</strong> плотная 27B быстрее
+печатает, но дольше до первого токена (1,31 с против 0,59), а у RAG
+длинный промпт и короткий ответ.</p>
 <p><strong>Реранк отдан сервису платформы</strong> (ADR-0027):
 <code>ask</code> на 8 клиентах — <strong>1,79 → 11,03 RPS</strong>, 4
 369 → 719 мс. Главное не ×6, а характер насыщения: было +36 % на
