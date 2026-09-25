@@ -141,38 +141,38 @@ id="мультиагентная-платформа-цифровых-корпо�
 <col style="width: 50%" />
 </colgroup>
 <thead>
-<tr class="header">
+<tr>
 <th>Критерий ТЗ</th>
 <th>Статус</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Облачные API не используются</td>
 <td>✅ граница контура — правами ключа, до вызова</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Диаграммы Deployment и Data Flow</td>
 <td>✅ обе — следующие слайды</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>Реализация GraphRAG</strong> (не просто вектор)</td>
 <td>✅ + контрольный замер без графа</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>«Пользователь B» не получает закрытый документ</strong></td>
 <td>✅ проверяется <strong>контекст модели</strong>, не текст
 ответа</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>Control Plane / Data Plane</strong></td>
 <td>✅ в диаграммах и в коде</td>
 </tr>
-<tr class="even">
+<tr>
 <td><strong>State machine, а не линейные скрипты</strong></td>
 <td>✅ цикл, ветвление, лимиты, checkpointer</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Streaming · тесты на промпты</td>
 <td>✅ SSE · golden set с гейтами</td>
 </tr>
@@ -255,21 +255,21 @@ id="мультиагентный-слой-state-machine-и-честный-зам
 пересечение считается в инструменте, а не в промпте.</p>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>ADR-0015 требовал измерить</th>
 <th>Результат</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Точность маршрутизации</td>
 <td><strong>13 / 13</strong></td>
 </tr>
-<tr class="even">
+<tr>
 <td>Прирост качества против монолита</td>
 <td><strong>нет</strong> (recall 1,0 = 1,0)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Стоимость</td>
 <td><strong>×3,7</strong> латентности</td>
 </tr>
@@ -281,21 +281,21 @@ id="мультиагентный-слой-state-machine-и-честный-зам
 деньги</h2>
 <table>
 <thead>
-<tr class="header">
+<tr>
 <th>Шаг ответа</th>
 <th style="text-align: right;">Доля</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Генерация · своя модель</td>
 <td style="text-align: right;">68 %</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Реранк</td>
 <td style="text-align: right;">30 %</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><strong>Обход графа</strong></td>
 <td style="text-align: right;"><strong>0,3 %</strong></td>
 </tr>
@@ -307,9 +307,10 @@ id="мультиагентный-слой-state-machine-и-честный-зам
 восьмикратном росте клиентов, стало +107 %.</p>
 <p>Железо <strong>арендовано</strong> — 1 200 BYN/мес, всё включено.
 <strong>TCO ≈ $29,4k / 3 года</strong>, три четверти — ФОТ. Порог
-окупаемости против вендора — <strong>31 % утилизации</strong>.</p>
+окупаемости против вендора — <strong>~70 % утилизации</strong> (Qwen3.8,
+потолок 24 запроса; до смены модели — 31 %).</p>
 <p><strong>Утилизация измерена за 30 дней: 0,9 %.</strong> Фактическая
-цена 1M выходных токенов — <strong>$142</strong>, а не $0,61. На этом
+цена 1M выходных токенов — <strong>$142</strong>, а не $1,41. На этом
 трафике контур не окупается по цене токена: покупается юрисдикция.</p>
 </section>
 <section class="slide">
