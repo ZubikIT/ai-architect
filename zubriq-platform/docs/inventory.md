@@ -17,13 +17,13 @@
 
 | Сервис | Адрес | Где | Примечание |
 |---|---|---|---|
-| vLLM (текст) | `10.100.1.200:80` | LXC 100 «llama», pve4 | `Qwen3.6-35B-A3B-AWQ`, TP=4, `--max-model-len 65536`, systemd `vllm.service`, веса из MinIO (бакет `models`) |
-| vLLM (VL) | `10.100.1.200:8001` | там же | `qwen3-vl-4b`, `vllm-vl.service` |
-| llama.cpp (пилот) | `10.100.1.200:8080` | там же | `Qwen3-Coder-Next-80B-A3B`, алиас LiteLLM `zubr-coder`; юнит объявляет `Conflicts=vllm.service` — VRAM эксклюзивна |
+| vLLM (текст + зрение) | `10.100.1.200:80` | LXC 100 «llama», pve4 | `Qwen3.8-27B-AWQ-INT4` (с 18.09.2026), TP=4, `--max-model-len 262144`, served names `zubr` · `zubr-2` · `qwen3.8-27b`, systemd `vllm.service` (форк `1cat-vllm`), веса из MinIO (бакет `models`); откат — `Qwen3.6-35B-A3B-AWQ` там же |
+| infinity (эмбеддинги) | `10.100.1.200:7997` | там же | bge-m3 + bge-reranker-v2-m3, с 25.09.2026 на CPU — GPU отдана основной модели |
+| ~~VL / llama.cpp-пилот~~ | ~~`:8001`, `:8080`~~ | там же | погашены: зрение отдаёт основная модель, `zubr-coder` с 25.08.2026 обслуживается снаружи; юниты `inactive disabled`, пилот объявляет `Conflicts=vllm.service` |
 | LiteLLM (прод) | кластер Talos, за ingress `10.100.1.91` | ns из `devops/argocd/talos/apps/litellm` | публичные имена `llm.acl.by`, `api.zubriq.by` |
 | LiteLLM (откат) | `10.100.1.201:4000` | LXC 101, pve4 | оставлен живым; та же БД Pigsty, состояния нет |
 
-Секреты шлюза: `secret/litellm` (master key), `secret/mistral`, `secret/openrouter`. Каталог моделей и цен — `devops/argocd/talos/apps/litellm` (прод) и `devops/opentofu/prices.tf` (`local.model_prices`) для биллинга.
+Секреты шлюза: `secret/litellm` (master key), `secret/mistral`, `secret/openrouter`. Каталог моделей и резервов — с 24.09.2026 **в базе LiteLLM** (свои маршруты помечены `model_info.zubriq_manual=true`), в `devops/argocd/talos/apps/litellm` остались кеш, колбэки и ключи; цены для биллинга — `devops/opentofu/prices.tf` (`local.model_prices`).
 
 ## Продукты ZubrIQ
 
