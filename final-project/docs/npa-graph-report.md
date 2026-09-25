@@ -134,7 +134,8 @@ status: final
 cd final-project/backend
 export VAULT_ADDR=https://vault.acl.by                      # учётка kb-graph, read-only
 export SP=/tmp/npa && mkdir -p $SP/corpus                   # каталог для выгрузки
-# корпус: bucket zubriq-legal-corpus, файлы <slug>_articles.jsonl
+# корпус: bucket zubriq-legal-corpus, файлы <slug>_articles.jsonl — SeaweedFS
+# (https://s3-seaweed.talos.acl.by), ключ kb-graph: secret/zubriq/kb-graph/prod
 python -m tools.npa_graph --report                          # структура графа
 python -m tools.npa_graph --pg "postgresql://…"             # + замер обхода
 ```

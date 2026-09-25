@@ -13,8 +13,9 @@
 
     SP=<каталог с *_articles.jsonl> python -m tools.npa_graph --report
 
-Корпус тянется из MinIO (`zubriq-legal-corpus`) учёткой kb-graph из Vault
-`secret/minio/kb-graph`, либо берётся из уже скачанного каталога.
+Корпус тянется из S3 (`zubriq-legal-corpus`, SeaweedFS с 25.09.2026) учёткой
+kb-graph (только чтение) из Vault `secret/zubriq/kb-graph/prod`, либо берётся
+из уже скачанного каталога.
 """
 import argparse
 import json
