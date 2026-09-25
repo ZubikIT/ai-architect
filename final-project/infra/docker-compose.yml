@@ -76,6 +76,12 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-not-needed}
       SUFLER_LLM_MODEL: ${SUFLER_LLM_MODEL:-qwen3.8-27b}
       SUFLER_USE_LLM: ${SUFLER_USE_LLM:-1}
+      # Реранк сервисом платформы (ADR-0027). Пусто → локальный cross-encoder
+      # (офлайн-демо). До 25.09.2026 compose эти переменные не прокидывал вовсе,
+      # и стенд молча работал на локальной модели.
+      SUFLER_RERANK_URL: ${SUFLER_RERANK_URL:-}
+      SUFLER_RERANK_API_KEY: ${SUFLER_RERANK_API_KEY:-}
+      SUFLER_RERANK_MODEL_REMOTE: ${SUFLER_RERANK_MODEL_REMOTE:-BAAI/bge-reranker-v2-m3}
       QDRANT_URL: http://qdrant:6333
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j

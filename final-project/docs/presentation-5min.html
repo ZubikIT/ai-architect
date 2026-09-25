@@ -321,6 +321,76 @@ id="мультиагентный-слой-state-machine-и-честный-зам
 трафике контур не окупается по цене токена: покупается юрисдикция.</p>
 </section>
 <section class="slide">
+<h2 id="своя-модель-в-проде-цифры-и-рычаги">Своя модель в проде: цифры и
+рычаги</h2>
+<p>Реальный трафик ZubrIQ, Qwen3.8, 21–25.09 — метрики vLLM и шлюза, без
+синтетики.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: right;">Первый токен</th>
+<th style="text-align: right;">Вызов модели</th>
+<th style="text-align: right;">Генерация</th>
+<th style="text-align: right;">Кеш шлюза (чат)</th>
+<th style="text-align: right;">Prefix-кеш</th>
+<th style="text-align: right;">Шлюз</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;"><strong>1,6 с</strong> · p95 9 с</td>
+<td style="text-align: right;"><strong>2,3 с</strong></td>
+<td style="text-align: right;">29 ток/с</td>
+<td style="text-align: right;"><strong>87 %</strong> без GPU</td>
+<td style="text-align: right;"><strong>90 %</strong></td>
+<td style="text-align: right;">3 мс</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Кто грузит модель:</strong> сканер Shield — 57 % вызовов и
+~60 % времени модели; чат из-за кеша — лишь 733 вызова из 5 655
+запросов. У чата хвост первого токена <strong>18 с</strong> при медиане
+1,5.</p>
+<table>
+<thead>
+<tr>
+<th>Рычаг</th>
+<th>Эффект</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Приоритет чату над Shield в vLLM</td>
+<td>хвост первого токена у людей</td>
+</tr>
+<tr>
+<td>Shield — вне пиков</td>
+<td>до −60 % времени модели в часы людей</td>
+</tr>
+<tr>
+<td>Короче контекст RAG</td>
+<td>prefill у Qwen3.8 на 16 % медленнее</td>
+</tr>
+<tr>
+<td><del><code>max-num-seqs</code> 24 → 96</del></td>
+<td>в работе максимум 8 — не рычаг</td>
+</tr>
+<tr>
+<td><del>Реранк на сервис</del></td>
+<td>сервис теперь на CPU: 1,4 → 3,8 с</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section class="slide">
 <h2 id="итог">Итог</h2>
 <pre><code>108 тестов · 28 ADR · 9 диаграмм · 6 отчётов с цифрами · 3 518 строк кода</code></pre>
 <p><strong>Своя дообученная модель</strong> <code>Zubr-VL-32B</code>

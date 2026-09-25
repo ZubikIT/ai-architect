@@ -1,0 +1,391 @@
+{
+  "source": "http://127.0.0.1:18429",
+  "start": "2026-09-21T09:00:00Z",
+  "end": "2026-09-25T18:00:00Z",
+  "collected_at": "2026-09-25T20:02:44+00:00",
+  "by_provider": {
+    "openai": {
+      "total_s": {
+        "count": 7918,
+        "mean": 1.891,
+        "p50": 0.045,
+        "p95": 15.868
+      },
+      "llm_api_s": {
+        "count": 2991,
+        "mean": 4.908,
+        "p50": 2.357,
+        "p95": 25.102
+      },
+      "ttft_s": {
+        "count": 709,
+        "mean": 2.643,
+        "p50": 1.636,
+        "p95": 9.381
+      },
+      "overhead_s": {
+        "count": 7209,
+        "mean": 0.003,
+        "p50": 0.003,
+        "p95": 0.009
+      },
+      "input_tokens": 38289540,
+      "output_tokens": 302107,
+      "reasoning_tokens": 0,
+      "cache_hits": 4927
+    },
+    "openrouter": {
+      "total_s": {
+        "count": 5147,
+        "mean": 8.304,
+        "p50": 5.478,
+        "p95": 28.827
+      },
+      "llm_api_s": {
+        "count": 5023,
+        "mean": 8.419,
+        "p50": 5.574,
+        "p95": 28.797
+      },
+      "ttft_s": {
+        "count": 4721,
+        "mean": 4.69,
+        "p50": 3.486,
+        "p95": 20.39
+      },
+      "overhead_s": {
+        "count": 369,
+        "mean": 0.01,
+        "p50": 0.008,
+        "p95": 0.024
+      },
+      "input_tokens": 138335010,
+      "output_tokens": 998819,
+      "reasoning_tokens": 292161,
+      "cache_hits": 125
+    },
+    "mistral": {
+      "total_s": {
+        "count": 1,
+        "mean": 0.356,
+        "p50": 0.375,
+        "p95": 0.487
+      },
+      "llm_api_s": {
+        "count": 1,
+        "mean": 0.344,
+        "p50": 0.375,
+        "p95": 0.487
+      },
+      "overhead_s": {
+        "count": 1,
+        "mean": 0.006,
+        "p50": 0.007,
+        "p95": 0.01
+      },
+      "input_tokens": 0,
+      "output_tokens": 2
+    }
+  },
+  "own_contour_by_model": {
+    "zubr": {
+      "total_s": {
+        "count": 7895,
+        "mean": 1.87,
+        "p50": 0.044,
+        "p95": 15.702
+      },
+      "llm_api_s": {
+        "count": 2970,
+        "mean": 4.873,
+        "p50": 2.348,
+        "p95": 25.019
+      },
+      "ttft_s": {
+        "count": 699,
+        "mean": 2.663,
+        "p50": 1.633,
+        "p95": 9.076
+      },
+      "input_tokens": 38133385,
+      "output_tokens": 295645
+    },
+    "zubr-vision": {
+      "total_s": {
+        "count": 16,
+        "mean": 12.547,
+        "p50": 4.0,
+        "p95": 72.0
+      },
+      "llm_api_s": {
+        "count": 16,
+        "mean": 12.499,
+        "p50": 4.0,
+        "p95": 72.0
+      },
+      "ttft_s": {
+        "count": 10,
+        "mean": 1.288,
+        "p50": 3.5,
+        "p95": 26.667
+      },
+      "input_tokens": 156155,
+      "output_tokens": 6460
+    },
+    "qwen3.6-35b": {
+      "total_s": {
+        "count": 1,
+        "mean": 0.418,
+        "p50": 0.375,
+        "p95": 0.487
+      },
+      "llm_api_s": {
+        "count": 1,
+        "mean": 0.405,
+        "p50": 0.375,
+        "p95": 0.487
+      },
+      "input_tokens": 0,
+      "output_tokens": 2
+    }
+  },
+  "own_contour_by_key": {
+    "zubriq-chat": {
+      "total_s": {
+        "count": 5655,
+        "mean": 0.335,
+        "p50": 0.036,
+        "p95": 0.494
+      },
+      "llm_api_s": {
+        "count": 733,
+        "mean": 2.332,
+        "p50": 0.428,
+        "p95": 14.282
+      },
+      "ttft_s": {
+        "count": 205,
+        "mean": 3.796,
+        "p50": 1.466,
+        "p95": 18.214
+      },
+      "input_tokens": 4635441,
+      "output_tokens": 50123,
+      "cache_hits": 4922
+    },
+    "shield-admin": {
+      "total_s": {
+        "count": 1710,
+        "mean": 5.547,
+        "p50": 3.066,
+        "p95": 26.283
+      },
+      "llm_api_s": {
+        "count": 1707,
+        "mean": 5.54,
+        "p50": 2.99,
+        "p95": 26.281
+      },
+      "input_tokens": 1608091,
+      "output_tokens": 125885,
+      "cache_hits": 3
+    },
+    "sergei-zq-urf8io": {
+      "total_s": {
+        "count": 535,
+        "mean": 6.683,
+        "p50": 4.054,
+        "p95": 22.031
+      },
+      "llm_api_s": {
+        "count": 535,
+        "mean": 6.546,
+        "p50": 3.964,
+        "p95": 21.774
+      },
+      "ttft_s": {
+        "count": 504,
+        "mean": 2.174,
+        "p50": 1.661,
+        "p95": 4.971
+      },
+      "input_tokens": 32045111,
+      "output_tokens": 126058
+    },
+    "zubriq-stage": {
+      "total_s": {
+        "count": 8,
+        "mean": 0.446,
+        "p50": 0.417,
+        "p95": 0.9
+      },
+      "llm_api_s": {
+        "count": 8,
+        "mean": 0.423,
+        "p50": 0.375,
+        "p95": 0.8
+      },
+      "input_tokens": 897,
+      "output_tokens": 30
+    },
+    "None": {
+      "total_s": {
+        "count": 3,
+        "mean": 0.419,
+        "p50": 0.375,
+        "p95": 0.487
+      },
+      "llm_api_s": {
+        "count": 3,
+        "mean": 0.401,
+        "p50": 0.375,
+        "p95": 0.487
+      },
+      "input_tokens": 0,
+      "output_tokens": 6
+    },
+    "zubrr": {
+      "total_s": {
+        "count": 1,
+        "mean": 0.482,
+        "p50": 0.375,
+        "p95": 0.487
+      },
+      "llm_api_s": {
+        "count": 1,
+        "mean": 0.451,
+        "p50": 0.375,
+        "p95": 0.487
+      },
+      "input_tokens": 0,
+      "output_tokens": 5
+    }
+  },
+  "cloud_top_models": {
+    "zubr-coder": {
+      "total_s": {
+        "count": 2830,
+        "mean": 11.434,
+        "p50": 8.052,
+        "p95": 37.948
+      },
+      "llm_api_s": {
+        "count": 2764,
+        "mean": 11.588,
+        "p50": 8.148,
+        "p95": 37.628
+      },
+      "ttft_s": {
+        "count": 2622,
+        "mean": 6.673,
+        "p50": 6.069,
+        "p95": 24.624
+      },
+      "input_tokens": 125437073,
+      "output_tokens": 783920,
+      "reasoning_tokens": 273304
+    },
+    "openrouter/deepseek/deepseek-v4-flash-0731": {
+      "total_s": {
+        "count": 2105,
+        "mean": 4.631,
+        "p50": 3.66,
+        "p95": 9.998
+      },
+      "llm_api_s": {
+        "count": 2095,
+        "mean": 4.615,
+        "p50": 3.632,
+        "p95": 9.983
+      },
+      "ttft_s": {
+        "count": 2048,
+        "mean": 2.158,
+        "p50": 1.686,
+        "p95": 4.898
+      },
+      "input_tokens": 12324338,
+      "output_tokens": 189032,
+      "reasoning_tokens": 18385
+    },
+    "openrouter/google/gemini-3.8-flash": {
+      "total_s": {
+        "count": 41,
+        "mean": 5.128,
+        "p50": 3.75,
+        "p95": 27.0
+      },
+      "llm_api_s": {
+        "count": 37,
+        "mean": 5.572,
+        "p50": 3.969,
+        "p95": 27.571
+      },
+      "ttft_s": {
+        "count": 31,
+        "mean": 4.222,
+        "p50": 2.409,
+        "p95": 22.25
+      },
+      "input_tokens": 253405,
+      "output_tokens": 16465,
+      "reasoning_tokens": 213
+    },
+    "openrouter/anthropic/claude-opus-5": {
+      "total_s": {
+        "count": 19,
+        "mean": 3.006,
+        "p50": 3.375,
+        "p95": 8.417
+      },
+      "llm_api_s": {
+        "count": 16,
+        "mean": 3.511,
+        "p50": 3.75,
+        "p95": 8.667
+      },
+      "input_tokens": 5195,
+      "output_tokens": 805,
+      "reasoning_tokens": 189
+    },
+    "openrouter/google/gemini-3.7-flash": {
+      "total_s": {
+        "count": 13,
+        "mean": 1.518,
+        "p50": 1.583,
+        "p95": 4.512
+      },
+      "llm_api_s": {
+        "count": 10,
+        "mean": 1.934,
+        "p50": 1.833,
+        "p95": 4.625
+      },
+      "ttft_s": {
+        "count": 4,
+        "mean": 1.624,
+        "p50": 1.667,
+        "p95": 4.4
+      },
+      "input_tokens": 16214,
+      "output_tokens": 257,
+      "reasoning_tokens": 0
+    },
+    "openrouter/mistralai/mistral-small-3.2-24b-instruct": {
+      "total_s": {
+        "count": 13,
+        "mean": 0.181,
+        "p50": 0.009,
+        "p95": 1.35
+      },
+      "llm_api_s": {
+        "count": 2,
+        "mean": 1.102,
+        "p50": 1.0,
+        "p95": 1.9
+      },
+      "input_tokens": 0,
+      "output_tokens": 2
+    }
+  }
+}

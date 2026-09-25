@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-25",
+  "model": "qwen3.8-27b",
+  "rerank": "BAAI/bge-reranker-v2-m3 (сервис платформы, Infinity на CPU с 25.09.2026)",
+  "image": "backend пересобран 25.09 из 997e77b",
+  "method": "12 последовательных POST /ask без конкуренции, спаны из Jaeger, медиана",
+  "spans_median_ms": {
+    "ask": 6326.0,
+    "retrieve": 4150.4,
+    "retrieve.hybrid": 3902.3,
+    "retrieve.rerank": 3828.9,
+    "llm.generate": 2188.9,
+    "retrieve.embed": 119.9,
+    "graph.expand": 22.6,
+    "graph.annotate": 11.9,
+    "retrieve.dense": 8.3,
+    "retrieve.bm25": 0.5,
+    "guardrail.output": 0.3,
+    "guardrail.input": 0.0
+  },
+  "n": 12
+}

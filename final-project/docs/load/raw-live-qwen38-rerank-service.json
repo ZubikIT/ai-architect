@@ -1,0 +1,75 @@
+{
+  "base_url": "http://localhost:8080",
+  "duration": 45.0,
+  "warmup": 8.0,
+  "results": [
+    {
+      "scenario": "ask",
+      "concurrency": 1,
+      "wall_seconds": 50.34,
+      "requests": 8,
+      "ok": 8,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.16,
+      "latency_ms": {
+        "mean": 6292.9,
+        "p50": 6118.8,
+        "p95": 6790.7,
+        "p99": 6790.7,
+        "max": 6790.7
+      }
+    },
+    {
+      "scenario": "ask",
+      "concurrency": 2,
+      "wall_seconds": 48.44,
+      "requests": 10,
+      "ok": 10,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.21,
+      "latency_ms": {
+        "mean": 9686.3,
+        "p50": 10117.7,
+        "p95": 10357.3,
+        "p99": 10357.3,
+        "max": 10357.3
+      }
+    },
+    {
+      "scenario": "agents",
+      "concurrency": 1,
+      "wall_seconds": 64.05,
+      "requests": 3,
+      "ok": 3,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.05,
+      "latency_ms": {
+        "mean": 21348.5,
+        "p50": 21562.3,
+        "p95": 21638.9,
+        "p99": 21638.9,
+        "max": 21638.9
+      }
+    },
+    {
+      "scenario": "agents",
+      "concurrency": 2,
+      "wall_seconds": 51.73,
+      "requests": 4,
+      "ok": 4,
+      "errors": {},
+      "error_rate": 0.0,
+      "rps": 0.08,
+      "latency_ms": {
+        "mean": 25858.8,
+        "p50": 24455.5,
+        "p95": 28924.4,
+        "p99": 28924.4,
+        "max": 28924.4
+      }
+    }
+  ]
+}
